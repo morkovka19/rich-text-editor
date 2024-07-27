@@ -1,0 +1,6 @@
+package-lock.json
+.husky/*
+bun.lockb
+.gitignore
+.styleignore
+docs

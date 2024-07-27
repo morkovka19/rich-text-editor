@@ -1,0 +1,14 @@
+{
+
+    "figmaToken": "",
+
+    "figmaId": "",
+
+    "iconsDir": "src/icons/tokens",
+
+    "page": "Tokens",
+
+    "tokensDir": "public",
+
+    "scssDir": "src/styles/tokens"
+}

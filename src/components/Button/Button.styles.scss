@@ -1,0 +1,10 @@
+@import '../../styles/index.scss';
+
+.button {
+    background-color: $cl-brand;
+    color: $cl-error;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
