@@ -1,6 +1,6 @@
 import type { Meta } from '@storybook/react';
 
-import { Container, IContainerProps } from '../components/RichTextEditor/controls/Container';
+import { Container, IContainerProps } from '.';
 
 const meta: Meta<typeof Container> = {
     component: Container,

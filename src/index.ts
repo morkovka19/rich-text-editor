@@ -1,1 +1,1 @@
-export { Container } from './components/RichTextEditor/controls/Container';
+export { Container } from './controls/Container';

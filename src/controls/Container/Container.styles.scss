@@ -1,4 +1,5 @@
-@import '../../../../styles/index.scss';
+@import 'src/styles/tokens/variables.scss';
+@import 'src/styles/tokens/functions.scss';
 
 .container {
     max-width: gs(100);
@@ -6,6 +7,5 @@
     min-height: gs(40);
     border-radius: gs(2);
     border: 1px solid $cl-error;
-
     box-shadow: $shadow-big;
 }
