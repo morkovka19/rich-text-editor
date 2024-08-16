@@ -27,7 +27,6 @@ export default defineConfig({
             ),
             output: {
                 assetFileNames: assetInfo => {
-                    console.log(assetInfo);
                     if (assetInfo.name) {
                         let extType = assetInfo.name.split('.').at(1);
                         if (extType) {

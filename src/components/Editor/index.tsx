@@ -1,60 +1,32 @@
-import { FC, useEffect, useRef } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 
-import { useCommands } from '../../context/CommandsContext/CommandsContext';
-import { useEditor } from '../../context/EditorContext/EditorContext';
-import { useListeners } from '../../context/EventListenersContext/EventListenersContext';
+import { useEditorCommand } from '../../context/EditorCommandContext';
+import { useEditor } from '../../context/EditorContext';
 import { Container } from '../../controls/Container';
 import ContentEditableBlock from '../ContentEditableBlock';
-import { ILexicalNode } from '../nodes/LexicalNode.types';
-import { IEditor } from './Editir.types';
+import { Topbar } from '../Topbar';
 import './Editor.styles.scss';
+import { IEditor } from './Editor.types';
+import { addRoot } from './helpers/addRoot';
 
-const Editor: FC<IEditor> = ({ initialText, isEditable = true }) => {
-    const editorRef = useRef<HTMLDivElement>(null);
-    const { executeCommand } = useCommands();
-    const { state, addNode, removeNode } = useEditor();
-    const { addEventListener, removeEventListener } = useListeners();
+const Editor: FC<IEditor> = ({ initialText, isEditable = true, editorRef }) => {
+    const { state } = useEditor();
+    const { addDivRoot, addParagraph } = useEditorCommand();
+
+    const addInitialRoot = useCallback(() => {
+        addRoot(state, addDivRoot, addParagraph);
+    }, [addDivRoot, addParagraph, state]);
 
     useEffect(() => {
         if (editorRef.current) {
-            const handleInput = (event: Event) => {
-                const target = event.target as HTMLDivElement;
-                if (target.isContentEditable) {
-                    executeCommand('input', target.innerText);
-                }
-            };
-
-            const handleKeyDown = (event: KeyboardEvent) => {
-                if (event.key === 'Enter') {
-                    const node: ILexicalNode = {
-                        type: 'paragraph',
-                        key: `node-${Date.now()}`,
-                        prev: null,
-                        next: null,
-                        children: [],
-                        parent: null,
-                    };
-                    addNode(node);
-                } else if (event.key === 'Backspace') {
-                    const lastNodeKey = Array.from(state.nodeMap.keys()).pop();
-                    if (lastNodeKey) {
-                        removeNode(lastNodeKey);
-                    }
-                }
-            };
-
-            addEventListener('input', handleInput);
-            addEventListener('keydown', handleKeyDown);
-
-            return () => {
-                removeEventListener('input', handleInput);
-                removeEventListener('keydown', handleKeyDown);
-            };
+            editorRef.current.addEventListener('click', addInitialRoot, { once: true });
         }
-    }, [addEventListener, addNode, executeCommand, removeEventListener, removeNode, state.nodeMap]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <Container>
+            <Topbar isEditable={isEditable} />
             <ContentEditableBlock isEditable={isEditable} initialText={initialText} editorRef={editorRef} />
             <div dangerouslySetInnerHTML={{ __html: '' }} />
         </Container>
