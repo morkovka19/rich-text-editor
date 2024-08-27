@@ -1,6 +1,6 @@
 import { FC, useCallback } from 'react';
 
-import { useEditor } from '../../context/EditorContext';
+import { useEditor } from '../../context/hooks/useEditor';
 import './Topbar.styles.scss';
 import { ITopbar } from './Topbar.types';
 

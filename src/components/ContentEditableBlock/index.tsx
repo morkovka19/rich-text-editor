@@ -3,7 +3,11 @@ import { FC } from 'react';
 import './ContentEditableBlock.styles.scss';
 import { IEditableContentBlock } from './ContentEditableBlock.types';
 
-const ContentEditableBlock: FC<IEditableContentBlock> = ({ isEditable, editorRef }: IEditableContentBlock) => {
+const ContentEditableBlock: FC<IEditableContentBlock> = ({
+    isEditable,
+    editorRef,
+    children,
+}: IEditableContentBlock) => {
     return (
         <div
             id="editor"
@@ -11,7 +15,9 @@ const ContentEditableBlock: FC<IEditableContentBlock> = ({ isEditable, editorRef
             className="content-block"
             suppressContentEditableWarning={isEditable}
             ref={editorRef}
-        />
+        >
+            {children}
+        </div>
     );
 };
 
