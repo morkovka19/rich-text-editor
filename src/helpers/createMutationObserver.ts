@@ -7,9 +7,16 @@ export const createMutationObserver = (key: string) => {
         mutationList.forEach((mutation: MutationRecord) => {
             const targetNode = mutation.target.parentElement;
             switch (mutation.type) {
-                case 'characterData':
+                case 'characterData': {
                     (targetNode || node)?.dispatchEvent(createEvent('inputEditor', { bubbles: true }));
                     break;
+                }
+                case 'childList': {
+                    const newNode = mutation.addedNodes.item(0) as HTMLElement;
+                    if (newNode?.tagName && newNode.tagName === 'BR')
+                        node?.dispatchEvent(createEvent('keydownEnterEditor', { bubbles: true }));
+                    break;
+                }
             }
         });
     };

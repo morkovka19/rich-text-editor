@@ -21,6 +21,4 @@ export interface IEditorState {
     selection: IBaseSelection | null;
     flushSync: boolean;
     readOnly: boolean;
-    editor: React.RefObject<HTMLDivElement>;
-    lastUpdate?: ILastUpdate;
 }

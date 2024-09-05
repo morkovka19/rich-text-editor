@@ -2,18 +2,15 @@
 import { RefObject, createContext, useEffect } from 'react';
 import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { IEditorState, ILastUpdate } from '../../components/EditorState/EditorState.types';
+import { IEditorState } from '../../components/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/EditorState/getInitialState';
-import {
-    ContentNodeType,
-    LexicalNodeType,
-    NodeKeyType,
-    ParentNodeType,
-    RootNodeType,
-} from '../../components/nodes/Nodes.types';
-import { isContentNodeType, isParentContentNodeType, isRootNodeType } from '../../components/nodes/scripts';
-import { MAIN_DIV_ID } from '../../helpers/constants';
-import { createEvent } from '../../helpers/createEvent';
+import { ContentNodeType, LineBreakNodeType } from '../../components/nodes/Nodes.types';
+import { isContentNodeType, isRootNodeType } from '../../components/nodes/scripts';
+import { parentNodesTags } from '../../helpers/constants';
+import { generateKey } from '../../helpers/generateKey';
+import { initialScript } from '../../scripts/initialScript';
+import { useDOMState } from '../hooks/useDOMState';
+import { useEditorState } from '../hooks/useEditorState';
 import { IEditorContextProps } from './EditorContext.types';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
@@ -23,37 +20,17 @@ export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDiv
     editor,
 }) => {
     const [state, setState] = useState<IEditorState>({
-        nodeMap: new Map(),
+        nodeMap: new Map(createInitialNodeMap()),
         selection: null,
         flushSync: false,
         readOnly: false,
-        editor: editor,
-        lastUpdate: undefined,
     });
 
-    const setLastUpdate = useCallback(
-        (update: ILastUpdate) => {
-            state.lastUpdate = update;
-            state.editor.current?.dispatchEvent(createEvent('updateState'));
-        },
-        [state]
-    );
+    const { addNodeToState, updateNodeToState } = useEditorState();
+    const { updateContent, addDOMNode, setFocus } = useDOMState();
 
-    const addNode = useCallback((node: LexicalNodeType, parentKey?: NodeKeyType) => {
-        setState(prevState => {
-            const newMap = new Map(prevState.nodeMap);
-            newMap.set(node.key, node);
-            if (parentKey) {
-                const parentNode = newMap.get(parentKey);
-                if (parentNode && !isContentNodeType(parentNode)) {
-                    parentNode.children.push(node.key);
-                }
-            }
-            return {
-                ...prevState,
-                nodeMap: newMap,
-            };
-        });
+    useEffect(() => {
+        initialScript();
     }, []);
 
     const removeNode = useCallback((key: string) => {
@@ -74,148 +51,71 @@ export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDiv
         });
     }, []);
 
-    const getNode = useCallback((key: string) => state.nodeMap.get(key), [state.nodeMap]);
-
-    const getChildren = useCallback(
-        (elKey: string) => {
-            setState(prevState => {
-                const newMap = new Map(prevState.nodeMap);
-                return {
-                    ...prevState,
-                    nodeMap: newMap,
-                };
-            });
-            const parentNode = state.nodeMap.get(elKey);
-            if (parentNode && !isContentNodeType(parentNode)) {
-                return parentNode.children;
-            }
-            return [];
-        },
-        [state]
-    );
-
-    const updateNode = useCallback(
-        (key: string, updateNode: Partial<RootNodeType | ContentNodeType | ParentNodeType>) => {
-            setState(prevState => {
-                const newMap = new Map(prevState.nodeMap);
-                const node = newMap.get(key);
-                if (node) {
-                    if (isContentNodeType(node)) {
-                        newMap.set(key, { ...node, ...updateNode } as ContentNodeType);
-                    } else if (isParentContentNodeType(node)) {
-                        newMap.set(key, { ...node, ...updateNode } as ParentNodeType);
-                    } else if (isRootNodeType(node)) {
-                        newMap.set(key, { ...node, ...updateNode } as RootNodeType);
-                    }
-                }
-
-                return {
-                    ...prevState,
-                    nodeMap: newMap,
-                };
-            });
-        },
-        []
-    );
-
-    const handleClick = useCallback(
-        (e: Event) => {
-            const target = e.target as HTMLElement;
-            if (!state.nodeMap.get(MAIN_DIV_ID)) {
-                const newMap = new Map(createInitialNodeMap());
-                setState(prev => ({
-                    ...prev,
-                    nodeMap: newMap,
-                }));
-                target.dispatchEvent(createEvent('updateState', { bubbles: true }));
-            } else {
-                state.editor.current?.focus();
-            }
-        },
-        [setLastUpdate, state.editor, state.nodeMap]
-    );
-
-    const handleInputDiv = useCallback(
-        (target: HTMLDivElement) => {
-            const content = target.textContent || undefined;
-            const key = `node-${Date.now()}`;
-            const newNode: ContentNodeType = {
-                key,
-                parent: target.id,
-                content,
-                type: 'p',
-                prev: null,
-                next: null,
-            };
-            addNode(newNode, target.id);
-            setLastUpdate({
-                key: target.id,
-                child: newNode,
-                typeUpdate: 'addChildren',
-            });
-            target.dispatchEvent(createEvent('updateState', { bubbles: true }));
-        },
-        [addNode, setLastUpdate, state]
-    );
-
-    const handleInputP = useCallback(
-        (target: HTMLParagraphElement) => {
-            const content = target.textContent || '';
-            const updatedNode = state.nodeMap.get(target.id);
-            if (updatedNode) {
-                const newNode = {
-                    ...updatedNode,
-                    content,
-                };
-                updateNode(target.id, newNode);
-                setLastUpdate({
-                    key: target.id,
-                    typeUpdate: 'updateContent',
-                    newContent: target.textContent || undefined,
-                });
-            }
-            target.dispatchEvent(createEvent('updateState', { bubbles: true }));
-        },
-        [setLastUpdate, updateNode, state]
-    );
-
     const handleInput = useCallback(
         (e: Event) => {
             const target = e.target as HTMLElement;
-            switch (target.tagName) {
-                case 'DIV':
-                    handleInputDiv(target as HTMLDivElement);
-                    break;
-                case 'P':
-                    handleInputP(target as HTMLParagraphElement);
-                    break;
+            const content = target.textContent || '';
+            if (parentNodesTags.includes(target.tagName) && content !== '') {
+                const key = generateKey();
+                const node: ContentNodeType = {
+                    key,
+                    parent: target.id,
+                    content,
+                    type: 'p',
+                    prev: null,
+                    next: null,
+                };
+                updateContent(target.id, '');
+                setState(prev => addNodeToState(prev, node));
+                addDOMNode(node);
+                updateContent(key, content);
+            } else {
+                setState(prev => updateNodeToState(prev, target.id, content));
+                updateContent(target.id, content);
             }
         },
-        [handleInputDiv, state]
+        [state.nodeMap]
     );
 
-    useEffect(() => {
-        state.editor.current?.addEventListener('clickEditorEvent', handleClick);
-        return () => state.editor.current?.removeEventListener('clickEditorEvent', handleClick);
-    }, [handleClick, state.editor]);
+    const handleKeydown = useCallback((e: KeyboardEvent) => {
+        if (e.code === 'Enter') {
+            e.preventDefault();
+            const focusNode = window.getSelection()?.focusNode?.parentElement;
+            const parentFocusNode = focusNode?.parentElement;
+            if (parentFocusNode) {
+                const parentKey = parentFocusNode.id;
+                const key = generateKey();
+                const lineBreakNode: LineBreakNodeType = {
+                    prev: null,
+                    next: null,
+                    parent: parentKey,
+                    type: 'br',
+                    key,
+                };
+                setState(prev => addNodeToState(prev, lineBreakNode));
+                addDOMNode(lineBreakNode);
+                setFocus(parentKey);
+            }
+        }
+    }, []);
 
     useEffect(() => {
-        state.editor.current?.addEventListener('inputEditor', handleInput);
+        editor.current?.addEventListener('inputEditor', handleInput);
+        return () => editor.current?.removeEventListener('inputEditor', handleInput);
+    }, []);
 
-        return () => state.editor.current?.removeEventListener('inputEditor', handleInput);
-    }, [handleInput, state.editor]);
+    useEffect(() => {
+        editor.current?.addEventListener('keydown', handleKeydown, false);
+        return () => editor.current?.removeEventListener('keydown', handleKeydown);
+    });
 
     const editorContextValue: IEditorContextProps = useMemo(
         () => ({
             state,
             setState,
-            addNode,
             removeNode,
-            getNode,
-            getChildren,
-            updateNode,
         }),
-        [state, addNode, removeNode, getNode, getChildren, updateNode]
+        [state, removeNode]
     );
 
     return <EditorContext.Provider value={editorContextValue}>{children}</EditorContext.Provider>;

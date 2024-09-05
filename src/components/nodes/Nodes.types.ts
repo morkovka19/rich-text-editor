@@ -24,4 +24,9 @@ export type RootNodeType = Omit<ParentNodeType, 'parent'> & {
     type: 'div';
 };
 
+export type LineBreakNodeType = BaseNodeType & {
+    type: 'br';
+    parent: NodeKeyType;
+};
+
 export type LexicalNodeType = ContentNodeType | RootNodeType | ParentNodeType;
