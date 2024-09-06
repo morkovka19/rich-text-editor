@@ -1,11 +1,13 @@
-import { ContentNodeType, ParentNodeType, RootNodeType } from '../Nodes.types';
+import { ContentNodeType, LineBreakNodeType, ParentNodeType, RootNodeType } from '../Nodes.types';
 
-export const isContentNodeType = (node: RootNodeType | ParentNodeType | ContentNodeType): node is ContentNodeType =>
-    (node as ContentNodeType).content !== undefined;
+export const isContentNodeType = (
+    node: RootNodeType | ParentNodeType | ContentNodeType | LineBreakNodeType
+): node is ContentNodeType => (node as ContentNodeType).content !== undefined;
 
-export const isParentContentNodeType = (
-    node: RootNodeType | ParentNodeType | ContentNodeType | ContentNodeType[]
-): node is ParentNodeType => (node as ParentNodeType).parent !== undefined;
+export const isLineBreakNodeType = (
+    node: RootNodeType | ParentNodeType | ContentNodeType | LineBreakNodeType
+): node is LineBreakNodeType => (node as LineBreakNodeType).type === 'br';
 
-export const isRootNodeType = (node: ParentNodeType | ContentNodeType | RootNodeType): node is RootNodeType =>
-    (node as RootNodeType).key === 'root';
+export const isRootNodeType = (
+    node: ParentNodeType | ContentNodeType | RootNodeType | LineBreakNodeType
+): node is RootNodeType => (node as RootNodeType).key === 'root-div';

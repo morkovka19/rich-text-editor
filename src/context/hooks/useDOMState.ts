@@ -1,13 +1,17 @@
 import { useCallback } from 'react';
 
 import { LexicalNodeType, NodeKeyType } from '../../components/nodes/Nodes.types';
-import { isRootNodeType } from '../../components/nodes/scripts';
+import { isContentNodeType, isRootNodeType } from '../../components/nodes/scripts';
 
 export const useDOMState = () => {
     const setSel = useCallback((node: HTMLElement) => {
         const sel = window.getSelection();
-        console.log(sel);
-        if (sel?.focusNode?.nodeName !== '#text') sel?.collapse(node, node.innerText.length);
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+        sel?.collapseToEnd();
+        sel?.addRange(range);
     }, []);
 
     const setFocus = useCallback(
@@ -24,9 +28,13 @@ export const useDOMState = () => {
                 const parent = document.getElementById(node.parent);
                 const child = document.createElement(node.type);
                 child.id = node.key;
+                if (isContentNodeType(node) && node.content) child.textContent = node.content;
                 parent?.appendChild(child);
-                child.focus();
-                setSel(child);
+
+                if (parent) {
+                    child.focus();
+                    setSel(parent);
+                }
             }
         },
         [setSel]
@@ -38,9 +46,9 @@ export const useDOMState = () => {
         (key: NodeKeyType, content?: string) => {
             const updatedElement = document.getElementById(key) as HTMLElement;
             updatedElement.textContent = content || '';
-            setSel(updatedElement);
+            setFocus(key);
         },
-        [setSel]
+        [setFocus]
     );
 
     return {

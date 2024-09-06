@@ -1,24 +1,22 @@
-import { FC } from 'react';
+import { forwardRef } from 'react';
 
 import './ContentEditableBlock.styles.scss';
-import { IEditableContentBlock } from './ContentEditableBlock.types';
+import { IContentEditableBlock } from './ContentEditableBlock.types';
 
-const ContentEditableBlock: FC<IEditableContentBlock> = ({
-    isEditable,
-    editorRef,
-    children,
-}: IEditableContentBlock) => {
-    return (
-        <div
-            id="editor"
-            contentEditable={isEditable}
-            className="content-block"
-            suppressContentEditableWarning={isEditable}
-            ref={editorRef}
-        >
-            {children}
-        </div>
-    );
-};
+const ContentEditableBlock = forwardRef<IContentEditableBlock & HTMLDivElement>(
+    ({ isEditable = true, children }: IContentEditableBlock, ref) => {
+        return (
+            <div
+                id="editor"
+                contentEditable={isEditable}
+                className="content-block"
+                suppressContentEditableWarning={isEditable}
+                ref={ref}
+            >
+                {children}
+            </div>
+        );
+    }
+);
 
 export default ContentEditableBlock;

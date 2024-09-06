@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-export interface IEditableContentBlock {
+export interface IContentEditableBlock {
     initialText?: string;
     isEditable?: boolean;
     setContent?: Dispatch<SetStateAction<string>>;

@@ -6,16 +6,13 @@ export type NodeMapType<T> = Map<NodeKeyType, T>;
 export type BaseNodeType = {
     key: string;
     type: string;
-    prev: null | NodeKeyType;
-    next: null | NodeKeyType;
 };
 export type ParentNodeType = BaseNodeType & {
     parent: NodeKeyType;
     children: NodeKeyType[];
 };
 
-export type ContentNodeType = BaseNodeType & {
-    parent: NodeKeyType;
+export type ContentNodeType = ParentNodeType & {
     content?: string;
 };
 
@@ -24,9 +21,9 @@ export type RootNodeType = Omit<ParentNodeType, 'parent'> & {
     type: 'div';
 };
 
-export type LineBreakNodeType = BaseNodeType & {
-    type: 'br';
+export type LineBreakNodeType = Omit<BaseNodeType, 'children'> & {
     parent: NodeKeyType;
+    type: 'br';
 };
 
-export type LexicalNodeType = ContentNodeType | RootNodeType | ParentNodeType;
+export type LexicalNodeType = ContentNodeType | RootNodeType | ParentNodeType | LineBreakNodeType;

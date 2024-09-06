@@ -7,7 +7,7 @@ export const initialScript = () => {
         const root = document.createElement('div');
         root.id = MAIN_DIV_ID;
         parentElement?.appendChild(root);
-        root.style.minHeight = '10px';
+        root.style.minHeight = '50px';
         root.focus();
 
         createMutationObserver(MAIN_DIV_ID);
