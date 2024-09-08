@@ -1,4 +1,5 @@
 import { MAIN_DIV_ID } from '../../helpers/constants';
+import { TAGS } from '../../types';
 
 export type NodeKeyType = string;
 export type NodeMapType<T> = Map<NodeKeyType, T>;
@@ -18,12 +19,12 @@ export type ContentNodeType = ParentNodeType & {
 
 export type RootNodeType = Omit<ParentNodeType, 'parent'> & {
     key: typeof MAIN_DIV_ID;
-    type: 'div';
+    type: TAGS.BLOCK;
 };
 
-export type LineBreakNodeType = Omit<BaseNodeType, 'children'> & {
-    parent: NodeKeyType;
-    type: 'br';
-};
+// export type LineBreakNodeType = Omit<BaseNodeType, 'children'> & {
+//     parent: NodeKeyType;
+//     type: 'br';
+// };
 
-export type LexicalNodeType = ContentNodeType | RootNodeType | ParentNodeType | LineBreakNodeType;
+export type LexicalNodeType = ContentNodeType | RootNodeType | ParentNodeType;

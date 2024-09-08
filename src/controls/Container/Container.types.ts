@@ -1,7 +1,7 @@
-import { HTMLProps } from 'react';
+import { HTMLProps, ReactNode } from 'react';
 
 interface IContainerProps extends HTMLProps<HTMLDivElement> {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export type { IContainerProps };

@@ -1,19 +1,27 @@
-import { parentNodesTags } from '../../helpers/constants';
+import { isParentTagType } from '../../helpers/checkTypeTag';
 import { getAddedNodeType } from '../../helpers/getAddedNodeType';
 
+export type checkContentNodesProps = {
+    type: string;
+    keyParent: string;
+    content: string;
+    callbackUpdate: (key: string, contentNew: string) => void;
+    callbackAddNode: (keyParent: string, type: string) => string;
+};
+
 export const useCheckNodes = () => {
-    const checkContentNodes = (
-        type: string,
-        keyParent: string,
-        content: string,
-        callbackUpdate: (key: string, contentNew: string) => void,
-        callbackAddNode: (keyParent: string, type: string) => string
-    ) => {
-        if (parentNodesTags.includes(type)) {
+    const checkContentNodes = ({
+        type,
+        keyParent,
+        content,
+        callbackUpdate,
+        callbackAddNode,
+    }: checkContentNodesProps) => {
+        if (isParentTagType(type)) {
             const newType = getAddedNodeType(type);
             const newKey = callbackAddNode(keyParent, newType);
 
-            checkContentNodes(newType, newKey, content, callbackUpdate, callbackAddNode);
+            checkContentNodes({ type: newType, keyParent: newKey, content, callbackUpdate, callbackAddNode });
         } else {
             callbackUpdate(keyParent, content);
         }

@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { RefObject, createContext, useEffect, useRef } from 'react';
-import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import { FC, ReactNode, useMemo, useState } from 'react';
 
 import { IEditorState } from '../../components/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/EditorState/getInitialState';
-import { ContentNodeType, LineBreakNodeType } from '../../components/nodes/Nodes.types';
-import { generateKey } from '../../helpers/generateKey';
 import { initialScript } from '../../scripts/initialScript';
+import { TAGS } from '../../types';
 import { useCheckNodes } from '../hooks/useCheckNodes';
+import { useCreateNode } from '../hooks/useCreateNode';
 import { useDOMState } from '../hooks/useDOMState';
 import { useEditorState } from '../hooks/useEditorState';
 import { IEditorContextProps } from './EditorContext.types';
@@ -23,79 +23,79 @@ export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDiv
     });
 
     const stateRef = useRef(state);
+    stateRef.current = state;
 
-    useEffect(() => {
-        stateRef.current = state;
-    }, [state]);
-
-    const { addNodeToState, updateNodeToState, getFirstParentNode } = useEditorState();
-    const { updateContent, addDOMNode } = useDOMState();
+    const { addNodeToState, updateNodeToState, getFirstParentNode, removeNode } = useEditorState();
+    const { updateContent, addDOMNode, removeDOMNode, setSel } = useDOMState();
     const { checkContentNodes } = useCheckNodes();
+    const { createContentNode } = useCreateNode();
 
     useEffect(() => {
         initialScript();
     }, []);
 
-    const handleInput = useCallback(
-        (e: Event) => {
-            const target = e.target as HTMLElement;
-            const content = target.textContent || '';
-            updateContent(target.id);
-            checkContentNodes(
-                target.localName,
-                target.id,
+    const handleInput = (e: Event) => {
+        const target = e.target as HTMLElement;
+        const content = target.textContent;
+
+        if (content) {
+            checkContentNodes({
+                type: target.localName,
+                keyParent: target.id,
                 content,
-                (key: string, contentNew: string) => {
+                callbackUpdate: (key: string, contentNew: string) => {
                     setState(prev => updateNodeToState(prev, key, contentNew));
                     updateContent(key, contentNew);
                 },
-                (keyParent: string, type: string) => {
-                    const key = generateKey();
-                    const node: ContentNodeType = {
-                        key,
-                        parent: keyParent,
-                        content: '',
-                        type,
-                        children: [],
-                    };
+                callbackAddNode: (keyParent: string, type: string) => {
+                    updateContent(target.id);
+                    const node = createContentNode({ parent: keyParent, type });
                     setState(prev => addNodeToState(prev, node));
                     addDOMNode(node);
-                    return key;
+                    return node.key;
+                },
+            });
+        }
+    };
+
+    const handleKeydown = (e: KeyboardEvent) => {
+        switch (e.code) {
+            case 'Enter': {
+                e.preventDefault();
+                const focusNode = window.getSelection()?.focusNode as HTMLElement;
+                const firstParentNode = getFirstParentNode(focusNode.id, stateRef.current);
+                if (firstParentNode.key) {
+                    const node = createContentNode({ parent: firstParentNode?.key, type: TAGS.PARAGRAPH });
+                    setState(prev => addNodeToState(prev, node, firstParentNode.child));
+                    addDOMNode(node, firstParentNode.child);
                 }
-            );
-        },
-        [state.nodeMap]
-    );
-
-    const handleKeydown = useCallback((e: KeyboardEvent) => {
-        if (e.code === 'Enter') {
-            e.preventDefault();
-            const focusNode = window.getSelection()?.focusNode as HTMLElement;
-            const parentNode = getFirstParentNode(focusNode.id, stateRef.current);
-            if (parentNode) {
-                const keyParent = generateKey();
-
-                const node: ContentNodeType = {
-                    key: keyParent,
-                    content: '',
-                    parent: parentNode?.key,
-                    type: 'p',
-                    children: [],
-                };
-                setState(prev => addNodeToState(prev, node));
-                addDOMNode(node);
-                const keyLineBreak = generateKey();
-
-                const nodeLineBreak: LineBreakNodeType = {
-                    key: keyLineBreak,
-                    parent: keyParent,
-                    type: 'br',
-                };
-                setState(prev => addNodeToState(prev, nodeLineBreak));
-                addDOMNode(nodeLineBreak);
+                break;
+            }
+            case 'Backspace': {
+                e.preventDefault();
+                const focusNode = window.getSelection()?.focusNode as HTMLElement;
+                if (focusNode.textContent?.length !== 0) {
+                    const content = focusNode.textContent?.slice(0, -1) || '';
+                    setState(prev => updateNodeToState(prev, focusNode.id, content));
+                    updateContent(focusNode.id, content);
+                } else {
+                    setState(prev => removeNode(prev, focusNode.id));
+                    removeDOMNode(focusNode.id);
+                }
+                break;
+            }
+            default: {
+                break;
             }
         }
-    }, []);
+    };
+
+    const handleClick = (e: Event) => {
+        e.preventDefault();
+        const target = e.target as HTMLElement;
+        target.focus();
+        setSel(target);
+    };
 
     useEffect(() => {
         editor.current?.addEventListener('inputEditor', handleInput);
@@ -105,6 +105,11 @@ export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDiv
     useEffect(() => {
         editor.current?.addEventListener('keydown', handleKeydown, false);
         return () => editor.current?.removeEventListener('keydown', handleKeydown);
+    }, []);
+
+    useEffect(() => {
+        editor.current?.addEventListener('click', handleClick);
+        return () => editor.current?.removeEventListener('click', handleClick);
     }, []);
 
     const editorContextValue: IEditorContextProps = useMemo(
