@@ -1,0 +1,6 @@
+@import 'src/styles/tokens/functions.scss';
+
+.topbar {
+    display: flex;
+    max-height: gs(10);
+}
