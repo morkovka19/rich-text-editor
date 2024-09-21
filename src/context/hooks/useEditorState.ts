@@ -1,9 +1,10 @@
-import { IEditorState } from '../../components/EditorState/EditorState.types';
-import { ContentNodeType, LexicalNodeType, NodeKeyType } from '../../components/nodes/Nodes.types';
-import { isContentNodeType, isRootNodeType } from '../../helpers/checkTypeNode';
+import { isParentTagType } from '../../helpers/checkTypeTag';
+import { TEXT_KEY } from '../../helpers/constants';
+import { LexicalNode, NodeKeyType, TextNode } from '../../nodes';
+import { IEditorState } from '../EditorState/EditorState.types';
 
 export const useEditorState = () => {
-    // const getNode = (state: IEditorState, key: NodeKeyType) => state.nodeMap.get(key);
+    const getNode = (state: IEditorState, key: NodeKeyType) => state.nodeMap.get(key);
 
     // const getChildNodeMap = (node: ContentNodeType | ParentNodeType | RootNodeType, state: IEditorState) =>
     //     node.children.map((key: NodeKeyType) => getNode(state, key));
@@ -26,68 +27,64 @@ export const useEditorState = () => {
     const removeNode = (state: IEditorState, key?: NodeKeyType) => {
         const newNodeMap = new Map(state.nodeMap);
         if (key) {
-            const children = newNodeMap.get(key)?.children;
+            const children = newNodeMap.get(key)?.getChildList();
             if (children) {
                 children.forEach(child => {
-                    removeNode(state, child);
+                    if (typeof child === 'string') removeNode(state, child);
                 });
             }
             const node = state.nodeMap.get(key);
             newNodeMap.delete(key);
-            if (node && !isRootNodeType(node)) {
-                const index = newNodeMap.get(node.parent)?.children.indexOf(key);
-                if (index && index >= 0) newNodeMap.get(node.parent)?.children.splice(index, 1);
-            }
+            const index = newNodeMap
+                .get(node?.getParent() || '')
+                ?.getChildList()
+                ?.indexOf(key);
+            if (index && index >= 0)
+                newNodeMap
+                    .get(node?.getParent() || '')
+                    ?.getChildList()
+                    ?.splice(index, 1);
         }
         return { ...state, nodeMap: newNodeMap };
     };
 
-    const addNodeToState = (state: IEditorState, node: LexicalNodeType, prevNodeKey?: NodeKeyType) => {
-        const newMap = new Map(state.nodeMap);
-        newMap.set(node.key, node);
-        if (!isRootNodeType(node)) {
-            const parentNode = newMap.get(node.parent);
-            if (parentNode) {
-                if (prevNodeKey) {
-                    const index = parentNode.children.indexOf(prevNodeKey);
-                    parentNode.children.splice(index + 1, 0, node.key);
-                } else {
-                    parentNode.children.push(node.key);
-                }
-            }
-        }
-        return { ...state, nodeMap: newMap };
+    const addNodeToState = (state: IEditorState, node: LexicalNode /*prevNodeKey?: NodeKeyType*/) => {
+        const { nodeMap } = state;
+        nodeMap.set(node.getKey(), node);
+        const parentNode: LexicalNode = nodeMap.get(node.getParent() as string) as LexicalNode;
+        parentNode?.addChild(node.getKey() !== TEXT_KEY ? node.getKey() : (node as TextNode));
+        // if (prevNodeKey) {
+        //     const index = parentNode.getChildList()?.indexOf(prevNodeKey);
+        //     // parentNode.().splice(index + 1, 0, node.getKey());
+        // } else {
     };
 
-    const updateNodeToState = (state: IEditorState, key: NodeKeyType, content: string) => {
-        const newMap = new Map(state.nodeMap);
-        const node = newMap.get(key);
-        if (node) {
-            if (isContentNodeType(node)) {
-                newMap.set(key, { ...node, content } as ContentNodeType);
-            }
-        }
-        return {
-            ...state,
-            nodeMap: newMap,
-        };
+    const addTextNodeToState = (state: IEditorState, node: TextNode /*prevNodeKey?: NodeKeyType*/) => {
+        const { nodeMap } = state;
+        const parent = nodeMap.get(node?.getParent());
+        parent?.addChild(node);
     };
 
     const getFirstParentNode = (key: string, state: IEditorState, childKey?: string) => {
-        const node = state.nodeMap.get(key);
-        if (node && !isRootNodeType(node) && isContentNodeType(node)) {
-            return getFirstParentNode(node.parent, state, node.key);
+        const { nodeMap } = state;
+        const node = nodeMap.get(key);
+        const parent = node?.getParent() as string;
+        const parentNode = nodeMap.get(parent) as LexicalNode;
+        if (!isParentTagType(parentNode?.getType())) {
+            getFirstParentNode(parent, state, node?.getKey());
         }
+
         return {
-            key: node?.key,
+            key: parentNode?.getKey(),
             child: childKey,
         };
     };
 
     return {
+        getNode,
         addNodeToState,
         removeNode,
-        updateNodeToState,
         getFirstParentNode,
+        addTextNodeToState,
     };
 };
