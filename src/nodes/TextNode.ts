@@ -1,7 +1,7 @@
 import { TEXT_KEY, TEXT_TAG } from '../helpers/constants';
 import { LexicalNode, NodeKeyType } from './LexicalNode';
 
-export class TextNode extends LexicalNode {
+export class Text extends LexicalNode {
     __children: null;
     __text: string | null;
     __parent: NodeKeyType;

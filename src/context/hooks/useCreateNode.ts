@@ -1,43 +1,43 @@
 import { mapForAddedNodes } from '../../helpers/constants';
 import { generateKey } from '../../helpers/generateKey';
-import { ChildType, NodeKeyType, ParentNode, TextNode } from '../../nodes';
+import { ChildType, Node, NodeKeyType, Text } from '../../nodes';
 
-type createTextNodeProps = {
+type createTextProps = {
     parent: NodeKeyType;
     text?: string;
 };
 
-type createParentNodeProps = {
+type createNodeProps = {
     parent: NodeKeyType;
     type: string;
     children: Array<ChildType>;
 };
 
-type createLexicalNodeProps = createParentNodeProps & createTextNodeProps;
+type createLexicalNodeProps = createNodeProps & createTextProps;
 
 export const useCreateNode = () => {
-    const createTextNode = ({ parent, text = '' }: createTextNodeProps) => {
-        const node = new TextNode(parent, text);
+    const createText = ({ parent, text = '' }: createTextProps) => {
+        const node = new Text(parent, text);
         return node;
     };
 
-    const createParentNode = ({ parent, children = [], type }: createParentNodeProps) => {
+    const createNode = ({ parent, children = [], type }: createNodeProps) => {
         const key = generateKey();
-        const node = new ParentNode(key, type, parent, children);
+        const node = new Node(key, type, parent, children);
         return node;
     };
 
     const createLexicalChildNode = ({ parent, children = [], type, text = '' }: createLexicalNodeProps) => {
         const childTag = mapForAddedNodes.get(type);
         if (childTag) {
-            return createParentNode({ parent, children, type });
+            return createNode({ parent, children, type });
         }
-        return createTextNode({ parent, text });
+        return createText({ parent, text });
     };
 
     return {
-        createTextNode,
-        createParentNode,
+        createText,
+        createNode,
         createLexicalChildNode,
     };
 };

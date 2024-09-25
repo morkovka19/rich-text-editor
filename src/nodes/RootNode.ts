@@ -2,7 +2,7 @@ import { MAIN_DIV_ID } from '../helpers/constants';
 import { TAGS } from '../types';
 import { LexicalNode, NodeKeyType } from './LexicalNode';
 
-export class RootNode extends LexicalNode {
+export class Root extends LexicalNode {
     __parent: null;
     __children: NodeKeyType[];
 

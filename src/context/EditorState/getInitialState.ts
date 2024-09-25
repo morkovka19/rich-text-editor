@@ -1,9 +1,9 @@
-import { LexicalNode, RootNode } from '../../nodes';
+import { LexicalNode, Root } from '../../nodes';
 import { IEditorState, NodeMapType } from './EditorState.types';
 
 export const createInitialNodeMap = () => {
     const map = new Map() as NodeMapType<LexicalNode>;
-    const root = new RootNode();
+    const root = new Root();
     map.set(root.getKey(), root);
     return map;
 };

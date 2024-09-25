@@ -1,6 +1,6 @@
 import { ChildType, LexicalNode, NodeKeyType } from './LexicalNode';
 
-export class ParentNode extends LexicalNode {
+export class Node extends LexicalNode {
     __children: ChildType[];
     __parent: NodeKeyType;
 

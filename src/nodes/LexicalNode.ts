@@ -1,11 +1,11 @@
 import { MAIN_DIV_ID } from '../helpers/constants';
 import { PARENT_NODE_TYPE } from '../helpers/regex';
 import { KlassConstructor } from '../types';
-import { TextNode } from './TextNode';
+import { Text } from './TextNode';
 
 export type NodeKeyType = string;
 
-export type ChildType = NodeKeyType | TextNode;
+export type ChildType = NodeKeyType | Text;
 
 export class LexicalNode {
     ['constructor']!: KlassConstructor<typeof LexicalNode>;
@@ -56,7 +56,17 @@ export class LexicalNode {
         return this.__children;
     }
 
-    addChild(child: ChildType /*position?: number*/) {
-        this.__children?.push(child);
+    setChildList(childList: ChildType[] | null | undefined) {
+        this.__children = childList;
+    }
+
+    addChild(child: ChildType, position?: number) {
+        if (position && position !== this.__children?.length)
+            this.__children = [
+                ...(this.__children?.slice(0, position) || []),
+                child,
+                ...(this.__children?.slice(position) || []),
+            ];
+        else this.__children?.push(child);
     }
 }
