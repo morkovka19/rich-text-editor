@@ -1,32 +1,5 @@
-// import { isParentTagType } from "../../helpers/checkTypeTag";
-// import { TEXT_KEY } from "../../helpers/constants";
-// import { NodeKeyType } from "../../nodes";
 import { isParentTagType } from '../../helpers/checkTypeTag';
 import { TEXT_KEY } from '../../helpers/constants';
-
-// export const useSelection = () => {
-
-//     const selection = {
-
-//     }
-
-//     const setSelToTheEndNode = (nodeKey: NodeKeyType) => {
-//         console.log(nodeKey)
-//         const selection = getSelection();
-//         const range = getRange();
-//         const node = document.getElementById(nodeKey) as HTMLElement;
-//         selection?.removeAllRanges();
-//         range.selectNode(node);
-//         selection?.addRange(range);
-//         selection?.collapseToEnd()
-//     }
-
-//     return {
-//         getSelection,
-//         setSelToTheEndNode,
-//         setSelAfterEnter
-//     }
-// }
 
 export const useSelection = () => {
     const getSelection = () => {

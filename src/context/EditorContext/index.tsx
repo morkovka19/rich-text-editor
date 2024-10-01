@@ -30,16 +30,7 @@ export const EditorProvider: FC<{
     const { updateContent, addDOMNode, removeDOMNode, createTextDONNode } = useDOMState();
     const { checkContentNodes } = useCheckNodes();
     const { createText, createLexicalChildNode } = useCreateNode();
-    const {
-        // setSelectionRange,
-        // setSelectionToNode,
-        // collapseSelectionToStart,
-        collapseSelectionToEnd,
-        setSelAfterEnter,
-        getSelection,
-        // getSelectedText,
-        // clearSelection,
-    } = useSelection();
+    const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
 
     useEffect(() => {
         initialScript();
@@ -102,17 +93,43 @@ export const EditorProvider: FC<{
             case 'Backspace': {
                 e.preventDefault();
                 const selection = getSelection();
-                console.log(selection);
                 const focusNode = selection.focusNode as HTMLElement;
-                if (focusNode.textContent?.length !== 0) {
-                    const prevContent = focusNode.textContent!;
-                    const content = focusNode.textContent?.slice(0, -1) || '';
-                    const updatedNode = focusNode.nodeName === TEXT_KEY ? focusNode.parentElement! : focusNode;
-                    updateContent(updatedNode.id, content);
-                    collapseSelectionToEnd(updatedNode);
-                    updateTextNode(updatedNode.id, prevContent, content, stateRef.current);
+                const content = focusNode.nodeValue || focusNode.textContent || '';
+                const updatedNode = focusNode.parentElement!;
+                if (focusNode.nodeName === TEXT_KEY) {
+                    const { focusOffset, anchorOffset } = selection;
+                    const minOffset = Math.min(focusOffset, anchorOffset);
+                    const maxOffset = Math.max(focusOffset, anchorOffset);
+                    const isRange = minOffset !== maxOffset;
+                    if (minOffset === 0 && !isRange && content.length) {
+                        const newFocusNode = updatedNode.previousElementSibling!;
+                        const prevContent = newFocusNode.textContent || '';
+                        updateTextNode(newFocusNode.id, prevContent, `${prevContent}${content}`, stateRef.current);
+                        updateContent(newFocusNode.id, `${prevContent}${content}`);
+                        removeDOMNode(updatedNode.id);
+                        removeNode(stateRef.current, updatedNode.id);
+                        const selPosition = newFocusNode.textContent
+                            ? newFocusNode.textContent.length - content.length
+                            : 0;
+                        setSelectionRange(newFocusNode.firstChild!, selPosition, newFocusNode.firstChild!, selPosition);
+                    } else {
+                        const newContent = !isRange
+                            ? content.slice(0, minOffset - 1)
+                            : content.slice(0, minOffset) + content.slice(maxOffset + 1);
+
+                        updateContent(updatedNode.id, newContent);
+                        updateTextNode(updatedNode.id, content, newContent, stateRef.current);
+                        setSelectionRange(
+                            updatedNode.lastChild || updatedNode,
+                            isRange ? minOffset : minOffset - 1,
+                            updatedNode.lastChild || updatedNode,
+                            isRange ? minOffset : minOffset - 1
+                        );
+                    }
                 } else {
-                    collapseSelectionToEnd(focusNode.previousElementSibling!);
+                    collapseSelectionToEnd(
+                        focusNode.previousElementSibling!.lastChild || focusNode.previousElementSibling!
+                    );
                     removeDOMNode(focusNode.id);
                     removeNode(stateRef.current, focusNode.id);
                 }
@@ -126,8 +143,10 @@ export const EditorProvider: FC<{
 
     const handleClick = (e: Event) => {
         e.preventDefault();
+
+        const { anchorOffset } = getSelection();
         const target = e.target as HTMLElement;
-        collapseSelectionToEnd(target);
+        setSelectionRange(target.lastChild || target, anchorOffset, target.lastChild || target, anchorOffset);
     };
 
     useEffect(() => {

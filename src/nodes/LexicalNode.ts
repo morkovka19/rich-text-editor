@@ -45,9 +45,10 @@ export class LexicalNode {
         return this.__children?.filter(child => typeof child !== 'string');
     }
 
-    setText(text: string) {
-        console.log(text);
+    setText(_text: string) {
+        console.log(_text);
     }
+
     getParent() {
         return this.__parent;
     }

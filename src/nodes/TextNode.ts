@@ -25,10 +25,6 @@ export class Text extends LexicalNode {
         return true;
     }
 
-    addChild(/*child: ChildType, position?: number*/) {
-        return null;
-    }
-
     getParent() {
         return this.__parent;
     }

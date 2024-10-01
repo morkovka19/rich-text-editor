@@ -6,24 +6,6 @@ import { IEditorState } from '../EditorState/EditorState.types';
 export const useEditorState = () => {
     const getNode = (state: IEditorState, key: NodeKeyType) => state.nodeMap.get(key);
 
-    // const getChildNodeMap = (node: ContentNodeType | NodeType | RootType, state: IEditorState) =>
-    //     node.children.map((key: NodeKeyType) => getNode(state, key));
-
-    // const removeLineBreak = (state: IEditorState, node: LineBreakNodeType) => {
-    //     const Node = state.nodeMap.get(node.parent);
-    //     if (Node && isContentNodeType(Node)) {
-    //         const newNodeMap = state.nodeMap;
-    //         const newNode = { ...Node, children: Node.children.filter(key => key !== node.key) };
-    //         newNodeMap.set(newNode.key, newNode);
-    //         newNodeMap.delete(node.key);
-    //         return {
-    //             ...state,
-    //             nodeMap: newNodeMap,
-    //         };
-    //     }
-    //     return state;
-    // };
-
     const removeNode = (state: IEditorState, key?: NodeKeyType) => {
         const { nodeMap } = state;
         if (key) {
@@ -99,7 +81,6 @@ export const useEditorState = () => {
         const { nodeMap } = state;
         const node = nodeMap.get(key) as LexicalNode;
         const texts = node.getTextChild();
-        console.log(texts, prevText, newText);
         if (texts) {
             let index = 0;
             const textNodeUpdated = texts?.find((child, i) => {
