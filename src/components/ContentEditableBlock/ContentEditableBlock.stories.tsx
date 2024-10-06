@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { IEditableContentBlock } from './ContentEditableBlock.types';
+import { IContentEditableBlock } from './ContentEditableBlock.types';
 import EditableContentBlock from './index';
 
 const meta: Meta<typeof EditableContentBlock> = {
@@ -8,7 +8,7 @@ const meta: Meta<typeof EditableContentBlock> = {
 };
 
 export default meta;
-type Story = StoryObj<IEditableContentBlock>;
+type Story = StoryObj<IContentEditableBlock>;
 
 export const BaseRichTextEditor: Story = {
     args: {

@@ -1,15 +1,22 @@
 import { FC, useCallback } from 'react';
 
 import { useEditor } from '../../context/hooks/useEditor';
+import { useSelection } from '../../context/hooks/useSelection';
 import './Topbar.styles.scss';
 import { ITopbar } from './Topbar.types';
 
 const Topbar: FC<ITopbar> = () => {
     const { state } = useEditor();
 
+    const { getSelection } = useSelection();
+
     const handleOpenHTML = useCallback(() => {
         console.log(state);
     }, [state]);
+
+    const handleOpenSelection = useCallback(() => {
+        console.log(getSelection());
+    }, []);
 
     return (
         <>
@@ -24,7 +31,8 @@ const Topbar: FC<ITopbar> = () => {
                 <div className="topbar__inserted-nodes">text-styles-special</div>
                 <div className="topbar__text-align">text-align</div>
             </div>
-            <button onClick={handleOpenHTML}>Показать код</button>
+            <button onClick={handleOpenHTML}>Показать код </button>
+            <button onClick={handleOpenSelection}> Показать selection </button>
         </>
     );
 };

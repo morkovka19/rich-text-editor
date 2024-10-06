@@ -2,22 +2,23 @@
 import { RefObject, createContext, useEffect, useRef } from 'react';
 import { FC, ReactNode, useMemo, useState } from 'react';
 
-import { IEditorState } from '../../components/EditorState/EditorState.types';
-import { createInitialNodeMap } from '../../components/EditorState/getInitialState';
+import { TEXT_KEY } from '../../helpers/constants';
 import { initialScript } from '../../scripts/initialScript';
-import { TAGS } from '../../types';
+import { IEditorState } from '../EditorState/EditorState.types';
+import { createInitialNodeMap } from '../EditorState/getInitialState';
 import { useCheckNodes } from '../hooks/useCheckNodes';
 import { useCreateNode } from '../hooks/useCreateNode';
 import { useDOMState } from '../hooks/useDOMState';
 import { useEditorState } from '../hooks/useEditorState';
+import { useSelection } from '../hooks/useSelection';
 import { IEditorContextProps } from './EditorContext.types';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
 
-export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDivElement> }> = ({
-    children,
-    editor,
-}) => {
+export const EditorProvider: FC<{
+    children: ReactNode;
+    editor: RefObject<HTMLDivElement>;
+}> = ({ children, editor }) => {
     const [state, setState] = useState<IEditorState>({
         nodeMap: new Map(createInitialNodeMap()),
     });
@@ -25,62 +26,112 @@ export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDiv
     const stateRef = useRef(state);
     stateRef.current = state;
 
-    const { addNodeToState, updateNodeToState, getFirstParentNode, removeNode } = useEditorState();
-    const { updateContent, addDOMNode, removeDOMNode, setSel } = useDOMState();
+    const { addNodeToState, removeNode, addTextToState, updateTextNode } = useEditorState();
+    const { updateContent, addDOMNode, removeDOMNode, createTextDONNode } = useDOMState();
     const { checkContentNodes } = useCheckNodes();
-    const { createContentNode } = useCreateNode();
+    const { createText, createLexicalChildNode } = useCreateNode();
+    const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
 
     useEffect(() => {
         initialScript();
     }, []);
 
     const handleInput = (e: Event) => {
+        e.preventDefault();
         const target = e.target as HTMLElement;
-        const content = target.textContent;
-
-        if (content) {
-            checkContentNodes({
-                type: target.localName,
-                keyParent: target.id,
-                content,
-                callbackUpdate: (key: string, contentNew: string) => {
-                    setState(prev => updateNodeToState(prev, key, contentNew));
-                    updateContent(key, contentNew);
-                },
-                callbackAddNode: (keyParent: string, type: string) => {
-                    updateContent(target.id);
-                    const node = createContentNode({ parent: keyParent, type });
-                    setState(prev => addNodeToState(prev, node));
-                    addDOMNode(node);
-                    return node.key;
-                },
-            });
-        }
+        const text = target.textContent as string;
+        checkContentNodes({
+            type: target.localName,
+            keyParent: target.id,
+            text,
+            callbackUpdate: (key: string) => {
+                const node = state.nodeMap.get(key);
+                const texts = node?.getTextChild();
+                if (texts && texts.length > 0) {
+                    const stateNode = texts[texts.length - 1];
+                    stateNode?.setText(text);
+                    updateContent(key, text);
+                } else {
+                    const newText = createText({ parent: key, text: text });
+                    addTextToState(stateRef.current, newText);
+                    updateContent(key, '');
+                    const node = createTextDONNode(key, text);
+                    collapseSelectionToEnd(node);
+                }
+            },
+            callbackAddNode: (keyParent: string, type: string) => {
+                updateContent(keyParent);
+                const node = createLexicalChildNode({
+                    parent: keyParent,
+                    type,
+                    children: [],
+                });
+                updateContent(keyParent);
+                addNodeToState(stateRef.current, node);
+                const nodeElement = addDOMNode(node) as HTMLElement;
+                collapseSelectionToEnd(nodeElement);
+                return node.getKey();
+            },
+        });
     };
 
     const handleKeydown = (e: KeyboardEvent) => {
         switch (e.code) {
             case 'Enter': {
                 e.preventDefault();
-                const focusNode = window.getSelection()?.focusNode as HTMLElement;
-                const firstParentNode = getFirstParentNode(focusNode.id, stateRef.current);
-                if (firstParentNode.key) {
-                    const node = createContentNode({ parent: firstParentNode?.key, type: TAGS.PARAGRAPH });
-                    setState(prev => addNodeToState(prev, node, firstParentNode.child));
-                    addDOMNode(node, firstParentNode.child);
-                }
+                const { firstNode: parent, focusNode } = setSelAfterEnter();
+                const node = createLexicalChildNode({
+                    parent: parent.id,
+                    children: [],
+                    type: parent.firstElementChild?.localName as string,
+                });
+                addNodeToState(stateRef.current, node, focusNode.id);
+                const nodeElement = addDOMNode(node, focusNode.id) as HTMLElement;
+                collapseSelectionToEnd(nodeElement);
                 break;
             }
             case 'Backspace': {
                 e.preventDefault();
-                const focusNode = window.getSelection()?.focusNode as HTMLElement;
-                if (focusNode.textContent?.length !== 0) {
-                    const content = focusNode.textContent?.slice(0, -1) || '';
-                    setState(prev => updateNodeToState(prev, focusNode.id, content));
-                    updateContent(focusNode.id, content);
+                const selection = getSelection();
+                const focusNode = selection.focusNode as HTMLElement;
+                const content = focusNode.nodeValue || focusNode.textContent || '';
+                const updatedNode = focusNode.parentElement!;
+                if (focusNode.nodeName === TEXT_KEY) {
+                    const { focusOffset, anchorOffset } = selection;
+                    const minOffset = Math.min(focusOffset, anchorOffset);
+                    const maxOffset = Math.max(focusOffset, anchorOffset);
+                    const isRange = minOffset !== maxOffset;
+                    if (minOffset === 0 && !isRange && content.length) {
+                        const newFocusNode = updatedNode.previousElementSibling!;
+                        const prevContent = newFocusNode.textContent || '';
+                        updateTextNode(newFocusNode.id, prevContent, `${prevContent}${content}`, stateRef.current);
+                        updateContent(newFocusNode.id, `${prevContent}${content}`);
+                        removeDOMNode(updatedNode.id);
+                        removeNode(stateRef.current, updatedNode.id);
+                        const selPosition = newFocusNode.textContent
+                            ? newFocusNode.textContent.length - content.length
+                            : 0;
+                        setSelectionRange(newFocusNode.firstChild!, selPosition, newFocusNode.firstChild!, selPosition);
+                    } else {
+                        const newContent = !isRange
+                            ? content.slice(0, minOffset - 1)
+                            : content.slice(0, minOffset) + content.slice(maxOffset + 1);
+
+                        updateContent(updatedNode.id, newContent);
+                        updateTextNode(updatedNode.id, content, newContent, stateRef.current);
+                        setSelectionRange(
+                            updatedNode.lastChild || updatedNode,
+                            isRange ? minOffset : minOffset - 1,
+                            updatedNode.lastChild || updatedNode,
+                            isRange ? minOffset : minOffset - 1
+                        );
+                    }
                 } else {
-                    setState(prev => removeNode(prev, focusNode.id));
+                    collapseSelectionToEnd(
+                        focusNode.previousElementSibling!.lastChild || focusNode.previousElementSibling!
+                    );
                     removeDOMNode(focusNode.id);
+                    removeNode(stateRef.current, focusNode.id);
                 }
                 break;
             }
@@ -92,9 +143,10 @@ export const EditorProvider: FC<{ children: ReactNode; editor: RefObject<HTMLDiv
 
     const handleClick = (e: Event) => {
         e.preventDefault();
+
+        const { anchorOffset } = getSelection();
         const target = e.target as HTMLElement;
-        target.focus();
-        setSel(target);
+        setSelectionRange(target.lastChild || target, anchorOffset, target.lastChild || target, anchorOffset);
     };
 
     useEffect(() => {

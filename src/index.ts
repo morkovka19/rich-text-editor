@@ -1,4 +1,4 @@
 export { default as Editor } from './components/Editor';
 
-export { Container } from './controls/Container';
+export { Container } from './components/controls/Container';
 export { App } from './App';
