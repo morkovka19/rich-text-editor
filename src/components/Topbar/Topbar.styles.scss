@@ -3,4 +3,21 @@
 .topbar {
     display: flex;
     max-height: gs(10);
+    display: flex;
+    margin-bottom: 1px;
+    background: #fff;
+    padding: 4px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    vertical-align: middle;
+    height: 36px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    __divider {
+        width: 1px;
+        background-color: #eee;
+        margin: 0 4px;
+    }
 }

@@ -1,0 +1,8 @@
+@import 'src/styles/tokens/variables.scss';
+@import 'src/styles/tokens/functions.scss';
+
+.demo-main-container {
+    background-color: #eee;
+    padding: gs(10);
+    width: 100%;
+}
