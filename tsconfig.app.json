@@ -23,5 +23,5 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true
     },
-    "include": ["src", "src/components/ContentEditableBlock/ContentEditableBlock.stories.tsx"]
+    "include": ["src", "src/components/ContentEditableBlock/ContentEditableBlock.stories.tsx", "src/custom.d.ts"]
 }

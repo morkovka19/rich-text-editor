@@ -1,5 +1,7 @@
 .buttons-container {
-    display: 'flex';
     flex-direction: row;
     box-sizing: border-box;
+    display: flex;
+    gap: gs(1, true);
+    padding: auto;
 }

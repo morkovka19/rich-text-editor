@@ -9,7 +9,5 @@
     padding: gs(3);
     border-bottom-left-radius: gs(2);
     border-bottom-right-radius: gs(2);
-    :focus {
-        border: none;
-    }
+    outline: none;
 }

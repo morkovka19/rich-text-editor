@@ -1,5 +1,5 @@
-import { MAIN_DIV_ID } from '../../helpers/constants';
-import { LexicalNode, NodeKeyType } from '../../nodes';
+import { MAIN_DIV_ID } from '../../../helpers/constants';
+import { LexicalNode, NodeKeyType } from '../../../nodes';
 
 export const useDOMState = () => {
     const addDOMNode = (node: LexicalNode, prevNodeKey?: NodeKeyType) => {

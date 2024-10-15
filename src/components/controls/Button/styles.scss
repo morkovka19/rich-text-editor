@@ -1,0 +1,49 @@
+@import 'src/styles/tokens/functions.scss';
+@import 'src/styles/tokens/variables.scss';
+
+.buttons-container {
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    gap: gs(1, true);
+    padding: auto;
+}
+
+.button-topbar {
+    border: 0;
+    display: flex;
+    background: none;
+
+    padding: 8px;
+    cursor: pointer;
+    vertical-align: middle;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: start;
+
+    &_round {
+        border-radius: 10px;
+    }
+
+    &__icon {
+        padding: 0;
+        transition: transform 0.3s;
+        &_active {
+            transform: rotate(180deg);
+        }
+        &_select {
+            margin-left: gs(1, truw);
+        }
+    }
+
+    &__span {
+        margin-left: gs(1, true);
+    }
+
+    &__list-item {
+        width: 100%;
+        :hover {
+            background: $cl-grey40;
+        }
+    }
+}

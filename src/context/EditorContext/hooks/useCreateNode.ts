@@ -1,6 +1,6 @@
-import { mapForAddedNodes } from '../../helpers/constants';
-import { generateKey } from '../../helpers/generateKey';
-import { ChildType, Node, NodeKeyType, Text } from '../../nodes';
+import { mapForAddedNodes } from '../../../helpers/constants';
+import { generateKey } from '../../../helpers/generateKey';
+import { ChildType, Node, NodeKeyType, Text } from '../../../nodes';
 
 type createTextProps = {
     parent: NodeKeyType;

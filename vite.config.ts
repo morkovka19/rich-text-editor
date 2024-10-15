@@ -3,9 +3,17 @@ import { glob } from 'glob';
 import { fileURLToPath } from 'node:url';
 import { extname, relative, resolve } from 'path';
 import { defineConfig } from 'vite';
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+        svgr({ include: '**/*.svg' }),
+        createSvgIconsPlugin({
+            iconDirs: ['src/icons/'],
+        }),
+    ],
 
     build: {
         lib: {

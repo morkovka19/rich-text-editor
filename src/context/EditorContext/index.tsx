@@ -2,16 +2,16 @@
 import { RefObject, createContext, useEffect, useRef } from 'react';
 import { FC, ReactNode, useMemo, useState } from 'react';
 
+import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
+import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
 import { TEXT_KEY } from '../../helpers/constants';
 import { initialScript } from '../../scripts/initialScript';
-import { IEditorState } from '../EditorState/EditorState.types';
-import { createInitialNodeMap } from '../EditorState/getInitialState';
-import { useCheckNodes } from '../hooks/useCheckNodes';
-import { useCreateNode } from '../hooks/useCreateNode';
-import { useDOMState } from '../hooks/useDOMState';
-import { useEditorState } from '../hooks/useEditorState';
-import { useSelection } from '../hooks/useSelection';
 import { IEditorContextProps } from './EditorContext.types';
+import { useCheckNodes } from './hooks/useCheckNodes';
+import { useCreateNode } from './hooks/useCreateNode';
+import { useDOMState } from './hooks/useDOMState';
+import { useEditorState } from './hooks/useEditorState';
+import { useSelection } from './hooks/useSelection';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
 

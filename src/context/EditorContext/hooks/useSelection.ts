@@ -1,5 +1,5 @@
-import { isParentTagType } from '../../helpers/checkTypeTag';
-import { TEXT_KEY } from '../../helpers/constants';
+import { isParentTagType } from '../../../helpers/checkTypeTag';
+import { TEXT_KEY } from '../../../helpers/constants';
 
 export const useSelection = () => {
     const getSelection = () => {

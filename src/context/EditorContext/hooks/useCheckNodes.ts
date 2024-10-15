@@ -1,5 +1,5 @@
-import { isParentTagType } from '../../helpers/checkTypeTag';
-import { getAddedNodeType } from '../../helpers/getAddedNodeType';
+import { isParentTagType } from '../../../helpers/checkTypeTag';
+import { getAddedNodeType } from '../../../helpers/getAddedNodeType';
 
 export type checkContentNodesProps = {
     type: string;
