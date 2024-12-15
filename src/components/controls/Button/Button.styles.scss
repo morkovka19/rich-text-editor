@@ -12,6 +12,9 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
+    &:hover {
+        background-color: #eee;
+    }
 
     &__arrow {
         margin-left: gs(1, true);
@@ -51,10 +54,22 @@
         user-select: none;
         line-height: 16px;
         background-size: contain;
-        margin-right: gs(1, true);
+        margin-top: 3px;
     }
 
     &_text {
+        width: 100%;
+        display: flex;
+        justify-content: start;
+    }
+
+    &_select {
+        &:svg {
+            margin-right: gs(1, true);
+        }
+    }
+
+    &_icon {
     }
 
     &__select {

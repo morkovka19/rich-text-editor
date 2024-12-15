@@ -31,7 +31,11 @@ const Button: FC<IButtonProps> = ({
     }, [onClick]);
 
     return (
-        <button className="button" onClick={theme === 'select' ? handleClickSelect : onClick} disabled={disable}>
+        <button
+            className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'}`}
+            onClick={theme === 'select' ? handleClickSelect : onClick}
+            disabled={disable}
+        >
             {Icon && !iconAfter && <Icon className="button__icon" />}
             {text && <span className="buttom__name">{text}</span>}
             {Icon && iconAfter && <Icon className="button__icon button__icon_after" />}

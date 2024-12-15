@@ -36,7 +36,7 @@ const Select: FC<ISelectProps> = ({ options, Icon }) => {
             />
             {isOpen && (
                 <div className="select__dropdown">
-                    <ul>
+                    <ul className="select__list">
                         {options.map(option => (
                             <li>
                                 <Button
