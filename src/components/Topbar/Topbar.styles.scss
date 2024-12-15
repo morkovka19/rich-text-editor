@@ -4,12 +4,12 @@
     display: flex;
     margin-bottom: 1px;
     background: #fff;
-    padding: 4px;
+    padding: gs(1, true);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     vertical-align: middle;
     overflow: auto;
-    height: 36px;
+    height: gs(9, true);
     position: sticky;
     top: 0;
     z-index: 2;
@@ -17,6 +17,6 @@
     &__divider {
         width: 1px;
         background-color: #eee;
-        margin: 0 4px;
+        margin: 0 gs(1, true);
     }
 }
