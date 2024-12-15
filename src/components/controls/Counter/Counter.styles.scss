@@ -1,0 +1,16 @@
+.counter {
+    display: flex;
+    &__input {
+        font-weight: 700;
+        font-size: 14px;
+        color: #777;
+        border-radius: 5px;
+        border-color: gray;
+        height: 20px;
+        padding: 2px 4px;
+        text-align: center;
+        width: 30px;
+        align-self: center;
+        box-sizing: border-box;
+    }
+}

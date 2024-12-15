@@ -1,0 +1,64 @@
+@import 'src/styles/tokens/variables.scss';
+@import 'src/styles/tokens/functions.scss';
+
+.button {
+    border: 0;
+    display: flex;
+    background: none;
+    border-radius: 10px;
+    padding: gs(1, true);
+    cursor: pointer;
+    vertical-align: middle;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+
+    &__arrow {
+        margin-left: gs(1, true);
+        width: 16px;
+        height: 16px;
+        display: flex;
+        -webkit-user-select: none;
+        user-select: none;
+        transition: rotate 0.3s;
+        &_open {
+            rotate: 180deg;
+        }
+    }
+
+    &_disable {
+        opacity: 0.6;
+    }
+
+    &__name {
+        display: flex;
+        line-height: 20px;
+        vertical-align: middle;
+        font-size: 14px;
+        color: #777;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        height: 20px;
+        text-align: left;
+        padding-right: 10px;
+    }
+
+    &__icon {
+        display: flex;
+        width: 20px;
+        height: 20px;
+        -webkit-user-select: none;
+        user-select: none;
+        line-height: 16px;
+        background-size: contain;
+        margin-right: gs(1, true);
+    }
+
+    &_text {
+    }
+
+    &__select {
+        display: flex;
+        justify-content: space-between;
+    }
+}
