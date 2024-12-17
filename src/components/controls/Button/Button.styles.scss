@@ -76,4 +76,13 @@
         display: flex;
         justify-content: space-between;
     }
+
+    &_color {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        height: 16px;
+        width: 16px;
+        cursor: pointer;
+        list-style-type: none;
+    }
 }

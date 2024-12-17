@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 
 import Arrow from '../../../icons/arrow.svg';
 import { SVGRIcon } from '../../../types';
 import './Button.styles.scss';
 
-type ButtonTheme = 'text' | 'icon' | 'select';
+type ButtonTheme = 'text' | 'icon' | 'select' | 'color';
 
 export interface IButtonProps {
     theme: ButtonTheme;
@@ -15,6 +15,7 @@ export interface IButtonProps {
     iconAfter?: boolean;
     Icon?: SVGRIcon;
     isOpenSelect?: boolean;
+    color?: string;
 }
 
 const Button: FC<IButtonProps> = ({
@@ -25,16 +26,14 @@ const Button: FC<IButtonProps> = ({
     Icon,
     isOpenSelect = false,
     iconAfter = false,
+    color,
 }) => {
-    const handleClickSelect = useCallback(() => {
-        if (onClick) onClick();
-    }, [onClick]);
-
     return (
         <button
-            className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'}`}
-            onClick={theme === 'select' ? handleClickSelect : onClick}
+            className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'} ${theme === 'color' && 'button_color'}`}
+            onClick={onClick}
             disabled={disable}
+            style={theme === 'color' && color ? { background: color } : {}}
         >
             {Icon && !iconAfter && <Icon className="button__icon" />}
             {text && <span className="buttom__name">{text}</span>}

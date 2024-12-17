@@ -39,6 +39,24 @@ export const typeSelectOptions: IOption[] = [
     },
 ];
 
+export const insertOptions: IOption[] = [
+    {
+        label: 'Horizontal Rule',
+        value: 'hr',
+        Icon: NoramlIcon,
+    },
+    {
+        label: 'Image',
+        value: 'img',
+        Icon: H2Icon,
+    },
+    {
+        label: 'Table',
+        value: 'table',
+        Icon: H3Icon,
+    },
+];
+
 export const fontSelectOptions: IOption[] = [
     {
         label: 'Arial',
@@ -64,4 +82,19 @@ export const fontSelectOptions: IOption[] = [
         label: 'Verdana',
         value: 'Verdana',
     },
+];
+
+export const baseColors = [
+    'rgb(208, 2, 27)',
+    'rgb(245, 166, 35)',
+    'rgb(248, 231, 28)',
+    'rgb(139, 87, 42)',
+    'rgb(126, 211, 33)',
+    'rgb(65, 117, 5)',
+    'rgb(189, 16, 224)',
+    'rgb(184, 233, 134)',
+    'rgb(0, 0, 0)',
+    'rgb(74, 74, 74)',
+    'rgb(155, 155, 155)',
+    'rgb(255, 255, 255)',
 ];
