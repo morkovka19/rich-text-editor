@@ -8,6 +8,7 @@ import FontStylesBlock from './components/FontStylesBlock';
 import { FontsBlock } from './components/FontsBlock';
 import { HistoryBlock } from './components/HistoryBlock';
 import InsertBlock from './components/InsertBlock';
+import TextStyleBlock from './components/TextStyleBlock';
 import { TypeBlock } from './components/TypeBlock';
 
 const Topbar: FC<ITopbar> = () => {
@@ -24,6 +25,8 @@ const Topbar: FC<ITopbar> = () => {
             <FontStylesBlock />
             <Divider />
             <InsertBlock />
+            <Divider />
+            <TextStyleBlock />
         </div>
     );
 };

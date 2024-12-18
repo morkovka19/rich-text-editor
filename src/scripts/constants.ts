@@ -1,4 +1,11 @@
 import { IOption } from '../components/controls/Select/Select.types';
+import HorRuleIcon from '../icons/topbar-insert/horRule.svg';
+import ImageIcon from '../icons/topbar-insert/image.svg';
+import TableIcon from '../icons/topbar-insert/table.svg';
+import CenterIcon from '../icons/topbar-text-block-style/center.svg';
+import JustifyIcon from '../icons/topbar-text-block-style/justify.svg';
+import LeftIcon from '../icons/topbar-text-block-style/left.svg';
+import RightIcon from '../icons/topbar-text-block-style/right.svg';
 import BulletListIcon from '../icons/topbar-type-text/bullet-list.svg';
 import H1Icon from '../icons/topbar-type-text/h1.svg';
 import H2Icon from '../icons/topbar-type-text/h2.svg';
@@ -43,17 +50,40 @@ export const insertOptions: IOption[] = [
     {
         label: 'Horizontal Rule',
         value: 'hr',
-        Icon: NoramlIcon,
+        Icon: HorRuleIcon,
     },
     {
         label: 'Image',
         value: 'img',
-        Icon: H2Icon,
+        Icon: ImageIcon,
     },
     {
         label: 'Table',
         value: 'table',
-        Icon: H3Icon,
+        Icon: TableIcon,
+    },
+];
+
+export const textBlockOptions: IOption[] = [
+    {
+        label: 'Left Align',
+        value: 'left',
+        Icon: LeftIcon,
+    },
+    {
+        label: 'Center Align',
+        value: 'right',
+        Icon: CenterIcon,
+    },
+    {
+        label: 'Right Align',
+        value: 'center',
+        Icon: RightIcon,
+    },
+    {
+        label: 'Justify Align',
+        value: 'justify',
+        Icon: JustifyIcon,
     },
 ];
 

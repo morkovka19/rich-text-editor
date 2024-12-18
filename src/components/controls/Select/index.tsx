@@ -1,4 +1,4 @@
-import { FC, useCallback, useRef, useState } from 'react';
+import { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '../../../scripts/hooks/useOnClickOutside';
 import { SVGRIcon } from '../../../types';
@@ -25,12 +25,18 @@ const Select: FC<ISelectProps> = ({ options, Icon }) => {
 
     useOnClickOutside(dropdowmRef, () => setIsOpen(false));
 
+    const nameButton = useMemo(() => {
+        if (Icon && activeOption.label.length > 5) return `${activeOption.label.slice(0, 5)}...`;
+        if (activeOption.label.length > 7) return `${activeOption.label.slice(0, 7)}...`;
+        return activeOption.label;
+    }, [Icon, activeOption.label]);
+
     return (
         <div className="select" ref={dropdowmRef}>
             <Button
                 theme="select"
                 onClick={handleClick}
-                text={activeOption.label}
+                text={nameButton}
                 Icon={activeOption?.Icon || Icon}
                 isOpenSelect={isOpen}
             />

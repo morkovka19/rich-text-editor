@@ -10,4 +10,14 @@
     border-bottom-left-radius: gs(2);
     border-bottom-right-radius: gs(2);
     outline: none;
+
+    user-select: text;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 0;
+    font-size: 15px;
+    display: block;
+    position: relative;
+    outline: 0;
+    padding: 8px 28px 40px;
 }
