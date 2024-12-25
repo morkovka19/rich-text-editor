@@ -9,8 +9,10 @@ import { IOption } from './Select.types';
 export interface ISelectProps {
     options: IOption[];
     Icon?: SVGRIcon;
+    isStaticName?: boolean;
+    name?: string;
 }
-const Select: FC<ISelectProps> = ({ options, Icon }) => {
+const Select: FC<ISelectProps> = ({ options, Icon, name, isStaticName = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const handleClick = useCallback(() => setIsOpen(prev => !prev), []);
 
@@ -36,8 +38,8 @@ const Select: FC<ISelectProps> = ({ options, Icon }) => {
             <Button
                 theme="select"
                 onClick={handleClick}
-                text={nameButton}
-                Icon={activeOption?.Icon || Icon}
+                text={isStaticName ? name : nameButton}
+                Icon={!isStaticName && activeOption?.Icon ? activeOption?.Icon : Icon}
                 isOpenSelect={isOpen}
             />
             {isOpen && (

@@ -6,7 +6,7 @@ import Select from '../../controls/Select';
 const InsertBlock = () => {
     return (
         <ButtonsContainer>
-            <Select options={insertOptions} Icon={Plus} />
+            <Select options={insertOptions} Icon={Plus} isStaticName name="Insert" />
         </ButtonsContainer>
     );
 };
