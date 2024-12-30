@@ -1,4 +1,4 @@
-import { LexicalNode, Root } from '../../nodes';
+import { LexicalNode, Root } from '../../../nodes';
 import { IEditorState, NodeMapType } from './EditorState.types';
 
 export const createInitialNodeMap = () => {

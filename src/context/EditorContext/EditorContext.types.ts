@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
-import { IEditorState } from '../EditorState/EditorState.types';
+import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 
 export interface IEditorContextProps {
     state: IEditorState;

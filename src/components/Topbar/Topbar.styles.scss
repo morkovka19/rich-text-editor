@@ -1,6 +1,31 @@
-@import 'src/styles/tokens/functions.scss';
-
+@use 'sass:map';
+@import '../../styles/tokens/functions.scss';
 .topbar {
     display: flex;
-    max-height: gs(10);
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 1px;
+    background: #fff;
+    padding: gs(1, true);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    vertical-align: middle;
+    overflow: auto;
+    position: sticky;
+    top: 0;
+
+    z-index: 2;
+    @media (max-width: 900px) {
+        justify-content: start;
+        gap: gs(1, true);
+    }
+    &__divider {
+        width: 1px;
+        background-color: #eee;
+        margin: 0 gs(1, true);
+        display: block;
+        @media (max-width: 900px) {
+            display: none;
+        }
+    }
 }

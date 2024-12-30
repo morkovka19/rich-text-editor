@@ -17,4 +17,5 @@
         "isolatedModules": false,
         "noEmit": false
     },
+    "include": ["src/custom.d.ts"]
 }

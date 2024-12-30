@@ -4,6 +4,20 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    min-height: gs(5);
-    border: 2px solid orange;
+    min-height: gs(70);
+    background: #fff;
+    padding: gs(3);
+    border-bottom-left-radius: gs(2);
+    border-bottom-right-radius: gs(2);
+    outline: none;
+
+    user-select: text;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 0;
+    font-size: 15px;
+    display: block;
+    position: relative;
+    outline: 0;
+    padding: 8px 28px 40px;
 }

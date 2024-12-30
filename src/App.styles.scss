@@ -1,0 +1,10 @@
+@import 'src/styles/tokens/variables.scss';
+@import 'src/styles/tokens/functions.scss';
+
+.demo-main-container {
+    background-color: #eee;
+    padding: gs(2);
+    width: 100%;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}

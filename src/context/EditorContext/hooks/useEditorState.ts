@@ -1,7 +1,7 @@
-import { isParentTagType } from '../../helpers/checkTypeTag';
-import { TEXT_KEY } from '../../helpers/constants';
-import { LexicalNode, NodeKeyType, Text } from '../../nodes';
-import { IEditorState } from '../EditorState/EditorState.types';
+import { IEditorState } from '../../../components/Editor/EditorState/EditorState.types';
+import { isParentTagType } from '../../../helpers/checkTypeTag';
+import { TEXT_KEY } from '../../../helpers/constants';
+import { LexicalNode, NodeKeyType, Text } from '../../../nodes';
 
 export const useEditorState = () => {
     const getNode = (state: IEditorState, key: NodeKeyType) => state.nodeMap.get(key);

@@ -12,8 +12,9 @@
         "paths": {
             "@src/*": ["./src/*"],
             "@styles/*": ["./src/styles/*"],
-            "@components/*": ["./src/components/*"]
+            "@components/*": ["./src/components/*"],
+            "@icons/*": ["./src/icons/"]
         }
     },
-    "include": ["vite.config.ts"]
+    "include": ["vite.config.ts", "src/custom.d.ts"]
 }

@@ -12,3 +12,10 @@ export type KlassConstructor<Cls extends GenericConstructor<any>> = GenericConst
     [k in keyof Cls]: Cls[k];
 };
 type GenericConstructor<T> = new (...args: any[]) => T;
+
+export type SVGRIcon = React.FC<
+    React.SVGProps<SVGSVGElement> & {
+        /** Alternative text in title tag. */
+        title?: string;
+    }
+>;
