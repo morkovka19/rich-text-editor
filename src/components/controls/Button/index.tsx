@@ -16,6 +16,7 @@ export interface IButtonProps {
     Icon?: SVGRIcon;
     isOpenSelect?: boolean;
     color?: string;
+    isPartSelect?: boolean;
 }
 
 const Button: FC<IButtonProps> = ({
@@ -27,6 +28,7 @@ const Button: FC<IButtonProps> = ({
     isOpenSelect = false,
     iconAfter = false,
     color,
+    isPartSelect,
 }) => {
     return (
         <button
@@ -36,7 +38,7 @@ const Button: FC<IButtonProps> = ({
             style={theme === 'color' && color ? { background: color } : {}}
         >
             {Icon && !iconAfter && <Icon className="button__icon" />}
-            {text && <span className="buttom__name">{text}</span>}
+            {text && <span className={`button__name ${isPartSelect && 'button__name_visible'}`}>{text}</span>}
             {Icon && iconAfter && <Icon className="button__icon button__icon_after" />}
             {theme === 'select' && <Arrow className={`button__arrow ${isOpenSelect && 'button__arrow_open'}`} />}
         </button>

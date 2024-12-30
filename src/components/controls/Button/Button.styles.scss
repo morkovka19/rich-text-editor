@@ -12,6 +12,7 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
+
     &:hover {
         background-color: #eee;
     }
@@ -43,7 +44,15 @@
         overflow: hidden;
         height: 20px;
         text-align: left;
-        padding-right: 10px;
+        padding-right: 5px;
+        @media (max-width: 900px) {
+            display: none;
+        }
+        &_visible {
+            @media (max-width: 900px) {
+                display: inline;
+            }
+        }
     }
 
     &__icon {
@@ -68,10 +77,6 @@
             margin-right: gs(1, true);
         }
     }
-
-    &_icon {
-    }
-
     &__select {
         display: flex;
         justify-content: space-between;

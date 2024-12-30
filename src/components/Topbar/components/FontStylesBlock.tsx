@@ -17,8 +17,8 @@ const FontStylesBlock = () => {
             <Button Icon={Underline} theme="icon" />
             <Button Icon={CodeBlock} theme="icon" />
             <Button Icon={Link} theme="icon" />
-            <ColorPicker Icon={Color} />
-            <ColorPicker Icon={BackgroundColor} />
+            <ColorPicker Icon={Color} color={''} />
+            <ColorPicker Icon={BackgroundColor} color={''} />
         </ButtonsContainer>
     );
 };

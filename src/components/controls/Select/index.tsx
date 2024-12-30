@@ -28,8 +28,8 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, isStaticName = false })
     useOnClickOutside(dropdowmRef, () => setIsOpen(false));
 
     const nameButton = useMemo(() => {
-        if (Icon && activeOption.label.length > 5) return `${activeOption.label.slice(0, 5)}...`;
-        if (activeOption.label.length > 7) return `${activeOption.label.slice(0, 7)}...`;
+        if (Icon && activeOption.label.length > 7) return `${activeOption.label.slice(0, 5)}...`;
+        if (activeOption.label.length > 10) return `${activeOption.label.slice(0, 7)}...`;
         return activeOption.label;
     }, [Icon, activeOption.label]);
 
@@ -52,6 +52,7 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, isStaticName = false })
                                     text={option.label}
                                     theme="text"
                                     onClick={() => handleClickOption(option)}
+                                    isPartSelect
                                 />
                             </li>
                         ))}
