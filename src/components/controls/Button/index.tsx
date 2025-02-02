@@ -11,31 +11,34 @@ export interface IButtonProps {
     theme: ButtonTheme;
     text?: string;
     onClick?: () => void;
-    disable?: boolean;
+    disabled?: boolean;
     iconAfter?: boolean;
     Icon?: SVGRIcon;
     isOpenSelect?: boolean;
     color?: string;
     isPartSelect?: boolean;
+    title?: string;
 }
 
 const Button: FC<IButtonProps> = ({
     theme,
     onClick,
     text,
-    disable = false,
+    disabled = false,
     Icon,
     isOpenSelect = false,
     iconAfter = false,
     color,
     isPartSelect,
+    title,
 }) => {
     return (
         <button
             className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'} ${theme === 'color' && 'button_color'}`}
             onClick={onClick}
-            disabled={disable}
+            disabled={disabled}
             style={theme === 'color' && color ? { background: color } : {}}
+            title={title}
         >
             {Icon && !iconAfter && <Icon className="button__icon" />}
             {text && <span className={`button__name ${isPartSelect && 'button__name_visible'}`}>{text}</span>}

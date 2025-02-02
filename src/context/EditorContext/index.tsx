@@ -11,6 +11,7 @@ import { useCheckNodes } from './hooks/useCheckNodes';
 import { useCreateNode } from './hooks/useCreateNode';
 import { useDOMState } from './hooks/useDOMState';
 import { useEditorState } from './hooks/useEditorState';
+import { HistoryTypeEnum, IHistoryQueueItem, useHistory } from './hooks/useHistory';
 import { useSelection } from './hooks/useSelection';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
@@ -32,9 +33,47 @@ export const EditorProvider: FC<{
     const { createText, createLexicalChildNode } = useCreateNode();
     const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
 
+    const { isUndoDisabled, isRedoDisabled, addToHistoryText, undo, addToHistoryNotText, redo, history } = useHistory();
+
     useEffect(() => {
         initialScript();
     }, []);
+
+    useEffect(() => {
+        const actualState = history.historyQueue[history.index - 1];
+        if (actualState) {
+            const { type } = actualState;
+            switch (type) {
+                case HistoryTypeEnum.TEXT: {
+                    const text =
+                        history.side === 'undo'
+                            ? String(actualState.lastState?.lastText)
+                            : String(actualState.lastState?.newText);
+                    updateContent(actualState.key, String(text));
+                    updateTextNode(actualState.key, '', String(text), state);
+                    break;
+                }
+                case HistoryTypeEnum.BLOCK: {
+                    const { key, parentKey } = actualState.lastState;
+                    const node = document.getElementById(key);
+                    if (node) {
+                        if (history.side === 'undo') {
+                            removeDOMNode(key);
+                            removeNode(stateRef.current, key);
+                        } else {
+                            const node = createLexicalChildNode({
+                                parent: parentKey,
+                                type,
+                                children: [],
+                            });
+                            addDOMNode(node);
+                            addNodeToState(stateRef.current, node);
+                        }
+                    }
+                }
+            }
+        }
+    }, [history.index, history.historyQueue, state]);
 
     const handleInput = (e: Event) => {
         e.preventDefault();
@@ -58,6 +97,15 @@ export const EditorProvider: FC<{
                     const node = createTextDONNode(key, text);
                     collapseSelectionToEnd(node);
                 }
+                const stateHistory = {
+                    type: HistoryTypeEnum.TEXT,
+                    key,
+                    lastState: {
+                        newText: text,
+                        lastText: texts?.reduce((str, cur) => `${str}${cur.getText()}`, '') || '',
+                    },
+                };
+                addToHistoryText(stateHistory);
             },
             callbackAddNode: (keyParent: string, type: string) => {
                 updateContent(keyParent);
@@ -70,6 +118,15 @@ export const EditorProvider: FC<{
                 addNodeToState(stateRef.current, node);
                 const nodeElement = addDOMNode(node) as HTMLElement;
                 collapseSelectionToEnd(nodeElement);
+                const historyState: IHistoryQueueItem = {
+                    type: HistoryTypeEnum.BLOCK,
+                    key: node.getKey(),
+                    lastState: {
+                        type: node.getType(),
+                        parentKey: node.getParent(),
+                    },
+                };
+                addToHistoryNotText(historyState);
                 return node.getKey();
             },
         });
@@ -88,6 +145,15 @@ export const EditorProvider: FC<{
                 addNodeToState(stateRef.current, node, focusNode.id);
                 const nodeElement = addDOMNode(node, focusNode.id) as HTMLElement;
                 collapseSelectionToEnd(nodeElement);
+                const historyState: IHistoryQueueItem = {
+                    type: HistoryTypeEnum.BLOCK,
+                    key: node.getKey(),
+                    lastState: {
+                        type: node.getType(),
+                        parentKey: node.getParent(),
+                    },
+                };
+                addToHistoryNotText(historyState);
                 break;
             }
             case 'Backspace': {
@@ -168,8 +234,12 @@ export const EditorProvider: FC<{
         () => ({
             state,
             setState,
+            undo,
+            redo,
+            isUndoDisabled,
+            isRedoDisabled,
         }),
-        [state]
+        [state, undo, redo, isUndoDisabled, isRedoDisabled]
     );
 
     return <EditorContext.Provider value={editorContextValue}>{children}</EditorContext.Provider>;
