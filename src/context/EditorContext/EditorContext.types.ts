@@ -5,4 +5,8 @@ import { IEditorState } from '../../components/Editor/EditorState/EditorState.ty
 export interface IEditorContextProps {
     state: IEditorState;
     setState: Dispatch<SetStateAction<IEditorState>>;
+    undo: () => void;
+    redo: () => void;
+    isUndoDisabled: boolean;
+    isRedoDisabled: boolean;
 }

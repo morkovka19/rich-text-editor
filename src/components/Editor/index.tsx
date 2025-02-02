@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-/* eslint-disable react-hooks/exhaustive-deps */
 import { FC, useRef } from 'react';
 
 import { EditorProvider } from '../../context/EditorContext';

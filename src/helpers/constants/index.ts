@@ -8,3 +8,5 @@ export const mapForAddedNodes = new Map<string, string>([
     [TAGS.BLOCK, TAGS.PARAGRAPH],
     [TAGS.PARAGRAPH, TAGS.TEXT],
 ]);
+
+export const HISTORY_TIMEOUT = 3000;
