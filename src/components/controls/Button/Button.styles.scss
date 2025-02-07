@@ -77,6 +77,10 @@
             margin-right: gs(1, true);
         }
     }
+
+    &_active {
+        background-color: #eee;
+    }
     &__select {
         display: flex;
         justify-content: space-between;

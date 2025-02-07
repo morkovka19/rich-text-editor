@@ -89,28 +89,44 @@ export const textBlockOptions: IOption[] = [
 
 export const fontSelectOptions: IOption[] = [
     {
-        label: 'Arial',
-        value: 'Arial',
+        label: 'Roboto',
+        value: 'Roboto',
     },
     {
-        label: 'Courier New',
-        value: 'Courier New',
+        label: 'Open Sans',
+        value: 'Open Sans',
     },
     {
-        label: 'Georgia',
-        value: 'Georgia',
+        label: 'Lato',
+        value: 'Lato',
     },
     {
-        label: 'Times New Roman',
-        value: 'Times New Roman',
+        label: 'Montserrat',
+        value: 'Montserrat',
     },
     {
-        label: 'Trebuchet MS',
-        value: 'Trebuchet MS',
+        label: 'Source Sans Pro',
+        value: 'Source Sans Pro',
     },
     {
-        label: 'Verdana',
-        value: 'Verdana',
+        label: 'Raleway',
+        value: 'Raleway',
+    },
+    {
+        label: 'Nunito',
+        value: 'Nunito',
+    },
+    {
+        label: 'Poppins',
+        value: 'Poppins',
+    },
+    {
+        label: 'Merriweather',
+        value: 'Merriweather',
+    },
+    {
+        label: 'Playfair Display',
+        value: 'Playfair Display',
     },
 ];
 

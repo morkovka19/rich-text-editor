@@ -14,6 +14,7 @@ export const useCheckNodes = () => {
         if (isParentTagType(type)) {
             const newType = getAddedNodeType(type);
             const newKey = callbackAddNode(keyParent, newType);
+
             checkContentNodes({ type: newType, keyParent: newKey, text, callbackUpdate, callbackAddNode });
         } else {
             callbackUpdate(keyParent, text);

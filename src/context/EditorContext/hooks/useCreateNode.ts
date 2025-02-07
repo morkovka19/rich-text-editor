@@ -17,7 +17,8 @@ type createLexicalNodeProps = createNodeProps & createTextProps;
 
 export const useCreateNode = () => {
     const createText = ({ parent, text = '' }: createTextProps) => {
-        const node = new Text(parent, text);
+        const key = generateKey();
+        const node = new Text(parent, text, key);
         return node;
     };
 

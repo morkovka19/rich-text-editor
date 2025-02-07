@@ -2,22 +2,21 @@ import { MAIN_DIV_ID } from '../../../helpers/constants';
 import { LexicalNode, NodeKeyType } from '../../../nodes';
 
 export const useDOMState = () => {
+    const getDOMElement = (key: NodeKeyType) => document.getElementById(key) as HTMLElement;
+
     const addDOMNode = (node: LexicalNode, prevNodeKey?: NodeKeyType) => {
-        if (node.canHaveText() && node.getParent()) {
-            return updateContent(node.getParent() as string);
-        }
-        const parent = document.getElementById(node.getParent() as string);
+        const parent = getDOMElement(node.getParent() as string);
         const child = document.createElement(node.getType());
         child.id = node.getKey();
         if (prevNodeKey) {
-            const prevNode = document.getElementById(prevNodeKey);
+            const prevNode = getDOMElement(prevNodeKey);
             if (prevNode) parent?.insertBefore(child, prevNode.nextSibling);
         } else parent?.appendChild(child);
         return child;
     };
 
     const removeDOMNode = (key: NodeKeyType) => {
-        const node = document.getElementById(key) as HTMLElement;
+        const node = getDOMElement(key);
         if (node.id !== MAIN_DIV_ID) {
             node.remove();
         }
@@ -25,17 +24,32 @@ export const useDOMState = () => {
 
     const createTextDONNode = (keyParent: NodeKeyType, content = '') => {
         const text = document.createTextNode(content);
-        document.getElementById(keyParent)?.appendChild(text);
+        getDOMElement(keyParent)?.appendChild(text);
         return text;
     };
 
     const updateContent = (key?: NodeKeyType, content?: string, node?: HTMLElement) => {
         if (key) {
-            const updatedElement = document.getElementById(key) as HTMLElement;
+            const updatedElement = getDOMElement(key);
             updatedElement.textContent = content || '';
         } else if (node) {
             node.textContent = content || '';
         }
+    };
+
+    const updateStyleDOMNode = (key: NodeKeyType, styleStr: string) => {
+        const updatenNode = getDOMElement(key);
+        if (updatenNode) {
+            updatenNode.style.cssText = styleStr;
+        }
+    };
+
+    const getDOMNode = (key: NodeKeyType) => document.getElementById(key) as Node;
+
+    const getLastTextChild = (node: HTMLElement) => {
+        if (!node) return;
+        if (node?.nodeName === '#text') return node;
+        return getLastTextChild(node?.lastChild as HTMLElement);
     };
 
     return {
@@ -43,5 +57,8 @@ export const useDOMState = () => {
         removeDOMNode,
         updateContent,
         createTextDONNode,
+        updateStyleDOMNode,
+        getDOMNode,
+        getLastTextChild,
     };
 };

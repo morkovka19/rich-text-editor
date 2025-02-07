@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { RefObject, createContext, useEffect, useRef } from 'react';
+import { RefObject, createContext, useCallback, useEffect, useRef } from 'react';
 import { FC, ReactNode, useMemo, useState } from 'react';
 
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
-import { TEXT_KEY } from '../../helpers/constants';
+import { NodeKeyType, Text } from '../../nodes';
 import { initialScript } from '../../scripts/initialScript';
 import { IEditorContextProps } from './EditorContext.types';
 import { useCheckNodes } from './hooks/useCheckNodes';
@@ -13,6 +13,7 @@ import { useDOMState } from './hooks/useDOMState';
 import { useEditorState } from './hooks/useEditorState';
 import { HistoryTypeEnum, IHistoryQueueItem, useHistory } from './hooks/useHistory';
 import { useSelection } from './hooks/useSelection';
+import useStyle from './hooks/useStyle';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
 
@@ -27,18 +28,57 @@ export const EditorProvider: FC<{
     const stateRef = useRef(state);
     stateRef.current = state;
 
-    const { addNodeToState, removeNode, addTextToState, updateTextNode } = useEditorState();
-    const { updateContent, addDOMNode, removeDOMNode, createTextDONNode } = useDOMState();
+    const { addNodeToState, removeNode, updateTextNode, updateStyleNode } = useEditorState();
+    const { updateContent, addDOMNode, removeDOMNode, updateStyleDOMNode, getDOMNode, getLastTextChild } =
+        useDOMState();
     const { checkContentNodes } = useCheckNodes();
-    const { createText, createLexicalChildNode } = useCreateNode();
+
+    const { createLexicalChildNode } = useCreateNode();
+
     const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
 
-    const { isUndoDisabled, isRedoDisabled, addToHistoryText, undo, addToHistoryNotText, redo, history } = useHistory();
+    const { isUndoDisabled, isRedoDisabled, undo, addToHistoryNotText, redo, history } = useHistory();
+
+    const { styleRef, getStyleStr } = useStyle();
 
     useEffect(() => {
         initialScript();
     }, []);
 
+    /**
+     * state
+     */
+
+    /**
+     * style
+     */
+
+    const setStyleLocal = useCallback(
+        (key: NodeKeyType) => {
+            updateStyleNode(state, styleRef.current, key);
+            updateStyleDOMNode(key, getStyleStr());
+        },
+        [styleRef.current.font]
+    );
+
+    /**
+     * selection
+     */
+    useEffect(() => {
+        const selection = getSelection();
+        const { focusOffset, anchorOffset } = selection;
+        if (focusOffset !== anchorOffset) {
+            const focusNode = selection.focusNode as HTMLElement;
+            const key = focusNode?.id;
+            const nodeDOM = getDOMNode(key);
+            setSelectionRange(nodeDOM, 1, nodeDOM, 1);
+            setStyleLocal(key);
+        }
+    }, [getSelection]);
+
+    /**
+     * history
+     */
     useEffect(() => {
         const actualState = history.historyQueue[history.index - 1];
         if (actualState) {
@@ -50,7 +90,7 @@ export const EditorProvider: FC<{
                             ? String(actualState.lastState?.lastText)
                             : String(actualState.lastState?.newText);
                     updateContent(actualState.key, String(text));
-                    updateTextNode(actualState.key, '', String(text), state);
+                    updateTextNode(actualState.key, String(text), state);
                     break;
                 }
                 case HistoryTypeEnum.BLOCK: {
@@ -84,28 +124,11 @@ export const EditorProvider: FC<{
             keyParent: target.id,
             text,
             callbackUpdate: (key: string) => {
-                const node = state.nodeMap.get(key);
-                const texts = node?.getTextChild();
-                if (texts && texts.length > 0) {
-                    const stateNode = texts[texts.length - 1];
-                    stateNode?.setText(text);
-                    updateContent(key, text);
-                } else {
-                    const newText = createText({ parent: key, text: text });
-                    addTextToState(stateRef.current, newText);
-                    updateContent(key, '');
-                    const node = createTextDONNode(key, text);
-                    collapseSelectionToEnd(node);
-                }
-                const stateHistory = {
-                    type: HistoryTypeEnum.TEXT,
-                    key,
-                    lastState: {
-                        newText: text,
-                        lastText: texts?.reduce((str, cur) => `${str}${cur.getText()}`, '') || '',
-                    },
-                };
-                addToHistoryText(stateHistory);
+                const node = state.nodeMap.get(key) as Text;
+                updateContent(node.getKey(), text);
+                updateTextNode(node.getKey(), text, stateRef.current);
+                const nodeElement = getDOMNode(node.getKey());
+                collapseSelectionToEnd(nodeElement);
             },
             callbackAddNode: (keyParent: string, type: string) => {
                 updateContent(keyParent);
@@ -118,15 +141,6 @@ export const EditorProvider: FC<{
                 addNodeToState(stateRef.current, node);
                 const nodeElement = addDOMNode(node) as HTMLElement;
                 collapseSelectionToEnd(nodeElement);
-                const historyState: IHistoryQueueItem = {
-                    type: HistoryTypeEnum.BLOCK,
-                    key: node.getKey(),
-                    lastState: {
-                        type: node.getType(),
-                        parentKey: node.getParent(),
-                    },
-                };
-                addToHistoryNotText(historyState);
                 return node.getKey();
             },
         });
@@ -159,46 +173,31 @@ export const EditorProvider: FC<{
             case 'Backspace': {
                 e.preventDefault();
                 const selection = getSelection();
-                const focusNode = selection.focusNode as HTMLElement;
-                const content = focusNode.nodeValue || focusNode.textContent || '';
-                const updatedNode = focusNode.parentElement!;
-                if (focusNode.nodeName === TEXT_KEY) {
-                    const { focusOffset, anchorOffset } = selection;
-                    const minOffset = Math.min(focusOffset, anchorOffset);
-                    const maxOffset = Math.max(focusOffset, anchorOffset);
-                    const isRange = minOffset !== maxOffset;
-                    if (minOffset === 0 && !isRange && content.length) {
-                        const newFocusNode = updatedNode.previousElementSibling!;
-                        const prevContent = newFocusNode.textContent || '';
-                        updateTextNode(newFocusNode.id, prevContent, `${prevContent}${content}`, stateRef.current);
-                        updateContent(newFocusNode.id, `${prevContent}${content}`);
-                        removeDOMNode(updatedNode.id);
-                        removeNode(stateRef.current, updatedNode.id);
-                        const selPosition = newFocusNode.textContent
-                            ? newFocusNode.textContent.length - content.length
-                            : 0;
-                        setSelectionRange(newFocusNode.firstChild!, selPosition, newFocusNode.firstChild!, selPosition);
-                    } else {
-                        const newContent = !isRange
-                            ? content.slice(0, minOffset - 1)
-                            : content.slice(0, minOffset) + content.slice(maxOffset + 1);
-
-                        updateContent(updatedNode.id, newContent);
-                        updateTextNode(updatedNode.id, content, newContent, stateRef.current);
-                        setSelectionRange(
-                            updatedNode.lastChild || updatedNode,
-                            isRange ? minOffset : minOffset - 1,
-                            updatedNode.lastChild || updatedNode,
-                            isRange ? minOffset : minOffset - 1
-                        );
+                const { focusNode, anchorOffset, focusOffset } = selection;
+                const textNode = getLastTextChild(focusNode as HTMLElement);
+                const range = anchorOffset - focusOffset;
+                if (textNode) {
+                    const { parentElement } = textNode;
+                    const parentId = parentElement?.id;
+                    const newContent = textNode.textContent?.slice(0, textNode.textContent.length - (range || 1));
+                    if (parentId) {
+                        updateContent(parentId, newContent);
+                        updateTextNode(parentId, newContent || '', stateRef.current);
+                        collapseSelectionToEnd(parentElement);
                     }
                 } else {
-                    collapseSelectionToEnd(
-                        focusNode.previousElementSibling!.lastChild || focusNode.previousElementSibling!
-                    );
-                    removeDOMNode(focusNode.id);
-                    removeNode(stateRef.current, focusNode.id);
+                    const key = (focusNode as HTMLElement).id;
+                    const parentNode = focusNode?.parentNode as HTMLElement;
+                    const lastTextNode = getLastTextChild(parentNode);
+                    removeDOMNode(key);
+                    removeNode(stateRef.current, key);
+                    if (lastTextNode) {
+                        collapseSelectionToEnd(lastTextNode);
+                    } else {
+                        collapseSelectionToEnd(parentNode.lastChild as HTMLElement);
+                    }
                 }
+
                 break;
             }
             default: {

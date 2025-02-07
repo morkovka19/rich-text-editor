@@ -2,10 +2,8 @@
 export const enum TAGS {
     PARAGRAPH = 'p',
     BLOCK = 'div',
-    TEXT = '#text',
+    TEXT = 'span',
 }
-
-export type ParentTagType = TAGS.BLOCK;
 export type TextTagType = 'text';
 
 export type KlassConstructor<Cls extends GenericConstructor<any>> = GenericConstructor<InstanceType<Cls>> & {
