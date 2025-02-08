@@ -28,22 +28,31 @@ export const EditorProvider: FC<{
     const stateRef = useRef(state);
     stateRef.current = state;
 
-    const { addNodeToState, removeNode, updateTextNode, updateStyleNode } = useEditorState();
-    const { updateContent, addDOMNode, removeDOMNode, updateStyleDOMNode, getDOMNode, getLastTextChild } =
-        useDOMState();
-    const { checkContentNodes } = useCheckNodes();
-
-    const { createLexicalChildNode } = useCreateNode();
-
-    const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
-
-    const { isUndoDisabled, isRedoDisabled, undo, addToHistoryNotText, redo, history } = useHistory();
-
-    const { styleRef, getStyleStr } = useStyle();
-
     useEffect(() => {
         initialScript();
     }, []);
+
+    // state
+    const { addNodeToState, removeNode, updateTextNode, updateStyleNode } = useEditorState();
+
+    // DOM
+    const { updateContent, addDOMNode, removeDOMNode, updateStyleDOMNode, getDOMNode, getLastTextChild } =
+        useDOMState();
+
+    // check node
+    const { checkContentNodes } = useCheckNodes();
+
+    // create node
+    const { createLexicalChildNode } = useCreateNode();
+
+    // selection
+    const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
+
+    // history
+    const { isUndoDisabled, isRedoDisabled, undo, addToHistoryNotText, redo, history, addToHistoryText } = useHistory();
+
+    // style
+    const { styleRef, getStyleStr } = useStyle();
 
     /**
      * state
@@ -62,7 +71,7 @@ export const EditorProvider: FC<{
     );
 
     /**
-     * selection
+     * selection event
      */
     useEffect(() => {
         const selection = getSelection();
@@ -77,10 +86,11 @@ export const EditorProvider: FC<{
     }, [getSelection]);
 
     /**
-     * history
+     * history event
      */
     useEffect(() => {
         const actualState = history.historyQueue[history.index - 1];
+
         if (actualState) {
             const { type } = actualState;
             switch (type) {
@@ -110,6 +120,29 @@ export const EditorProvider: FC<{
                             addNodeToState(stateRef.current, node);
                         }
                     }
+                    break;
+                }
+                case HistoryTypeEnum.REMOVE_BLOCK: {
+                    const { key, parentKey } = actualState.lastState;
+                    const node = document.getElementById(key);
+                    if (node) {
+                        if (history.side === 'undo') {
+                            const node = createLexicalChildNode({
+                                parent: parentKey,
+                                type,
+                                children: [],
+                            });
+                            addDOMNode(node);
+                            addNodeToState(stateRef.current, node);
+                        } else {
+                            removeDOMNode(key);
+                            removeNode(stateRef.current, key);
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    break;
                 }
             }
         }
@@ -125,22 +158,47 @@ export const EditorProvider: FC<{
             text,
             callbackUpdate: (key: string) => {
                 const node = state.nodeMap.get(key) as Text;
+                const lastText = node.getText();
+                // DOM
                 updateContent(node.getKey(), text);
-                updateTextNode(node.getKey(), text, stateRef.current);
+                // selection
                 const nodeElement = getDOMNode(node.getKey());
                 collapseSelectionToEnd(nodeElement);
+                // state
+                updateTextNode(node.getKey(), text, stateRef.current);
+                // history
+                const historyItem: IHistoryQueueItem = {
+                    type: HistoryTypeEnum.TEXT,
+                    key: node.getKey(),
+                    lastState: {
+                        lastText,
+                        newText: text,
+                    },
+                };
+                addToHistoryText(historyItem);
             },
             callbackAddNode: (keyParent: string, type: string) => {
+                // DOM
                 updateContent(keyParent);
                 const node = createLexicalChildNode({
                     parent: keyParent,
                     type,
                     children: [],
                 });
-                updateContent(keyParent);
-                addNodeToState(stateRef.current, node);
                 const nodeElement = addDOMNode(node) as HTMLElement;
+                // selection
                 collapseSelectionToEnd(nodeElement);
+                // state
+                addNodeToState(stateRef.current, node);
+                // history
+                const historyItem: IHistoryQueueItem = {
+                    type: HistoryTypeEnum.BLOCK,
+                    key: node.getKey(),
+                    lastState: {
+                        parentKey: keyParent,
+                    },
+                };
+                addToHistoryNotText(historyItem);
                 return node.getKey();
             },
         });
@@ -151,14 +209,18 @@ export const EditorProvider: FC<{
             case 'Enter': {
                 e.preventDefault();
                 const { firstNode: parent, focusNode } = setSelAfterEnter();
+                // DOM
                 const node = createLexicalChildNode({
                     parent: parent.id,
                     children: [],
                     type: parent.firstElementChild?.localName as string,
                 });
-                addNodeToState(stateRef.current, node, focusNode.id);
                 const nodeElement = addDOMNode(node, focusNode.id) as HTMLElement;
+                // selection
                 collapseSelectionToEnd(nodeElement);
+                // state
+                addNodeToState(stateRef.current, node, focusNode.id);
+                // history
                 const historyState: IHistoryQueueItem = {
                     type: HistoryTypeEnum.BLOCK,
                     key: node.getKey(),
@@ -181,21 +243,46 @@ export const EditorProvider: FC<{
                     const parentId = parentElement?.id;
                     const newContent = textNode.textContent?.slice(0, textNode.textContent.length - (range || 1));
                     if (parentId) {
+                        // DOM
                         updateContent(parentId, newContent);
-                        updateTextNode(parentId, newContent || '', stateRef.current);
+                        // selection
                         collapseSelectionToEnd(parentElement);
+                        // state
+                        updateTextNode(parentId, newContent || '', stateRef.current);
+                        // history
+                        const historyItem: IHistoryQueueItem = {
+                            key: parentId,
+                            type: HistoryTypeEnum.TEXT,
+                            lastState: {
+                                newText: newContent,
+                                lastText: textNode.textContent,
+                            },
+                        };
+                        addToHistoryText(historyItem);
                     }
                 } else {
                     const key = (focusNode as HTMLElement).id;
                     const parentNode = focusNode?.parentNode as HTMLElement;
                     const lastTextNode = getLastTextChild(parentNode);
+                    // DOM
                     removeDOMNode(key);
-                    removeNode(stateRef.current, key);
+                    // selection
                     if (lastTextNode) {
                         collapseSelectionToEnd(lastTextNode);
                     } else {
                         collapseSelectionToEnd(parentNode.lastChild as HTMLElement);
                     }
+                    // state
+                    removeNode(stateRef.current, key);
+                    // history
+                    const historyItem: IHistoryQueueItem = {
+                        key,
+                        type: HistoryTypeEnum.REMOVE_BLOCK,
+                        lastState: {
+                            parentKey: parentNode?.id,
+                        },
+                    };
+                    addToHistoryNotText(historyItem);
                 }
 
                 break;
@@ -208,12 +295,13 @@ export const EditorProvider: FC<{
 
     const handleClick = (e: Event) => {
         e.preventDefault();
-
         const { anchorOffset } = getSelection();
         const target = e.target as HTMLElement;
+        // selection
         setSelectionRange(target.lastChild || target, anchorOffset, target.lastChild || target, anchorOffset);
     };
 
+    // listeners
     useEffect(() => {
         editor.current?.addEventListener('inputEditor', handleInput);
         return () => editor.current?.removeEventListener('inputEditor', handleInput);

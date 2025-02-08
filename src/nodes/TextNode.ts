@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { NodeMapType } from '../components/Editor/EditorState/EditorState.types';
 import { TEXT_KEY, TEXT_TAG } from '../helpers/constants';
 import { TAGS } from '../types';
 import { ChildType, LexicalNode, NodeKeyType } from './LexicalNode';
@@ -23,7 +21,7 @@ export class Text extends LexicalNode {
         this.__text = newText;
     }
 
-    getText(_nodeMap: NodeMapType<LexicalNode>) {
+    getText() {
         return this.__text || '';
     }
 

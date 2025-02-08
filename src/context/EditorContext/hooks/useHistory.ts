@@ -7,6 +7,7 @@ export enum HistoryTypeEnum {
     STYLE = 'style',
     TEXT = 'text',
     BLOCK = 'block',
+    REMOVE_BLOCK = 'removeBlock',
 }
 
 export interface IHistoryQueueItem {
@@ -44,7 +45,7 @@ export const useHistory = () => {
                 const queue = history.index === MAX_HISTORY_LENGTH ? getQueueWithoutLastState() : getQueueCopy();
                 queue.unshift(newState);
                 setHistory(prevState => ({ ...prevState, historyQueue: queue }));
-            }, 3000);
+            }, 1000);
         },
         [getQueueCopy, getQueueWithoutLastState, history]
     );

@@ -53,7 +53,7 @@ export const useEditorState = () => {
     const updateTextNode = (key: NodeKeyType, newText: string, state: IEditorState) => {
         const { nodeMap } = state;
         const node = nodeMap.get(key) as Text;
-        if (newText) node.setText(newText);
+        if (newText && node) node.setText(newText);
         else removeNode(state, key);
     };
 
