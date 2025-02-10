@@ -13,7 +13,11 @@ export enum HistoryTypeEnum {
 export interface IHistoryQueueItem {
     type: HistoryTypeEnum;
     key: NodeKeyType;
-    lastState: any;
+    lastState: {
+        last?: any;
+        new?: any;
+        parent?: NodeKeyType;
+    };
 }
 
 export interface IHistoryState {
@@ -45,7 +49,7 @@ export const useHistory = () => {
                 const queue = history.index === MAX_HISTORY_LENGTH ? getQueueWithoutLastState() : getQueueCopy();
                 queue.unshift(newState);
                 setHistory(prevState => ({ ...prevState, historyQueue: queue }));
-            }, 1000);
+            }, 100);
         },
         [getQueueCopy, getQueueWithoutLastState, history]
     );

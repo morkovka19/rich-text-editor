@@ -31,16 +31,18 @@ export const useSelection = () => {
     const collapseSelectionToStart = (node: Node) => {
         const sel = getSelection();
         const range = getRange();
-        range.selectNodeContents(node);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
+        if (node) {
+            range?.selectNodeContents(node);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
     };
 
     const collapseSelectionToEnd = (node: Node) => {
         const sel = getSelection();
         const range = getRange();
-        range.selectNodeContents(node);
+        range?.selectNodeContents(node);
         range.collapse(false);
         sel.removeAllRanges();
         sel.addRange(range);
@@ -76,6 +78,8 @@ export const useSelection = () => {
         };
     };
 
+    const selection = getSelection();
+
     return {
         setSelectionRange,
         setSelectionToNode,
@@ -85,5 +89,6 @@ export const useSelection = () => {
         getSelection,
         clearSelection,
         setSelAfterEnter,
+        selection,
     };
 };

@@ -4,7 +4,7 @@ import { FC, ReactNode, useMemo, useState } from 'react';
 
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
-import { NodeKeyType, Text } from '../../nodes';
+import { LexicalNode, NodeKeyType, Text } from '../../nodes';
 import { initialScript } from '../../scripts/initialScript';
 import { IEditorContextProps } from './EditorContext.types';
 import { useCheckNodes } from './hooks/useCheckNodes';
@@ -13,7 +13,7 @@ import { useDOMState } from './hooks/useDOMState';
 import { useEditorState } from './hooks/useEditorState';
 import { HistoryTypeEnum, IHistoryQueueItem, useHistory } from './hooks/useHistory';
 import { useSelection } from './hooks/useSelection';
-import useStyle from './hooks/useStyle';
+import useStyle, { StylePropType, initialStyle } from './hooks/useStyle';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
 
@@ -33,7 +33,7 @@ export const EditorProvider: FC<{
     }, []);
 
     // state
-    const { addNodeToState, removeNode, updateTextNode, updateStyleNode } = useEditorState();
+    const { addNodeToState, removeNodeState, updateTextNode, updateStyleNode } = useEditorState();
 
     // DOM
     const { updateContent, addDOMNode, removeDOMNode, updateStyleDOMNode, getDOMNode, getLastTextChild } =
@@ -46,44 +46,157 @@ export const EditorProvider: FC<{
     const { createLexicalChildNode } = useCreateNode();
 
     // selection
-    const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection } = useSelection();
+    const { setSelectionRange, collapseSelectionToEnd, setSelAfterEnter, getSelection, selection } = useSelection();
 
     // history
     const { isUndoDisabled, isRedoDisabled, undo, addToHistoryNotText, redo, history, addToHistoryText } = useHistory();
 
     // style
-    const { styleRef, getStyleStr } = useStyle();
+    const { styleRef, getStyleStr, updateFont, updateFontSize } = useStyle();
 
-    /**
-     * state
-     */
+    // helpers
+    const setStyleNode = (key: NodeKeyType, lastStyle: string) => {
+        const style = getStyleStr();
+        // DOM
+        updateStyleDOMNode(key, style);
+        // state
+        updateStyleNode(stateRef.current, styleRef.current, key);
+        // history
+        const historyItem: IHistoryQueueItem = {
+            type: HistoryTypeEnum.STYLE,
+            key,
+            lastState: {
+                last: lastStyle,
+                new: style,
+            },
+        };
+        addToHistoryNotText(historyItem);
+    };
 
-    /**
-     * style
-     */
+    const addNode = (parent: NodeKeyType, nodeType: string, isHistory: boolean, prevNode?: NodeKeyType) => {
+        const node = createLexicalChildNode({
+            parent: parent as NodeKeyType,
+            type: nodeType,
+            text: '',
+            children: [],
+        });
+        // DOM
+        const nodeElement = addDOMNode(node, prevNode) as Node;
+        // state
+        addNodeToState(stateRef.current, node);
+        // style
+        setStyleNode(node.getKey(), getStyleStr(node.getStyle() || initialStyle));
+        // selection
+        setSelectionRange(nodeElement, 0, nodeElement, 0);
+        collapseSelectionToEnd(nodeElement);
+        // style
+        setStyleNode(node.getKey(), getStyleStr(styleRef.current));
+        if (!isHistory) {
+            // history
+            const historyItem: IHistoryQueueItem = {
+                type: HistoryTypeEnum.BLOCK,
+                key: node.getKey(),
+                lastState: {
+                    parent: node.getParent(),
+                },
+            };
+            addToHistoryNotText(historyItem);
+        }
 
-    const setStyleLocal = useCallback(
-        (key: NodeKeyType) => {
-            updateStyleNode(state, styleRef.current, key);
-            updateStyleDOMNode(key, getStyleStr());
+        return node;
+    };
+
+    const updateNode = (key: NodeKeyType, text: string) => {
+        const node = state.nodeMap.get(key) as Text;
+        const lastText = node.getText();
+        // DOM
+        updateContent(node.getKey(), text);
+        // selection
+        const nodeElement = getDOMNode(node.getKey());
+        collapseSelectionToEnd(nodeElement);
+        // state
+        updateTextNode(node.getKey(), text, stateRef.current);
+        // history
+        const historyItem: IHistoryQueueItem = {
+            type: HistoryTypeEnum.TEXT,
+            key: node.getKey(),
+            lastState: {
+                last: lastText,
+                new: text,
+            },
+        };
+        addToHistoryText(historyItem);
+    };
+
+    const removeNode = (key: NodeKeyType, parentNode: HTMLElement, isHistory: boolean, lastTextNode?: Node) => {
+        // DOM
+        removeDOMNode(key);
+        // selection
+        if (lastTextNode) {
+            collapseSelectionToEnd(lastTextNode);
+        } else {
+            collapseSelectionToEnd(parentNode.lastChild as HTMLElement);
+        }
+        // state
+        removeNodeState(stateRef.current, key);
+        if (!isHistory) {
+            // history
+            const historyItem: IHistoryQueueItem = {
+                key,
+                type: HistoryTypeEnum.REMOVE_BLOCK,
+                lastState: {
+                    parent: parentNode?.id,
+                },
+            };
+            addToHistoryNotText(historyItem);
+        }
+    };
+
+    const setStyle = useCallback(
+        (value: string, type: StylePropType) => {
+            switch (type) {
+                case StylePropType.FONT_FAMILY: {
+                    updateFont(value);
+                    break;
+                }
+                case StylePropType.FONT_SIZE: {
+                    updateFontSize(Number(value));
+                    break;
+                }
+                default:
+                    break;
+            }
+            const { focusOffset, anchorOffset, focusNode } = selection;
+            const parentNode = focusNode?.parentElement as HTMLElement;
+            if (focusOffset === anchorOffset) {
+                if (focusNode?.textContent) {
+                    const parentStyleStr = getStyleStr((focusNode as HTMLElement).style);
+                    if (parentStyleStr !== getStyleStr()) {
+                        addNode(parentNode.id as NodeKeyType, focusNode.nodeName, false);
+                    }
+                } else {
+                    const node = stateRef.current.nodeMap.get((focusNode as HTMLElement).id) as LexicalNode;
+                    setStyleNode(node.getKey(), getStyleStr(node.getStyle() || initialStyle));
+                }
+            } else {
+                setStyleNode(parentNode.id, getStyleStr(parentNode.style || initialStyle));
+            }
         },
-        [styleRef.current.font]
+        [selection]
     );
 
     /**
      * selection event
      */
     useEffect(() => {
-        const selection = getSelection();
         const { focusOffset, anchorOffset } = selection;
         if (focusOffset !== anchorOffset) {
             const focusNode = selection.focusNode as HTMLElement;
             const key = focusNode?.id;
             const nodeDOM = getDOMNode(key);
-            setSelectionRange(nodeDOM, 1, nodeDOM, 1);
-            setStyleLocal(key);
+            setSelectionRange(nodeDOM, 0, nodeDOM, 0);
         }
-    }, [getSelection]);
+    }, [selection]);
 
     /**
      * history event
@@ -97,46 +210,35 @@ export const EditorProvider: FC<{
                 case HistoryTypeEnum.TEXT: {
                     const text =
                         history.side === 'undo'
-                            ? String(actualState.lastState?.lastText)
-                            : String(actualState.lastState?.newText);
+                            ? String(actualState.lastState?.last)
+                            : String(actualState.lastState?.new);
                     updateContent(actualState.key, String(text));
                     updateTextNode(actualState.key, String(text), state);
                     break;
                 }
                 case HistoryTypeEnum.BLOCK: {
-                    const { key, parentKey } = actualState.lastState;
-                    const node = document.getElementById(key);
+                    const { new: newKey, parent } = actualState.lastState;
+                    const node = document.getElementById(newKey);
                     if (node) {
                         if (history.side === 'undo') {
-                            removeDOMNode(key);
-                            removeNode(stateRef.current, key);
+                            removeDOMNode(newKey);
+                            removeNodeState(stateRef.current, newKey);
                         } else {
-                            const node = createLexicalChildNode({
-                                parent: parentKey,
-                                type,
-                                children: [],
-                            });
-                            addDOMNode(node);
-                            addNodeToState(stateRef.current, node);
+                            addNode(parent || '', type, true);
                         }
                     }
                     break;
                 }
                 case HistoryTypeEnum.REMOVE_BLOCK: {
-                    const { key, parentKey } = actualState.lastState;
-                    const node = document.getElementById(key);
+                    const parent = actualState.lastState.parent;
+                    const newKey = actualState.lastState.new;
+                    const node = document.getElementById(newKey);
                     if (node) {
                         if (history.side === 'undo') {
-                            const node = createLexicalChildNode({
-                                parent: parentKey,
-                                type,
-                                children: [],
-                            });
-                            addDOMNode(node);
-                            addNodeToState(stateRef.current, node);
+                            addNode(parent || '', type, true);
                         } else {
-                            removeDOMNode(key);
-                            removeNode(stateRef.current, key);
+                            const parentNode = getDOMNode(parent || '');
+                            removeNode(newKey, parentNode as HTMLElement, true);
                         }
                     }
                     break;
@@ -148,93 +250,54 @@ export const EditorProvider: FC<{
         }
     }, [history.index, history.historyQueue, state]);
 
-    const handleInput = (e: Event) => {
-        e.preventDefault();
-        const target = e.target as HTMLElement;
-        const text = target.textContent as string;
-        checkContentNodes({
-            type: target.localName,
-            keyParent: target.id,
-            text,
-            callbackUpdate: (key: string) => {
-                const node = state.nodeMap.get(key) as Text;
-                const lastText = node.getText();
-                // DOM
-                updateContent(node.getKey(), text);
-                // selection
-                const nodeElement = getDOMNode(node.getKey());
-                collapseSelectionToEnd(nodeElement);
-                // state
-                updateTextNode(node.getKey(), text, stateRef.current);
-                // history
-                const historyItem: IHistoryQueueItem = {
-                    type: HistoryTypeEnum.TEXT,
-                    key: node.getKey(),
-                    lastState: {
-                        lastText,
-                        newText: text,
-                    },
-                };
-                addToHistoryText(historyItem);
-            },
-            callbackAddNode: (keyParent: string, type: string) => {
-                // DOM
-                updateContent(keyParent);
-                const node = createLexicalChildNode({
-                    parent: keyParent,
-                    type,
-                    children: [],
-                });
-                const nodeElement = addDOMNode(node) as HTMLElement;
-                // selection
-                collapseSelectionToEnd(nodeElement);
-                // state
-                addNodeToState(stateRef.current, node);
-                // history
-                const historyItem: IHistoryQueueItem = {
-                    type: HistoryTypeEnum.BLOCK,
-                    key: node.getKey(),
-                    lastState: {
-                        parentKey: keyParent,
-                    },
-                };
-                addToHistoryNotText(historyItem);
-                return node.getKey();
-            },
-        });
-    };
+    // input
+    const handleInput = useCallback(
+        (e: Event) => {
+            e.preventDefault();
+            const { focusOffset, anchorOffset } = selection;
+            const targetNode = e.target as HTMLElement;
+            const textTargetNode = targetNode.textContent as string;
+            const parent = targetNode.parentElement;
+            const lastElement = parent?.lastChild as HTMLElement;
+            // if parent has empty last child - update target
+            const isNew =
+                lastElement &&
+                lastElement?.id !== targetNode.id &&
+                !lastElement.textContent &&
+                focusOffset === anchorOffset;
+            const target = isNew ? lastElement : targetNode;
+            const text = isNew ? textTargetNode[textTargetNode.length - 1] : textTargetNode;
+            if (text !== textTargetNode) {
+                updateNode(targetNode.id, textTargetNode.slice(0, textTargetNode.length - 1));
+            }
+            checkContentNodes({
+                type: target.localName,
+                keyParent: target.id,
+                text,
+                callbackUpdate: (key: string) => {
+                    updateNode(key, text);
+                },
+                callbackAddNode: (keyParent: string, type: string) => {
+                    updateContent(keyParent);
+                    const node = addNode(keyParent, type, false);
+                    return node.getKey();
+                },
+            });
+        },
+        [selection]
+    );
 
+    // keydown
     const handleKeydown = (e: KeyboardEvent) => {
         switch (e.code) {
             case 'Enter': {
                 e.preventDefault();
                 const { firstNode: parent, focusNode } = setSelAfterEnter();
-                // DOM
-                const node = createLexicalChildNode({
-                    parent: parent.id,
-                    children: [],
-                    type: parent.firstElementChild?.localName as string,
-                });
-                const nodeElement = addDOMNode(node, focusNode.id) as HTMLElement;
-                // selection
-                collapseSelectionToEnd(nodeElement);
-                // state
-                addNodeToState(stateRef.current, node, focusNode.id);
-                // history
-                const historyState: IHistoryQueueItem = {
-                    type: HistoryTypeEnum.BLOCK,
-                    key: node.getKey(),
-                    lastState: {
-                        type: node.getType(),
-                        parentKey: node.getParent(),
-                    },
-                };
-                addToHistoryNotText(historyState);
+                addNode(parent.id, parent.firstElementChild?.localName as string, false, focusNode.id);
                 break;
             }
             case 'Backspace': {
                 e.preventDefault();
-                const selection = getSelection();
                 const { focusNode, anchorOffset, focusOffset } = selection;
                 const textNode = getLastTextChild(focusNode as HTMLElement);
                 const range = anchorOffset - focusOffset;
@@ -243,46 +306,13 @@ export const EditorProvider: FC<{
                     const parentId = parentElement?.id;
                     const newContent = textNode.textContent?.slice(0, textNode.textContent.length - (range || 1));
                     if (parentId) {
-                        // DOM
-                        updateContent(parentId, newContent);
-                        // selection
-                        collapseSelectionToEnd(parentElement);
-                        // state
-                        updateTextNode(parentId, newContent || '', stateRef.current);
-                        // history
-                        const historyItem: IHistoryQueueItem = {
-                            key: parentId,
-                            type: HistoryTypeEnum.TEXT,
-                            lastState: {
-                                newText: newContent,
-                                lastText: textNode.textContent,
-                            },
-                        };
-                        addToHistoryText(historyItem);
+                        updateNode(parentId, newContent || '');
                     }
                 } else {
                     const key = (focusNode as HTMLElement).id;
                     const parentNode = focusNode?.parentNode as HTMLElement;
                     const lastTextNode = getLastTextChild(parentNode);
-                    // DOM
-                    removeDOMNode(key);
-                    // selection
-                    if (lastTextNode) {
-                        collapseSelectionToEnd(lastTextNode);
-                    } else {
-                        collapseSelectionToEnd(parentNode.lastChild as HTMLElement);
-                    }
-                    // state
-                    removeNode(stateRef.current, key);
-                    // history
-                    const historyItem: IHistoryQueueItem = {
-                        key,
-                        type: HistoryTypeEnum.REMOVE_BLOCK,
-                        lastState: {
-                            parentKey: parentNode?.id,
-                        },
-                    };
-                    addToHistoryNotText(historyItem);
+                    removeNode(key, parentNode, false, lastTextNode);
                 }
 
                 break;
@@ -293,6 +323,7 @@ export const EditorProvider: FC<{
         }
     };
 
+    // click
     const handleClick = (e: Event) => {
         e.preventDefault();
         const { anchorOffset } = getSelection();
@@ -325,8 +356,9 @@ export const EditorProvider: FC<{
             redo,
             isUndoDisabled,
             isRedoDisabled,
+            setStyle,
         }),
-        [state, undo, redo, isUndoDisabled, isRedoDisabled]
+        [state, undo, redo, isUndoDisabled, isRedoDisabled, updateFont, setStyle]
     );
 
     return <EditorContext.Provider value={editorContextValue}>{children}</EditorContext.Provider>;

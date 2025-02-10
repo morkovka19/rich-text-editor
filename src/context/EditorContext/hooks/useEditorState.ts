@@ -5,13 +5,13 @@ import { IStyleNode, LexicalNode, NodeKeyType, Text } from '../../../nodes';
 export const useEditorState = () => {
     const getNode = (state: IEditorState, key: NodeKeyType) => state.nodeMap.get(key);
 
-    const removeNode = (state: IEditorState, key?: NodeKeyType) => {
+    const removeNodeState = (state: IEditorState, key?: NodeKeyType) => {
         const { nodeMap } = state;
         if (key) {
             const children = nodeMap.get(key)?.getChildList();
             if (children?.length) {
                 children.forEach(child => {
-                    if (typeof child === 'string') removeNode(state, child);
+                    if (typeof child === 'string') removeNodeState(state, child);
                 });
             }
             const node = state.nodeMap.get(key);
@@ -54,20 +54,20 @@ export const useEditorState = () => {
         const { nodeMap } = state;
         const node = nodeMap.get(key) as Text;
         if (newText && node) node.setText(newText);
-        else removeNode(state, key);
+        else removeNodeState(state, key);
     };
 
     const updateStyleNode = (editorState: IEditorState, styleState: IStyleNode, key: NodeKeyType) => {
         const node = editorState.nodeMap.get(key);
         if (node) {
-            node.setStyle({ ...node.getStyle(), font: styleState.font });
+            node.setStyle({ ...node.getStyle(), fontFamily: styleState.fontFamily, fontSize: styleState.fontSize });
         }
     };
 
     return {
         getNode,
         addNodeToState,
-        removeNode,
+        removeNodeState,
         getFirstNode,
         updateTextNode,
         updateStyleNode,

@@ -51,8 +51,8 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, isStaticName 
             {isOpen && (
                 <div className="select__dropdown">
                     <ul className="select__list">
-                        {options.map(option => (
-                            <li>
+                        {options.map((option, i) => (
+                            <li key={i}>
                                 <Button
                                     Icon={option?.Icon}
                                     text={option.label}

@@ -7,7 +7,8 @@ export type NodeKeyType = string;
 export type ChildType = NodeKeyType;
 
 export interface IStyleNode {
-    font: string;
+    fontFamily: string;
+    fontSize: number;
 }
 
 export class LexicalNode {
