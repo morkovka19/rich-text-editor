@@ -12,18 +12,14 @@ export interface ICounterProps {
 
 const Counter: FC<ICounterProps> = ({ handelUpdate }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-
     const increment = () => {
-        dispatch({ type: 'increment' });
-        handelUpdate(state.count);
+        dispatch({ type: 'increment', handleUpdate: handelUpdate });
     };
     const decrement = () => {
-        dispatch({ type: 'decrement' });
-        handelUpdate(state.count);
+        dispatch({ type: 'decrement', handleUpdate: handelUpdate });
     };
     const input = (e: ChangeEvent<HTMLInputElement>) => {
-        dispatch({ type: 'input', value: e.target.value });
-        handelUpdate(state.count);
+        dispatch({ type: 'input', value: e.target.value, handleUpdate: handelUpdate });
     };
 
     return (
