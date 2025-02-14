@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
+import { IStyleNode } from '../../nodes';
 import { StylePropType } from './hooks/useStyle';
 
 export interface IEditorContextProps {
@@ -11,4 +12,5 @@ export interface IEditorContextProps {
     isUndoDisabled: boolean;
     isRedoDisabled: boolean;
     setStyle: (value: string, type: StylePropType) => void;
+    style: IStyleNode;
 }

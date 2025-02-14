@@ -15,9 +15,10 @@ import { COLOR_FORMAT, HEIGHT, N_MAX_LINE, N_MAX_RAD, WIDTH } from './helpers/co
 export interface IColorPickerProps {
     Icon?: SVGRIcon;
     color: string;
+    handleUpdate: (value: string) => void;
 }
 
-const ColorPicker: FC<IColorPickerProps> = ({ Icon, color }) => {
+const ColorPicker: FC<IColorPickerProps> = ({ Icon, color, handleUpdate }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const [selfColor, setSelfColor] = useState(transformColor(COLOR_FORMAT.HEX, color || ''));
@@ -48,11 +49,14 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color }) => {
         const newColor = transformColor(COLOR_FORMAT.HSV, newHsv);
         setSelfColor(newColor);
     };
-    const onMoveHue = ({ x }: Position) => {
-        const newHsv = { ...selfColor.hsv, h: (x / WIDTH) * N_MAX_RAD };
-        const newColor = transformColor(COLOR_FORMAT.HSV, newHsv);
-        setSelfColor(newColor);
-    };
+    const onMoveHue = useCallback(
+        ({ x }: Position) => {
+            const newHsv = { ...selfColor.hsv, h: (x / WIDTH) * N_MAX_RAD };
+            const newColor = transformColor(COLOR_FORMAT.HSV, newHsv);
+            setSelfColor(newColor);
+        },
+        [selfColor.hsv]
+    );
 
     const onSetSelfColor = useCallback((value: string) => {
         const color = transformColor(COLOR_FORMAT.HEX, value);
@@ -82,18 +86,26 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color }) => {
     }, []);
 
     const colorPickerRef = useRef(null);
-    useOnClickOutside(colorPickerRef, () => setIsOpen(false));
+    useOnClickOutside(colorPickerRef, () => {
+        setIsOpen(false);
+    });
+
+    const colorPickerBlockRef = useRef(null);
+    useOnClickOutside(colorPickerBlockRef, () => {
+        setIsOpen(false);
+    });
 
     useEffect(() => {
         setInputColor(selfColor.hex);
-    }, [selfColor.hex]);
+        handleUpdate(selfColor.hex);
+    }, [handleUpdate, selfColor.hex]);
 
     return (
         <div className="color-picker" ref={colorPickerRef}>
             <Button theme="select" Icon={Icon} onClick={() => setIsOpen(prev => !prev)} isOpenSelect={isOpen} />
             {isOpen && (
                 <div className="color-picker__wrapper">
-                    <div className="color-picker__wrapper__block">
+                    <div className="color-picker__wrapper__block" ref={colorPickerBlockRef}>
                         <div className="color-picker__input-block">
                             <label className="color-picker__input-block__label">Hex</label>
                             <input

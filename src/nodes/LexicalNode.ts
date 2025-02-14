@@ -9,6 +9,11 @@ export type ChildType = NodeKeyType;
 export interface IStyleNode {
     fontFamily: string;
     fontSize: number;
+    color: string;
+    backgroundColor: string;
+    fontWeight?: number;
+    fontStyle: string;
+    textDecoration: string;
 }
 
 export class LexicalNode {

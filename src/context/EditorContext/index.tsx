@@ -52,7 +52,17 @@ export const EditorProvider: FC<{
     const { isUndoDisabled, isRedoDisabled, undo, addToHistoryNotText, redo, history, addToHistoryText } = useHistory();
 
     // style
-    const { styleRef, getStyleStr, updateFont, updateFontSize } = useStyle();
+    const {
+        styleRef,
+        getStyleStr,
+        updateFont,
+        updateFontSize,
+        updateColor,
+        updateBackgroundColor,
+        updateFontWeight,
+        updateFontStyle,
+        updateTextDecoration,
+    } = useStyle();
 
     // helpers
     const setStyleNode = (key: NodeKeyType, lastStyle: string) => {
@@ -163,6 +173,26 @@ export const EditorProvider: FC<{
                     updateFontSize(Number(value));
                     break;
                 }
+                case StylePropType.COLOR: {
+                    updateColor(value);
+                    break;
+                }
+                case StylePropType.BACKGROUND_COLOR: {
+                    updateBackgroundColor(value);
+                    break;
+                }
+                case StylePropType.FONT_WEIGHT: {
+                    updateFontWeight(Number(value));
+                    break;
+                }
+                case StylePropType.FONT_STYLE: {
+                    updateFontStyle(value);
+                    break;
+                }
+                case StylePropType.TEXT_DECORATION: {
+                    updateTextDecoration(value);
+                    break;
+                }
                 default:
                     break;
             }
@@ -175,8 +205,8 @@ export const EditorProvider: FC<{
                         addNode(parentNode.id as NodeKeyType, focusNode.nodeName, false);
                     }
                 } else {
-                    const node = stateRef.current.nodeMap.get((focusNode as HTMLElement).id) as LexicalNode;
-                    setStyleNode(node.getKey(), getStyleStr(node.getStyle() || initialStyle));
+                    const node = stateRef.current.nodeMap.get((focusNode as HTMLElement)?.id) as LexicalNode;
+                    setStyleNode(node?.getKey(), getStyleStr(node?.getStyle() || initialStyle));
                 }
             } else {
                 setStyleNode(parentNode.id, getStyleStr(parentNode.style || initialStyle));
@@ -357,8 +387,9 @@ export const EditorProvider: FC<{
             isUndoDisabled,
             isRedoDisabled,
             setStyle,
+            style: styleRef.current,
         }),
-        [state, undo, redo, isUndoDisabled, isRedoDisabled, updateFont, setStyle]
+        [state, undo, redo, isUndoDisabled, isRedoDisabled, updateFont, setStyle, styleRef.current]
     );
 
     return <EditorContext.Provider value={editorContextValue}>{children}</EditorContext.Provider>;
