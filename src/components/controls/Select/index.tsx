@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '../../../scripts/hooks/useOnClickOutside';
@@ -11,17 +12,22 @@ export interface ISelectProps {
     Icon?: SVGRIcon;
     isStaticName?: boolean;
     name?: string;
+    onChange?: (value: any) => void;
 }
-const Select: FC<ISelectProps> = ({ options, Icon, name, isStaticName = false }) => {
+const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, isStaticName = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const handleClick = useCallback(() => setIsOpen(prev => !prev), []);
 
     const [activeOption, setActiveOption] = useState(options[0]);
 
-    const handleClickOption = useCallback((option: IOption) => {
-        setActiveOption(option);
-        setIsOpen(false);
-    }, []);
+    const handleClickOption = useCallback(
+        (option: IOption) => {
+            setActiveOption(option);
+            setIsOpen(false);
+            if (onChange) onChange(option.value);
+        },
+        [onChange]
+    );
 
     const dropdowmRef = useRef(null);
 
@@ -45,14 +51,15 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, isStaticName = false })
             {isOpen && (
                 <div className="select__dropdown">
                     <ul className="select__list">
-                        {options.map(option => (
-                            <li>
+                        {options.map((option, i) => (
+                            <li key={i}>
                                 <Button
                                     Icon={option?.Icon}
                                     text={option.label}
                                     theme="text"
                                     onClick={() => handleClickOption(option)}
                                     isPartSelect
+                                    isActive={Boolean(name === option.label)}
                                 />
                             </li>
                         ))}

@@ -45,6 +45,7 @@
         height: 20px;
         text-align: left;
         padding-right: 5px;
+        padding-left: 2px;
         @media (max-width: 900px) {
             display: none;
         }
@@ -64,6 +65,7 @@
         line-height: 16px;
         background-size: contain;
         margin-top: 3px;
+        padding-left: 2px;
     }
 
     &_text {
@@ -76,6 +78,10 @@
         &:svg {
             margin-right: gs(1, true);
         }
+    }
+
+    &_active {
+        background-color: #eee;
     }
     &__select {
         display: flex;

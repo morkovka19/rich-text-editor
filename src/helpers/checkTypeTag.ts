@@ -1,3 +1,4 @@
-import { ParentTagType, TAGS } from '../types';
+import { TAGS } from '../types';
 
-export const isParentTagType = (type: string): type is ParentTagType => type === TAGS.BLOCK;
+export const isParentTagType = (type: string) => type !== TAGS.TEXT;
+export const isBlockParenTagType = (type: string) => type === TAGS.BLOCK;

@@ -18,6 +18,7 @@ export interface IButtonProps {
     color?: string;
     isPartSelect?: boolean;
     title?: string;
+    isActive?: boolean;
 }
 
 const Button: FC<IButtonProps> = ({
@@ -31,10 +32,11 @@ const Button: FC<IButtonProps> = ({
     color,
     isPartSelect,
     title,
+    isActive = false,
 }) => {
     return (
         <button
-            className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'} ${theme === 'color' && 'button_color'}`}
+            className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'} ${theme === 'color' && 'button_color'} ${isActive && 'button_active'}`}
             onClick={onClick}
             disabled={disabled}
             style={theme === 'color' && color ? { background: color } : {}}

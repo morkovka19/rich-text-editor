@@ -1,5 +1,4 @@
-import { isParentTagType } from '../../../helpers/checkTypeTag';
-import { TEXT_KEY } from '../../../helpers/constants';
+import { isBlockParenTagType } from '../../../helpers/checkTypeTag';
 
 export const useSelection = () => {
     const getSelection = () => {
@@ -24,7 +23,7 @@ export const useSelection = () => {
     const setSelectionToNode = (node: Node) => {
         const sel = getSelection();
         const range = getRange();
-        range.selectNodeContents(node);
+        range?.selectNodeContents(node);
         sel.removeAllRanges();
         sel.addRange(range);
     };
@@ -32,16 +31,18 @@ export const useSelection = () => {
     const collapseSelectionToStart = (node: Node) => {
         const sel = getSelection();
         const range = getRange();
-        range.selectNodeContents(node);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
+        if (node) {
+            range?.selectNodeContents(node);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
     };
 
     const collapseSelectionToEnd = (node: Node) => {
         const sel = getSelection();
         const range = getRange();
-        range.selectNodeContents(node);
+        range?.selectNodeContents(node);
         range.collapse(false);
         sel.removeAllRanges();
         sel.addRange(range);
@@ -58,7 +59,7 @@ export const useSelection = () => {
     };
 
     const getFirstNode = (focusNode: HTMLElement) => {
-        if (isParentTagType(focusNode?.localName)) {
+        if (isBlockParenTagType(focusNode?.localName)) {
             return focusNode;
         }
         return getFirstNode(focusNode?.parentElement as HTMLElement);
@@ -67,7 +68,7 @@ export const useSelection = () => {
     const setSelAfterEnter = () => {
         const selection = getSelection();
         const focusNode = (
-            selection?.focusNode?.nodeName === TEXT_KEY ? selection.focusNode.parentElement : selection?.focusNode
+            selection?.focusNode?.nodeName === '#text' ? selection.focusNode.parentElement : selection?.focusNode
         ) as HTMLElement;
         const firstNode = getFirstNode(focusNode);
         collapseSelectionToEnd(firstNode);
@@ -76,6 +77,8 @@ export const useSelection = () => {
             focusNode,
         };
     };
+
+    const selection = getSelection();
 
     return {
         setSelectionRange,
@@ -86,5 +89,6 @@ export const useSelection = () => {
         getSelection,
         clearSelection,
         setSelAfterEnter,
+        selection,
     };
 };
