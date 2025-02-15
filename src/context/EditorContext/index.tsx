@@ -4,6 +4,7 @@ import { FC, ReactNode, useMemo, useState } from 'react';
 
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
+import { isParentTagType } from '../../helpers/checkTypeTag';
 import { LexicalNode, NodeKeyType, Text } from '../../nodes';
 import { initialScript } from '../../scripts/initialScript';
 import { IEditorContextProps } from './EditorContext.types';
@@ -95,12 +96,10 @@ export const EditorProvider: FC<{
         // state
         addNodeToState(stateRef.current, node);
         // style
-        setStyleNode(node.getKey(), getStyleStr(node.getStyle() || initialStyle));
+        if (!isParentTagType(nodeType)) setStyleNode(node.getKey(), getStyleStr(node.getStyle() || initialStyle));
         // selection
         setSelectionRange(nodeElement, 0, nodeElement, 0);
         collapseSelectionToEnd(nodeElement);
-        // style
-        setStyleNode(node.getKey(), getStyleStr(styleRef.current));
         if (!isHistory) {
             // history
             const historyItem: IHistoryQueueItem = {
