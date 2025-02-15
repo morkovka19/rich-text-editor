@@ -96,7 +96,7 @@ export const EditorProvider: FC<{
         // state
         addNodeToState(stateRef.current, node);
         // style
-        if (!isParentTagType(nodeType)) setStyleNode(node.getKey(), getStyleStr(node.getStyle() || initialStyle));
+        if (!isParentTagType(nodeType)) setStyleNode(node.getKey(), getStyleStr(node.getStyle() || styleRef.current));
         // selection
         setSelectionRange(nodeElement, 0, nodeElement, 0);
         collapseSelectionToEnd(nodeElement);
@@ -116,7 +116,7 @@ export const EditorProvider: FC<{
     };
 
     const updateNode = (key: NodeKeyType, text: string) => {
-        const node = state.nodeMap.get(key) as Text;
+        const node = stateRef.current.nodeMap.get(key) as Text;
         const lastText = node.getText();
         // DOM
         updateContent(node.getKey(), text);
@@ -201,11 +201,12 @@ export const EditorProvider: FC<{
                 if (focusNode?.textContent) {
                     const parentStyleStr = getStyleStr((focusNode as HTMLElement).style);
                     if (parentStyleStr !== getStyleStr()) {
-                        addNode(parentNode.id as NodeKeyType, focusNode.nodeName, false);
+                        addNode(parentNode.id as NodeKeyType, focusNode.nodeName.toLocaleLowerCase(), false);
                     }
                 } else {
                     const node = stateRef.current.nodeMap.get((focusNode as HTMLElement)?.id) as LexicalNode;
-                    setStyleNode(node?.getKey(), getStyleStr(node?.getStyle() || initialStyle));
+                    if (!isParentTagType(node?.getType()))
+                        setStyleNode(node?.getKey(), getStyleStr(node?.getStyle() || initialStyle));
                 }
             } else {
                 setStyleNode(parentNode.id, getStyleStr(parentNode.style || initialStyle));
@@ -238,7 +239,7 @@ export const EditorProvider: FC<{
                             ? String(actualState.lastState?.last)
                             : String(actualState.lastState?.new);
                     updateContent(actualState.key, String(text));
-                    updateTextNode(actualState.key, String(text), state);
+                    updateTextNode(actualState.key, String(text), stateRef.current);
                     break;
                 }
                 case HistoryTypeEnum.BLOCK: {
@@ -273,7 +274,7 @@ export const EditorProvider: FC<{
                 }
             }
         }
-    }, [history.index, history.historyQueue, state]);
+    }, [history.index, history.historyQueue, stateRef.current]);
 
     // input
     const handleInput = useCallback(
@@ -375,7 +376,7 @@ export const EditorProvider: FC<{
 
     const editorContextValue: IEditorContextProps = useMemo(
         () => ({
-            state,
+            state: stateRef.current,
             setState,
             undo,
             redo,
