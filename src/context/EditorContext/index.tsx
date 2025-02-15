@@ -214,9 +214,7 @@ export const EditorProvider: FC<{
         [selection]
     );
 
-    /**
-     * selection event
-     */
+    // selection event
     useEffect(() => {
         const { focusOffset, anchorOffset } = selection;
         if (focusOffset !== anchorOffset) {
@@ -227,9 +225,7 @@ export const EditorProvider: FC<{
         }
     }, [selection]);
 
-    /**
-     * history event
-     */
+    // history event
     useEffect(() => {
         const actualState = history.historyQueue[history.index - 1];
 
