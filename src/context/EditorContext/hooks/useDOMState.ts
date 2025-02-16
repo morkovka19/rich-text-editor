@@ -1,5 +1,5 @@
 import { MAIN_DIV_ID } from '../../../helpers/constants';
-import { LexicalNode, NodeKeyType } from '../../../nodes';
+import { LexicalNode, NodeKeyType } from '../../../types/nodes';
 
 export const useDOMState = () => {
     const getDOMElement = (key: NodeKeyType) => document.getElementById(key) as HTMLElement;

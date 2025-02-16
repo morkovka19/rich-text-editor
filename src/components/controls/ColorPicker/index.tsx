@@ -2,8 +2,8 @@
 import min from 'lodash/min';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { baseColors } from '../../../scripts/constants';
-import { useOnClickOutside } from '../../../scripts/hooks/useOnClickOutside';
+import { baseColors } from '../../../helpers/constants';
+import { useOnClickOutside } from '../../../helpers/hooks/useOnClickOutside';
 import { SVGRIcon } from '../../../types';
 import Button from '../Button';
 import './ColorPicker.styles.scss';
@@ -98,7 +98,7 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color, handleUpdate }) => {
     useEffect(() => {
         setInputColor(selfColor.hex);
         handleUpdate(selfColor.hex);
-    }, [handleUpdate, selfColor.hex]);
+    }, [selfColor.hex]);
 
     return (
         <div className="color-picker" ref={colorPickerRef}>

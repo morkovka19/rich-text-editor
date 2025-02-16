@@ -8,15 +8,15 @@ import FontStylesBlock from './components/FontStylesBlock';
 import { FontsBlock } from './components/FontsBlock';
 import { HistoryBlock } from './components/HistoryBlock';
 import InsertBlock from './components/InsertBlock';
+import { TagsBlock } from './components/TagsBlock';
 import TextStyleBlock from './components/TextStyleBlock';
-import { TypeBlock } from './components/TypeBlock';
 
 const Topbar: FC<ITopbar> = () => {
     return (
         <div className="topbar">
             <HistoryBlock />
             <Divider />
-            <TypeBlock />
+            <TagsBlock />
             <Divider />
             <FontsBlock />
             <Divider />

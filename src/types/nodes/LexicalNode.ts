@@ -1,6 +1,6 @@
-import { MAIN_DIV_ID } from '../helpers/constants';
-import { PARENT_NODE_TYPE } from '../helpers/regex';
-import { KlassConstructor } from '../types';
+import { KlassConstructor } from '..';
+import { MAIN_DIV_ID } from '../../helpers/constants';
+import { PARENT_NODE_TYPE } from '../../helpers/regex';
 
 export type NodeKeyType = string;
 

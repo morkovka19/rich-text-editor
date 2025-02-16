@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { IStyleNode } from '../../../nodes';
+import { IStyleNode } from '../../../types/nodes';
 
 export const initialStyle: IStyleNode = {
     fontFamily: 'Roboto',

@@ -7,12 +7,20 @@ export type checkContentNodesProps = {
     text: string;
     callbackUpdate: (key: string, contentNew: string) => void;
     callbackAddNode: (keyParent: string, type: string) => string;
+    isNotBlock?: boolean;
 };
 
 export const useCheckNodes = () => {
-    const checkContentNodes = ({ type, keyParent, text, callbackUpdate, callbackAddNode }: checkContentNodesProps) => {
+    const checkContentNodes = ({
+        type,
+        keyParent,
+        text,
+        callbackUpdate,
+        callbackAddNode,
+        isNotBlock = false,
+    }: checkContentNodesProps) => {
         if (isParentTagType(type)) {
-            const newType = getAddedNodeType(type);
+            const newType = !isNotBlock ? getAddedNodeType(type) : type;
             const newKey = callbackAddNode(keyParent, newType);
 
             checkContentNodes({ type: newType, keyParent: newKey, text, callbackUpdate, callbackAddNode });

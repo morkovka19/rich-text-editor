@@ -1,5 +1,4 @@
-import { MAIN_DIV_ID } from '../helpers/constants';
-import { TAGS } from '../types';
+import { MAIN_DIV_ID, TAGS } from '../../helpers/constants';
 import { LexicalNode, NodeKeyType } from './LexicalNode';
 
 export class Root extends LexicalNode {

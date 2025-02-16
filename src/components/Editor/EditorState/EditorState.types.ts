@@ -1,4 +1,4 @@
-import { LexicalNode, NodeKeyType } from '../../../nodes';
+import { LexicalNode, NodeKeyType } from '../../../types/nodes';
 
 export type NodeMapType<T> = Map<NodeKeyType, T>;
 

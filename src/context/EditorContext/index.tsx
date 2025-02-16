@@ -5,8 +5,8 @@ import { FC, ReactNode, useMemo, useState } from 'react';
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
 import { isParentTagType } from '../../helpers/checkTypeTag';
-import { LexicalNode, NodeKeyType, Text } from '../../nodes';
-import { initialScript } from '../../scripts/initialScript';
+import { initialScript } from '../../helpers/scripts/initialScript';
+import { LexicalNode, NodeKeyType, Text } from '../../types/nodes';
 import { IEditorContextProps } from './EditorContext.types';
 import { useCheckNodes } from './hooks/useCheckNodes';
 import { useCreateNode } from './hooks/useCreateNode';
@@ -15,6 +15,7 @@ import { useEditorState } from './hooks/useEditorState';
 import { HistoryTypeEnum, IHistoryQueueItem, useHistory } from './hooks/useHistory';
 import { useSelection } from './hooks/useSelection';
 import useStyle, { StylePropType, initialStyle } from './hooks/useStyle';
+import useTags from './hooks/useTags';
 
 export const EditorContext = createContext<IEditorContextProps | undefined>(undefined);
 
@@ -65,6 +66,20 @@ export const EditorProvider: FC<{
         updateTextDecoration,
     } = useStyle();
 
+    // tags
+    const { updateTag, tag } = useTags();
+
+    // selection event
+    useEffect(() => {
+        const { focusOffset, anchorOffset } = selection;
+        if (focusOffset !== anchorOffset) {
+            const focusNode = selection.focusNode as HTMLElement;
+            const key = focusNode?.id;
+            const nodeDOM = getDOMNode(key);
+            setSelectionRange(nodeDOM, 0, nodeDOM, 0);
+        }
+    }, [selection]);
+
     // helpers
     const setStyleNode = (key: NodeKeyType, lastStyle: string) => {
         const style = getStyleStr();
@@ -100,7 +115,7 @@ export const EditorProvider: FC<{
         // selection
         setSelectionRange(nodeElement, 0, nodeElement, 0);
         collapseSelectionToEnd(nodeElement);
-        if (!isHistory) {
+        if (isHistory) {
             // history
             const historyItem: IHistoryQueueItem = {
                 type: HistoryTypeEnum.BLOCK,
@@ -161,70 +176,74 @@ export const EditorProvider: FC<{
         }
     };
 
-    const setStyle = useCallback(
-        (value: string, type: StylePropType) => {
-            switch (type) {
-                case StylePropType.FONT_FAMILY: {
-                    updateFont(value);
-                    break;
-                }
-                case StylePropType.FONT_SIZE: {
-                    updateFontSize(Number(value));
-                    break;
-                }
-                case StylePropType.COLOR: {
-                    updateColor(value);
-                    break;
-                }
-                case StylePropType.BACKGROUND_COLOR: {
-                    updateBackgroundColor(value);
-                    break;
-                }
-                case StylePropType.FONT_WEIGHT: {
-                    updateFontWeight(Number(value));
-                    break;
-                }
-                case StylePropType.FONT_STYLE: {
-                    updateFontStyle(value);
-                    break;
-                }
-                case StylePropType.TEXT_DECORATION: {
-                    updateTextDecoration(value);
-                    break;
-                }
-                default:
-                    break;
+    const updateStyle = (value: string, type: StylePropType) => {
+        switch (type) {
+            case StylePropType.FONT_FAMILY: {
+                updateFont(value);
+                break;
             }
-            const { focusOffset, anchorOffset, focusNode } = selection;
-            const parentNode = focusNode?.parentElement as HTMLElement;
-            if (focusOffset === anchorOffset) {
-                if (focusNode?.textContent) {
-                    const parentStyleStr = getStyleStr((focusNode as HTMLElement).style);
-                    if (parentStyleStr !== getStyleStr()) {
-                        addNode(parentNode.id as NodeKeyType, focusNode.nodeName.toLocaleLowerCase(), false);
-                    }
-                } else {
-                    const node = stateRef.current.nodeMap.get((focusNode as HTMLElement)?.id) as LexicalNode;
-                    if (!isParentTagType(node?.getType()))
-                        setStyleNode(node?.getKey(), getStyleStr(node?.getStyle() || initialStyle));
+            case StylePropType.FONT_SIZE: {
+                updateFontSize(Number(value));
+                break;
+            }
+            case StylePropType.COLOR: {
+                updateColor(value);
+                break;
+            }
+            case StylePropType.BACKGROUND_COLOR: {
+                updateBackgroundColor(value);
+                break;
+            }
+            case StylePropType.FONT_WEIGHT: {
+                updateFontWeight(Number(value));
+                break;
+            }
+            case StylePropType.FONT_STYLE: {
+                updateFontStyle(value);
+                break;
+            }
+            case StylePropType.TEXT_DECORATION: {
+                updateTextDecoration(value);
+                break;
+            }
+            default:
+                break;
+        }
+        const { focusOffset, anchorOffset, focusNode } = selection;
+        const parentNode = focusNode?.parentElement as HTMLElement;
+        if (focusOffset === anchorOffset) {
+            if (focusNode?.textContent) {
+                const parentStyleStr = getStyleStr((focusNode as HTMLElement).style);
+                if (parentStyleStr !== getStyleStr()) {
+                    addNode(parentNode.id as NodeKeyType, focusNode.nodeName.toLocaleLowerCase(), false);
                 }
             } else {
-                setStyleNode(parentNode.id, getStyleStr(parentNode.style || initialStyle));
+                const node = stateRef.current.nodeMap.get((focusNode as HTMLElement)?.id) as LexicalNode;
+                if (!isParentTagType(node?.getType()))
+                    setStyleNode(node?.getKey(), getStyleStr(node?.getStyle() || initialStyle));
             }
-        },
-        [selection]
-    );
-
-    // selection event
-    useEffect(() => {
-        const { focusOffset, anchorOffset } = selection;
-        if (focusOffset !== anchorOffset) {
-            const focusNode = selection.focusNode as HTMLElement;
-            const key = focusNode?.id;
-            const nodeDOM = getDOMNode(key);
-            setSelectionRange(nodeDOM, 0, nodeDOM, 0);
+        } else {
+            setStyleNode(parentNode.id, getStyleStr(parentNode.style || initialStyle));
         }
-    }, [selection]);
+    };
+
+    const updateLastTag = (value: string) => {
+        updateTag(value);
+        const { firstNode: parent } = setSelAfterEnter();
+        checkContentNodes({
+            type: tag.lastTag,
+            isNotBlock: true,
+            text: '',
+            keyParent: parent.id,
+            callbackAddNode: (keyParent: string, type: string) => {
+                const node = addNode(keyParent, type, false);
+                return node.getKey();
+            },
+            callbackUpdate: (key: string) => {
+                updateNode(key, '\n');
+            },
+        });
+    };
 
     // history event
     useEffect(() => {
@@ -306,6 +325,7 @@ export const EditorProvider: FC<{
                 callbackAddNode: (keyParent: string, type: string) => {
                     updateContent(keyParent);
                     const node = addNode(keyParent, type, false);
+                    console.log(node);
                     return node.getKey();
                 },
             });
@@ -382,10 +402,23 @@ export const EditorProvider: FC<{
             redo,
             isUndoDisabled,
             isRedoDisabled,
-            setStyle,
+            updateStyle,
             style: styleRef.current,
+            updateLastTag,
+            tag,
         }),
-        [state, undo, redo, isUndoDisabled, isRedoDisabled, updateFont, setStyle, styleRef.current]
+        [
+            state,
+            undo,
+            redo,
+            isUndoDisabled,
+            isRedoDisabled,
+            updateFont,
+            updateStyle,
+            styleRef.current,
+            updateLastTag,
+            tag,
+        ]
     );
 
     return <EditorContext.Provider value={editorContextValue}>{children}</EditorContext.Provider>;

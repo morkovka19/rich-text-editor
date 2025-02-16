@@ -1,6 +1,5 @@
-import { EDITOR_ID, MAIN_DIV_ID } from '../helpers/constants';
-import { createMutationObserver } from '../helpers/createMutationObserver';
-import { TAGS } from '../types';
+import { EDITOR_ID, MAIN_DIV_ID, TAGS } from '../constants';
+import { createMutationObserver } from '../createMutationObserver';
 
 export const initialScript = () => {
     if (!document.getElementById(MAIN_DIV_ID)) {

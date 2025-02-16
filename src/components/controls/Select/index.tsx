@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
 
-import { useOnClickOutside } from '../../../scripts/hooks/useOnClickOutside';
+import { useOnClickOutside } from '../../../helpers/hooks/useOnClickOutside';
 import { SVGRIcon } from '../../../types';
 import Button from '../Button';
 import './Select.styles.scss';
@@ -34,8 +34,8 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, isStaticName 
     useOnClickOutside(dropdowmRef, () => setIsOpen(false));
 
     const nameButton = useMemo(() => {
-        if (Icon && activeOption.label.length > 7) return `${activeOption.label.slice(0, 5)}...`;
-        if (activeOption.label.length > 10) return `${activeOption.label.slice(0, 7)}...`;
+        if (Icon && activeOption.label.length > 6) return `${activeOption.label.slice(0, 6)}...`;
+        if (activeOption.label.length > 6) return `${activeOption.label.slice(0, 6)}...`;
         return activeOption.label;
     }, [Icon, activeOption.label]);
 

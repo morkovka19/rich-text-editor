@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { NodeKeyType } from '../../../nodes';
+import { NodeKeyType } from '../../../types/nodes';
 
 export enum HistoryTypeEnum {
     STYLE = 'style',

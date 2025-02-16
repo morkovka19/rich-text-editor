@@ -1,22 +1,20 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
-import { EditorContext } from '../../../context/EditorContext';
-import { IEditorContextProps } from '../../../context/EditorContext/EditorContext.types';
+import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { fontSelectOptions } from '../../../helpers/constants';
 import FontIcon from '../../../icons/topbar-font/topbar-font.svg';
-import { fontSelectOptions } from '../../../scripts/constants';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
 export const FontsBlock = () => {
-    const context = useContext(EditorContext) as IEditorContextProps;
-    const { setStyle } = context;
+    const { updateStyle } = useEditor();
 
     const onChangeFont = useCallback(
         (value: string) => {
-            setStyle(value, StylePropType.FONT_FAMILY);
+            updateStyle(value, StylePropType.FONT_FAMILY);
         },
-        [setStyle]
+        [updateStyle]
     );
 
     return (

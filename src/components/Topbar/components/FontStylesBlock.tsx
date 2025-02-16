@@ -1,7 +1,6 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
-import { EditorContext } from '../../../context/EditorContext';
-import { IEditorContextProps } from '../../../context/EditorContext/EditorContext.types';
+import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
 import BackgroundColor from '../../../icons/topbar-font-color/backgroundColor.svg';
 import Color from '../../../icons/topbar-font-color/color.svg';
@@ -15,37 +14,36 @@ import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import ColorPicker from '../../controls/ColorPicker';
 
 const FontStylesBlock = () => {
-    const context = useContext(EditorContext) as IEditorContextProps;
-    const { setStyle, style } = context;
+    const { updateStyle, style } = useEditor();
 
     const handleUpdateColor = useCallback(
         (value: string) => {
-            setStyle(value, StylePropType.COLOR);
+            updateStyle(value, StylePropType.COLOR);
         },
-        [setStyle]
+        [updateStyle]
     );
 
     const handleUpdateBackground = useCallback(
         (value: string) => {
-            setStyle(value, StylePropType.BACKGROUND_COLOR);
+            updateStyle(value, StylePropType.BACKGROUND_COLOR);
         },
-        [setStyle]
+        [updateStyle]
     );
 
     const handleUpdateFontWeight = useCallback(() => {
         const value = style.fontWeight === 400 ? '700' : '400';
-        setStyle(value, StylePropType.FONT_WEIGHT);
-    }, [setStyle, style.fontWeight]);
+        updateStyle(value, StylePropType.FONT_WEIGHT);
+    }, [updateStyle, style.fontWeight]);
 
     const handleUpdateFontStyle = useCallback(() => {
         const value = style.fontStyle === 'normal' ? 'italic' : 'normal';
-        setStyle(value, StylePropType.FONT_STYLE);
-    }, [style.fontStyle, setStyle]);
+        updateStyle(value, StylePropType.FONT_STYLE);
+    }, [style.fontStyle, updateStyle]);
 
     const handleUpdateTextDecoration = useCallback(() => {
         const value = style.textDecoration === 'none' ? 'underline' : 'none';
-        setStyle(value, StylePropType.TEXT_DECORATION);
-    }, [setStyle, style.textDecoration]);
+        updateStyle(value, StylePropType.TEXT_DECORATION);
+    }, [updateStyle, style.textDecoration]);
 
     return (
         <ButtonsContainer>

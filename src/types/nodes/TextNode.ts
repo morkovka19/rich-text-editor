@@ -1,5 +1,4 @@
-import { TEXT_KEY, TEXT_TAG } from '../helpers/constants';
-import { TAGS } from '../types';
+import { TAGS, TEXT_TAG } from '../../helpers/constants';
 import { ChildType, LexicalNode, NodeKeyType } from './LexicalNode';
 
 export class Text extends LexicalNode {
@@ -9,7 +8,7 @@ export class Text extends LexicalNode {
     __key: NodeKeyType;
 
     constructor(parent: NodeKeyType, text: string | null, key: NodeKeyType) {
-        super(TEXT_KEY, TEXT_TAG);
+        super(TAGS.TEXT, TEXT_TAG);
         this.__parent = parent;
         this.__text = text;
         this.__children = null;

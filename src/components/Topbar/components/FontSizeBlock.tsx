@@ -1,20 +1,18 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
-import { EditorContext } from '../../../context/EditorContext';
-import { IEditorContextProps } from '../../../context/EditorContext/EditorContext.types';
+import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Counter from '../../controls/Counter';
 
 const FontSizeBlock = () => {
-    const context = useContext(EditorContext) as IEditorContextProps;
-    const { setStyle } = context;
+    const { updateStyle } = useEditor();
 
     const handleUpdate = useCallback(
         (value: number) => {
-            setStyle(String(value), StylePropType.FONT_SIZE);
+            updateStyle(String(value), StylePropType.FONT_SIZE);
         },
-        [setStyle]
+        [updateStyle]
     );
 
     return (

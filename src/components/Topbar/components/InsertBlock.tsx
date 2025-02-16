@@ -1,5 +1,5 @@
+import { insertOptions } from '../../../helpers/constants';
 import Plus from '../../../icons/topbar-insert/plus.svg';
-import { insertOptions } from '../../../scripts/constants';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 

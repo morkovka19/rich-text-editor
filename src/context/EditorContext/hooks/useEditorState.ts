@@ -1,6 +1,6 @@
 import { IEditorState } from '../../../components/Editor/EditorState/EditorState.types';
 import { isParentTagType } from '../../../helpers/checkTypeTag';
-import { IStyleNode, LexicalNode, NodeKeyType, Text } from '../../../nodes';
+import { IStyleNode, LexicalNode, NodeKeyType, Text } from '../../../types/nodes';
 
 export const useEditorState = () => {
     const getNode = (state: IEditorState, key: NodeKeyType) => state.nodeMap.get(key);
@@ -60,7 +60,16 @@ export const useEditorState = () => {
     const updateStyleNode = (editorState: IEditorState, styleState: IStyleNode, key: NodeKeyType) => {
         const node = editorState.nodeMap.get(key);
         if (node) {
-            node.setStyle({ ...node.getStyle(), fontFamily: styleState.fontFamily, fontSize: styleState.fontSize });
+            node.setStyle({
+                ...node.getStyle(),
+                fontFamily: styleState.fontFamily,
+                fontSize: styleState.fontSize,
+                color: styleState.color,
+                backgroundColor: styleState.backgroundColor,
+                fontStyle: styleState.fontStyle,
+                fontWeight: styleState.fontWeight,
+                textDecoration: styleState.textDecoration,
+            });
         }
     };
 

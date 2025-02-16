@@ -1,4 +1,4 @@
-import { textBlockOptions } from '../../../scripts/constants';
+import { textBlockOptions } from '../../../helpers/constants';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
