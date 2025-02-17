@@ -25,6 +25,8 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color, handleUpdate }) => {
 
     const [inputColor, setInputColor] = useState(selfColor.hex);
 
+    useEffect(() => setSelfColor(transformColor(COLOR_FORMAT.HEX, color)), [color]);
+
     const saturationPosition = useMemo(() => {
         const x = min([(selfColor.hsv.s / N_MAX_LINE) * WIDTH, WIDTH]);
         const y = min([((N_MAX_LINE - selfColor.hsv.v) / N_MAX_LINE) * HEIGHT, HEIGHT]);

@@ -66,7 +66,8 @@ const useStyle = () => {
     };
 
     const updateWholeStyle = (style: string | CSSStyleDeclaration) => {
-        styleRef.current = { ...parseStyleString(typeof style === 'string' ? style : style.cssText, styleRef.current) };
+        const newStyle = parseStyleString(typeof style === 'string' ? style : style.cssText, styleRef.current);
+        styleRef.current = { ...styleRef.current, ...newStyle };
     };
 
     return {

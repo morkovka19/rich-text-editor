@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
@@ -14,7 +14,7 @@ import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import ColorPicker from '../../controls/ColorPicker';
 
 const FontStylesBlock = () => {
-    const { updateStyle, style } = useEditor();
+    const { updateStyle, style, activeNode } = useEditor();
 
     const handleUpdateColor = useCallback(
         (value: string) => {
@@ -45,25 +45,36 @@ const FontStylesBlock = () => {
         updateStyle(value, StylePropType.TEXT_DECORATION);
     }, [updateStyle, style.textDecoration]);
 
+    const activeStyle = useMemo(() => activeNode?.getStyle() || style, [activeNode, style]);
+
     return (
         <ButtonsContainer>
-            <Button Icon={Bold} theme="icon" onClick={handleUpdateFontWeight} isActive={style.fontWeight === 700} />
+            <Button
+                Icon={Bold}
+                theme="icon"
+                onClick={handleUpdateFontWeight}
+                isActive={activeStyle.fontWeight === 700}
+            />
             <Button
                 Icon={Italic}
                 theme="icon"
                 onClick={handleUpdateFontStyle}
-                isActive={style.fontStyle === 'italic'}
+                isActive={activeStyle.fontStyle === 'italic'}
             />
             <Button
                 Icon={Underline}
                 theme="icon"
                 onClick={handleUpdateTextDecoration}
-                isActive={style.textDecoration === 'underline'}
+                isActive={activeStyle.textDecoration === 'underline'}
             />
             <Button Icon={CodeBlock} theme="icon" />
             <Button Icon={Link} theme="icon" />
-            <ColorPicker Icon={Color} color={'#000000'} handleUpdate={handleUpdateColor} />
-            <ColorPicker Icon={BackgroundColor} color={'#ffffff'} handleUpdate={handleUpdateBackground} />
+            <ColorPicker Icon={Color} color={activeStyle.color || '#000000'} handleUpdate={handleUpdateColor} />
+            <ColorPicker
+                Icon={BackgroundColor}
+                color={activeStyle.backgroundColor || '#ffffff'}
+                handleUpdate={handleUpdateBackground}
+            />
         </ButtonsContainer>
     );
 };

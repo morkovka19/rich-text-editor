@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '../../../helpers/hooks/useOnClickOutside';
 import { SVGRIcon } from '../../../types';
@@ -13,12 +15,17 @@ export interface ISelectProps {
     isStaticName?: boolean;
     name?: string;
     onChange?: (value: any) => void;
+    value?: IOption;
 }
-const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, isStaticName = false }) => {
+const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, value, isStaticName = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const handleClick = useCallback(() => setIsOpen(prev => !prev), []);
 
-    const [activeOption, setActiveOption] = useState(options[0]);
+    useEffect(() => {
+        if (value?.label !== activeOption.label && value) setActiveOption(value);
+    }, [value]);
+
+    const [activeOption, setActiveOption] = useState(value || options[0]);
 
     const handleClickOption = useCallback(
         (option: IOption) => {
@@ -59,7 +66,7 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, isStaticName 
                                     theme="text"
                                     onClick={() => handleClickOption(option)}
                                     isPartSelect
-                                    isActive={Boolean(name === option.label)}
+                                    isActive={Boolean(option.label === activeOption?.label)}
                                 />
                             </li>
                         ))}

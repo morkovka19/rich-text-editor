@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
@@ -8,7 +8,7 @@ import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
 export const FontsBlock = () => {
-    const { updateStyle } = useEditor();
+    const { updateStyle, style, activeNode } = useEditor();
 
     const onChangeFont = useCallback(
         (value: string) => {
@@ -17,9 +17,14 @@ export const FontsBlock = () => {
         [updateStyle]
     );
 
+    const activeFont = useMemo(() => {
+        const styleActual = activeNode?.getStyle()?.fontFamily || style.fontFamily;
+        return fontSelectOptions.find(font => font.value === styleActual) || fontSelectOptions[0];
+    }, [style.fontFamily, activeNode]);
+
     return (
         <ButtonsContainer>
-            <Select options={fontSelectOptions} Icon={FontIcon} onChange={onChangeFont} />
+            <Select options={fontSelectOptions} Icon={FontIcon} onChange={onChangeFont} value={activeFont} />
         </ButtonsContainer>
     );
 };

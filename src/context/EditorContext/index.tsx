@@ -5,6 +5,8 @@ import { FC, ReactNode, useMemo, useState } from 'react';
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
 import { isParentTagType } from '../../helpers/checkTypeTag';
+import { baseStyle } from '../../helpers/constants';
+import { isInlineTag } from '../../helpers/isInlineTag';
 import { initialScript } from '../../helpers/scripts/initialScript';
 import { LexicalNode, NodeKeyType, Text } from '../../types/nodes';
 import { IEditorContextProps } from './EditorContext.types';
@@ -82,8 +84,9 @@ export const EditorProvider: FC<{
     }, [selection]);
 
     // helpers
-    const setStyleNode = (key: NodeKeyType, lastStyle: string) => {
-        const style = getStyleStr();
+    const setStyleNode = (key: NodeKeyType, actualStyle?: string, lastStyle?: string) => {
+        const style = actualStyle || getStyleStr();
+        console.log(style);
         // DOM
         updateStyleDOMNode(key, style);
         // state
@@ -241,7 +244,10 @@ export const EditorProvider: FC<{
                 return node.getKey();
             },
             callbackUpdate: (key: string) => {
-                updateNode(key, '\n');
+                updateNode(key, isInlineTag(tag.lastTag) ? '' : '\n');
+                const node = stateRef.current.nodeMap.get(key);
+                if (node) setStyleNode(key, getStyleStr({ ...styleRef.current, ...baseStyle[tag.lastTag] }));
+                console.log(node, getStyleStr({ ...styleRef.current, ...baseStyle[tag.lastTag] }));
             },
         });
     };
@@ -396,6 +402,12 @@ export const EditorProvider: FC<{
         return () => editor.current?.removeEventListener('click', handleClick);
     }, []);
 
+    const activeNode = useMemo(() => {
+        const focusNode = selection.focusNode as HTMLElement;
+        const nodeState = stateRef.current.nodeMap.get(focusNode?.id) as LexicalNode;
+        return nodeState;
+    }, [selection.focusNode]);
+
     const editorContextValue: IEditorContextProps = useMemo(
         () => ({
             state: stateRef.current,
@@ -408,6 +420,7 @@ export const EditorProvider: FC<{
             style: styleRef.current,
             updateLastTag,
             tag,
+            activeNode,
         }),
         [
             state,
@@ -417,9 +430,10 @@ export const EditorProvider: FC<{
             isRedoDisabled,
             updateFont,
             updateStyle,
-            styleRef.current,
+            styleRef.current.fontFamily,
             updateLastTag,
             tag,
+            activeNode,
         ]
     );
 

@@ -12,6 +12,7 @@ import H2Icon from '../../icons/topbar-type-text/h2.svg';
 import H3Icon from '../../icons/topbar-type-text/h3.svg';
 import NoramlIcon from '../../icons/topbar-type-text/normal.svg';
 import NumberListIcon from '../../icons/topbar-type-text/number-list.svg';
+import { IStyleNode } from '../../types/nodes';
 
 export const TAGS = {
     NORMAL: 'p',
@@ -23,6 +24,7 @@ export const TAGS = {
     OL: 'ol',
     UL: 'ul',
     LI: 'li',
+    LINK: 'a',
 };
 
 export const MAIN_DIV_ID = 'root-div';
@@ -38,7 +40,10 @@ export const mapForAddedNodes = new Map<string, string>([
     [TAGS.OL, TAGS.LI],
     [TAGS.UL, TAGS.LI],
     [TAGS.LI, TAGS.TEXT],
+    [TAGS.LINK, TAGS.TEXT],
 ]);
+
+export const inlineTags = ['span', 'a'];
 
 export const HISTORY_TIMEOUT = 3000;
 export const typeSelectOptions: IOption[] = [
@@ -172,3 +177,15 @@ export const baseColors = [
     'rgb(155, 155, 155)',
     'rgb(255, 255, 255)',
 ];
+
+export const baseStyle: Record<string, IStyleNode> = {
+    h1: {
+        fontSize: 26,
+    },
+    h2: {
+        fontSize: 22,
+    },
+    h3: {
+        fontSize: 18,
+    },
+};
