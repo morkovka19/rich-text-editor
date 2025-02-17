@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import min from 'lodash/min';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
