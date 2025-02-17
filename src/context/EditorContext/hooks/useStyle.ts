@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import { parseStyleString } from '../../../helpers/parseStyleString';
 import { IStyleNode } from '../../../types/nodes';
 
 export const initialStyle: IStyleNode = {
@@ -64,6 +65,10 @@ const useStyle = () => {
         return `font-family: ${fontFamily}; font-size: ${fontSize}px; color: ${color}; background: ${backgroundColor || '#ffffff'}; font-weight: ${fontWeight}; font-style: ${fontStyle}; text-decoration: ${textDecoration}`;
     };
 
+    const updateWholeStyle = (style: string | CSSStyleDeclaration) => {
+        styleRef.current = { ...parseStyleString(typeof style === 'string' ? style : style.cssText, styleRef.current) };
+    };
+
     return {
         updateFont,
         updateFontSize,
@@ -74,6 +79,7 @@ const useStyle = () => {
         updateFontWeight,
         updateFontStyle,
         updateTextDecoration,
+        updateWholeStyle,
     };
 };
 

@@ -35,13 +35,13 @@ export const useEditorState = () => {
         parentNode?.addChild(node.getKey(), index);
     };
 
-    const getFirstNode = (key: NodeKeyType, state: IEditorState, childKey?: string) => {
+    const getFirstNodeState = (key: NodeKeyType, state: IEditorState, childKey?: string) => {
         const { nodeMap } = state;
         const node = nodeMap.get(key);
         const parent = node?.getParent() as string;
         const Node = nodeMap.get(parent) as LexicalNode;
         if (!isParentTagType(Node?.getType())) {
-            getFirstNode(parent, state, node?.getKey());
+            getFirstNodeState(parent, state, node?.getKey());
         }
 
         return {
@@ -77,7 +77,7 @@ export const useEditorState = () => {
         getNode,
         addNodeToState,
         removeNodeState,
-        getFirstNode,
+        getFirstNodeState,
         updateTextNode,
         updateStyleNode,
     };

@@ -64,6 +64,7 @@ export const EditorProvider: FC<{
         updateFontWeight,
         updateFontStyle,
         updateTextDecoration,
+        updateWholeStyle,
     } = useStyle();
 
     // tags
@@ -229,7 +230,7 @@ export const EditorProvider: FC<{
 
     const updateLastTag = (value: string) => {
         updateTag(value);
-        const { firstNode: parent } = setSelAfterEnter();
+        const { firstNode: parent } = setSelAfterEnter(tag.lastTag);
         checkContentNodes({
             type: tag.lastTag,
             isNotBlock: true,
@@ -339,7 +340,7 @@ export const EditorProvider: FC<{
             case 'Enter': {
                 e.preventDefault();
                 const { firstNode: parent, focusNode } = setSelAfterEnter();
-                addNode(parent.id, parent.firstElementChild?.localName as string, false, focusNode.id);
+                addNode(parent?.id, parent.firstElementChild?.localName as string, false, focusNode.id);
                 break;
             }
             case 'Backspace': {
@@ -376,6 +377,7 @@ export const EditorProvider: FC<{
         const target = e.target as HTMLElement;
         // selection
         setSelectionRange(target.lastChild || target, anchorOffset, target.lastChild || target, anchorOffset);
+        if (target.style) updateWholeStyle(target.style);
     };
 
     // listeners

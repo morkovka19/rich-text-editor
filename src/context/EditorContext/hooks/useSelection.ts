@@ -1,4 +1,5 @@
-import { isBlockParenTagType } from '../../../helpers/checkTypeTag';
+import { canHasThisChild } from '../../../helpers/canHasThisChild';
+import { isBlockParenTagType, isParentTagType } from '../../../helpers/checkTypeTag';
 
 export const useSelection = () => {
     const getSelection = () => {
@@ -58,19 +59,27 @@ export const useSelection = () => {
         sel.removeAllRanges();
     };
 
-    const getFirstNode = (focusNode: HTMLElement) => {
+    const getFirstParentNode = (focusNode: HTMLElement) => {
         if (isBlockParenTagType(focusNode?.localName)) {
             return focusNode;
         }
-        return getFirstNode(focusNode?.parentElement as HTMLElement);
+        if (isParentTagType(focusNode?.localName) && focusNode.parentNode) {
+            return focusNode.parentNode as HTMLElement;
+        }
+        return getFirstParentNode(focusNode?.parentElement as HTMLElement);
     };
 
-    const setSelAfterEnter = () => {
+    const getFirstParentNodeForTag = (focusNode: HTMLElement, tag: string) => {
+        if (canHasThisChild(focusNode.localName, tag)) return focusNode;
+        return getFirstParentNodeForTag(focusNode.parentNode as HTMLElement, tag);
+    };
+
+    const setSelAfterEnter = (tag?: string) => {
         const selection = getSelection();
         const focusNode = (
             selection?.focusNode?.nodeName === '#text' ? selection.focusNode.parentElement : selection?.focusNode
         ) as HTMLElement;
-        const firstNode = getFirstNode(focusNode);
+        const firstNode = tag ? getFirstParentNodeForTag(focusNode, tag) : getFirstParentNode(focusNode);
         collapseSelectionToEnd(firstNode);
         return {
             firstNode,

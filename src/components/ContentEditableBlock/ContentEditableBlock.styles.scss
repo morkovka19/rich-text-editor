@@ -20,4 +20,27 @@
     position: relative;
     outline: 0;
     padding: 8px 28px 40px;
+
+    ul,
+    ol {
+        margin: gs(2) 0;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    ul li {
+        list-style: disc;
+        margin: gs(1) gs(4);
+    }
+
+    ol li {
+        list-style: decimal;
+        margin: gs(1) gs(4);
+    }
 }

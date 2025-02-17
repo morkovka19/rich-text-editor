@@ -6,16 +6,3 @@
 @import './tokens/mixins.scss';
 @import './tokens/typography.scss';
 @import './tokens/variables.scss';
-
-ol,
-ul {
-    list-style: circle;
-}
-
-ol {
-    list-style-type: armenian;
-}
-
-ul {
-    list-style-type: decimal;
-}
