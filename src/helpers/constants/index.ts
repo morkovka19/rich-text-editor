@@ -188,4 +188,16 @@ export const baseStyle: Record<string, IStyleNode> = {
     h3: {
         fontSize: 18,
     },
+    a: {
+        color: 'blue',
+        textDecoration: 'underline',
+    },
 };
+
+export enum ActionWithTag {
+    CREATE,
+    DELETE,
+    EDIT,
+}
+
+export const LINK_START = 'https://';

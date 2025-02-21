@@ -16,6 +16,13 @@ export interface IStyleNode {
     textDecoration?: string;
 }
 
+export interface IProps {
+    link?: {
+        href: string;
+        target: string;
+    };
+}
+
 export class LexicalNode {
     ['constructor']!: KlassConstructor<typeof LexicalNode>;
     __type: string;
@@ -23,19 +30,22 @@ export class LexicalNode {
     __parent: NodeKeyType | null;
     __children: ChildType[] | null | undefined;
     __style: IStyleNode | null | undefined;
+    __props: IProps;
 
     constructor(
         key: NodeKeyType,
         type: string,
         parent?: NodeKeyType,
         children?: ChildType[] | null,
-        style?: IStyleNode
+        style?: IStyleNode,
+        props?: IProps
     ) {
         this.__key = key;
         this.__parent = parent || null;
         this.__type = type;
         this.__children = children;
         this.__style = style;
+        this.__props = { ...props };
     }
 
     getType() {
@@ -98,6 +108,24 @@ export class LexicalNode {
                 ...(this.__children?.slice(position) || []),
             ];
         else this.__children?.push(child);
+    }
+
+    replaceChild(oldChild: NodeKeyType, newChild: NodeKeyType) {
+        if (this.__children && this.__children.length > 0) {
+            this.__children.splice(
+                this.__children.findIndex(item => item === oldChild),
+                1,
+                newChild
+            );
+        }
+    }
+
+    setProps(newProps: IProps) {
+        this.__props = { ...this.__props, ...newProps };
+    }
+
+    getProps() {
+        return this.__props;
     }
 
     getTextLength() {

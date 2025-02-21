@@ -15,6 +15,7 @@ const Editor: FC<IEditor> = props => {
         <EditorProvider editor={ref}>
             <Container>
                 <Topbar isEditable={props.isEditable || true} />
+
                 <ContentEditableBlock ref={ref} {...props}></ContentEditableBlock>
             </Container>
         </EditorProvider>

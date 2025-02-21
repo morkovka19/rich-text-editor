@@ -1,7 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
 
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
-import { IStyleNode, LexicalNode } from '../../types/nodes';
+import { ActionWithTag } from '../../helpers/constants';
+import { IStyleNode, LexicalNode, NodeKeyType } from '../../types/nodes';
 import { StylePropType } from './hooks/useStyle';
 import { TagType } from './hooks/useTags';
 
@@ -17,4 +18,6 @@ export interface IEditorContextProps {
     updateLastTag: (value: string) => void;
     tag: TagType;
     activeNode: LexicalNode;
+    focuseNode: Node | null;
+    editLinkTag: (action: ActionWithTag, key: NodeKeyType, href?: string) => void;
 }

@@ -8,6 +8,11 @@ export const useDOMState = () => {
         const parent = getDOMElement(node.getParent() as string);
         const child = document.createElement(node.getType());
         child.id = node.getKey();
+        const { link } = node.getProps();
+        if (link) {
+            child.setAttribute('href', link.href);
+            child.setAttribute('target', link.target);
+        }
         if (prevNodeKey) {
             const prevNode = getDOMElement(prevNodeKey);
             if (prevNode) parent?.insertBefore(child, prevNode.nextSibling);
@@ -31,7 +36,7 @@ export const useDOMState = () => {
     const updateContent = (key?: NodeKeyType, content?: string, node?: HTMLElement) => {
         if (key) {
             const updatedElement = getDOMElement(key);
-            updatedElement.textContent = content || '';
+            if (updatedElement.textContent !== null) updatedElement.textContent = content || '';
         } else if (node) {
             node.textContent = content || '';
         }

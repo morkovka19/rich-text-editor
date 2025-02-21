@@ -1,7 +1,8 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { ActionWithTag, TAGS } from '../../../helpers/constants';
 import BackgroundColor from '../../../icons/topbar-font-color/backgroundColor.svg';
 import Color from '../../../icons/topbar-font-color/color.svg';
 import Bold from '../../../icons/topbar-font-styles/bold.svg';
@@ -9,12 +10,15 @@ import CodeBlock from '../../../icons/topbar-font-styles/codeBlock.svg';
 import Italic from '../../../icons/topbar-font-styles/italic.svg';
 import Link from '../../../icons/topbar-font-styles/link.svg';
 import Underline from '../../../icons/topbar-font-styles/underline.svg';
+import { NodeKeyType } from '../../../types/nodes';
+import LinkEditor from '../../LinkEditor';
 import Button from '../../controls/Button';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import ColorPicker from '../../controls/ColorPicker';
 
 const FontStylesBlock = () => {
-    const { updateStyle, style, activeNode } = useEditor();
+    const [isOpenLink, setIsOpenLink] = useState(false);
+    const { updateStyle, style, activeNode, focuseNode, editLinkTag } = useEditor();
 
     const handleUpdateColor = useCallback(
         (value: string) => {
@@ -47,6 +51,13 @@ const FontStylesBlock = () => {
 
     const activeStyle = useMemo(() => activeNode?.getStyle() || style, [activeNode, style]);
 
+    const handleEditLink = useCallback(
+        (action: ActionWithTag, key: NodeKeyType, href?: string) => {
+            editLinkTag(action, key, href);
+        },
+        [editLinkTag]
+    );
+
     return (
         <ButtonsContainer>
             <Button
@@ -68,7 +79,15 @@ const FontStylesBlock = () => {
                 isActive={activeStyle.textDecoration === 'underline'}
             />
             <Button Icon={CodeBlock} theme="icon" />
-            <Button Icon={Link} theme="icon" />
+            <Button Icon={Link} theme="icon" onClick={() => setIsOpenLink(prev => !prev)} />
+            {isOpenLink && (
+                <LinkEditor
+                    onClose={() => setIsOpenLink(false)}
+                    activeNode={focuseNode as HTMLElement}
+                    value={focuseNode?.nodeName === TAGS.LINK ? focuseNode?.textContent || '' : ''}
+                    onChange={handleEditLink}
+                />
+            )}
             <ColorPicker Icon={Color} color={activeStyle.color || '#000000'} handleUpdate={handleUpdateColor} />
             <ColorPicker
                 Icon={BackgroundColor}

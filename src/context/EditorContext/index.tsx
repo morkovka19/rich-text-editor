@@ -5,7 +5,8 @@ import { FC, ReactNode, useMemo, useState } from 'react';
 import { IEditorState } from '../../components/Editor/EditorState/EditorState.types';
 import { createInitialNodeMap } from '../../components/Editor/EditorState/getInitialState';
 import { isParentTagType } from '../../helpers/checkTypeTag';
-import { baseStyle } from '../../helpers/constants';
+import { ActionWithTag, TAGS, baseStyle } from '../../helpers/constants';
+import { generateKey } from '../../helpers/generateKey';
 import { isInlineTag } from '../../helpers/isInlineTag';
 import { initialScript } from '../../helpers/scripts/initialScript';
 import { LexicalNode, NodeKeyType, Text } from '../../types/nodes';
@@ -37,7 +38,7 @@ export const EditorProvider: FC<{
     }, []);
 
     // state
-    const { addNodeToState, removeNodeState, updateTextNode, updateStyleNode } = useEditorState();
+    const { addNodeToState, removeNodeState, updateTextNode, updateStyleNode, getNode } = useEditorState();
 
     // DOM
     const { updateContent, addDOMNode, removeDOMNode, updateStyleDOMNode, getDOMNode, getLastTextChild } =
@@ -86,7 +87,6 @@ export const EditorProvider: FC<{
     // helpers
     const setStyleNode = (key: NodeKeyType, actualStyle?: string, lastStyle?: string) => {
         const style = actualStyle || getStyleStr();
-        console.log(style);
         // DOM
         updateStyleDOMNode(key, style);
         // state
@@ -113,7 +113,7 @@ export const EditorProvider: FC<{
         // DOM
         const nodeElement = addDOMNode(node, prevNode) as Node;
         // state
-        addNodeToState(stateRef.current, node);
+        addNodeToState(stateRef.current, node, prevNode);
         // style
         if (!isParentTagType(nodeType)) setStyleNode(node.getKey(), getStyleStr(node.getStyle() || styleRef.current));
         // selection
@@ -247,10 +247,35 @@ export const EditorProvider: FC<{
                 updateNode(key, isInlineTag(tag.lastTag) ? '' : '\n');
                 const node = stateRef.current.nodeMap.get(key);
                 if (node) setStyleNode(key, getStyleStr({ ...styleRef.current, ...baseStyle[tag.lastTag] }));
-                console.log(node, getStyleStr({ ...styleRef.current, ...baseStyle[tag.lastTag] }));
             },
         });
     };
+
+    const editLinkTag = useCallback((action: ActionWithTag, key: NodeKeyType, href?: string) => {
+        const node = getNode(stateRef.current, key) as Text;
+        const parent = getNode(stateRef.current, node?.getParent() || '') as LexicalNode;
+        const nodeDom = getDOMNode(key) as HTMLElement;
+        switch (action) {
+            case ActionWithTag.CREATE: {
+                const newNode = new LexicalNode(
+                    generateKey(),
+                    TAGS.LINK,
+                    parent.getKey(),
+                    [node?.getKey()],
+                    baseStyle[TAGS.LINK],
+                    { link: { href: href || '', target: '_blank' } }
+                );
+                const newNodeDOM = addDOMNode(newNode);
+                nodeDom.replaceWith(newNodeDOM);
+                newNodeDOM.append(nodeDom);
+                // newNodeDOM.ad = getStyleStr(baseStyle[TAGS.LINK])
+
+                break;
+            }
+            default:
+                break;
+        }
+    }, []);
 
     // history event
     useEffect(() => {
@@ -282,17 +307,19 @@ export const EditorProvider: FC<{
                     break;
                 }
                 case HistoryTypeEnum.REMOVE_BLOCK: {
-                    const parent = actualState.lastState.parent;
-                    const newKey = actualState.lastState.new;
-                    const node = document.getElementById(newKey);
-                    if (node) {
-                        if (history.side === 'undo') {
-                            addNode(parent || '', type, true);
-                        } else {
-                            const parentNode = getDOMNode(parent || '');
-                            removeNode(newKey, parentNode as HTMLElement, true);
-                        }
-                    }
+                    // const parent = actualState.lastState.parent;
+                    // const newKey = actualState.lastState.new;
+                    // const node = document.getElementById(newKey);
+                    // if (node) {
+                    //     if (history.side === 'undo') {
+                    //         const node = addNode(parent || '', type, true);
+                    //         addNode(parent)
+
+                    //     } else {
+                    //         const parentNode = getDOMNode(parent || '');
+                    //         removeNode(newKey, parentNode as HTMLElement, true);
+                    //     }
+                    // }
                     break;
                 }
                 default: {
@@ -332,7 +359,6 @@ export const EditorProvider: FC<{
                 callbackAddNode: (keyParent: string, type: string) => {
                     updateContent(keyParent);
                     const node = addNode(keyParent, type, false);
-                    console.log(node);
                     return node.getKey();
                 },
             });
@@ -404,7 +430,7 @@ export const EditorProvider: FC<{
 
     const activeNode = useMemo(() => {
         const focusNode = selection.focusNode as HTMLElement;
-        const nodeState = stateRef.current.nodeMap.get(focusNode?.id) as LexicalNode;
+        const nodeState = getNode(stateRef.current, focusNode?.id) as LexicalNode;
         return nodeState;
     }, [selection.focusNode]);
 
@@ -421,6 +447,8 @@ export const EditorProvider: FC<{
             updateLastTag,
             tag,
             activeNode,
+            focuseNode: selection.focusNode,
+            editLinkTag,
         }),
         [
             state,
@@ -434,6 +462,8 @@ export const EditorProvider: FC<{
             updateLastTag,
             tag,
             activeNode,
+            selection.focusNode,
+            editLinkTag,
         ]
     );
 
