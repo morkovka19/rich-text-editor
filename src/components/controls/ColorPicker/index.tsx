@@ -4,9 +4,9 @@
 import min from 'lodash/min';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { baseColors } from '../../../helpers/constants';
-import { useOnClickOutside } from '../../../helpers/hooks/useOnClickOutside';
 import { SVGRIcon } from '../../../types';
+import { baseColors } from '../../../utils/constants';
+import { useOnClickOutside } from '../../../utils/hooks/useOnClickOutside';
 import Button from '../Button';
 import './ColorPicker.styles.scss';
 import { Position } from './ColorPicker.types';

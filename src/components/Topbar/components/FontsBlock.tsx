@@ -2,8 +2,8 @@ import { useCallback, useMemo } from 'react';
 
 import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
-import { fontSelectOptions } from '../../../helpers/constants';
 import FontIcon from '../../../icons/topbar-font/topbar-font.svg';
+import { fontSelectOptions } from '../../../utils/constants';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 

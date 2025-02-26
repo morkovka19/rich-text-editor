@@ -1,13 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { ActionWithTag, LINK_START } from '../../helpers/constants';
-import { useOnClickOutside } from '../../helpers/hooks/useOnClickOutside';
 import CancelIcon from '../../icons/cancel.svg';
 import ConfirmIcon from '../../icons/confirm.svg';
 import DeleteIcon from '../../icons/delete.svg';
 import EditIcon from '../../icons/edit.svg';
 import { NodeKeyType } from '../../types/nodes';
+import { ActionWithTag, LINK_START } from '../../utils/constants';
+import { useOnClickOutside } from '../../utils/hooks/useOnClickOutside';
 import Button from '../controls/Button';
 import './LinkEditor.styles.scss';
 

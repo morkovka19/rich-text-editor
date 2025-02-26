@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
 import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
-import { ActionWithTag, TAGS } from '../../../helpers/constants';
 import BackgroundColor from '../../../icons/topbar-font-color/backgroundColor.svg';
 import Color from '../../../icons/topbar-font-color/color.svg';
 import Bold from '../../../icons/topbar-font-styles/bold.svg';
@@ -11,6 +10,7 @@ import Italic from '../../../icons/topbar-font-styles/italic.svg';
 import Link from '../../../icons/topbar-font-styles/link.svg';
 import Underline from '../../../icons/topbar-font-styles/underline.svg';
 import { NodeKeyType } from '../../../types/nodes';
+import { ActionWithTag, TAGS } from '../../../utils/constants';
 import LinkEditor from '../../LinkEditor';
 import Button from '../../controls/Button';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';

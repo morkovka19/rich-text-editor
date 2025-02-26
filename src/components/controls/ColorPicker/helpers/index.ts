@@ -1,4 +1,4 @@
-import { regHex } from '../../../../helpers/regex';
+import { regHex } from '../../../../utils/regex';
 import { Color, HSV, RGB } from '../ColorPicker.types';
 import { COLOR_FORMAT, MAX_RGB_NUMBER, N_MAX_LINE } from './constants';
 

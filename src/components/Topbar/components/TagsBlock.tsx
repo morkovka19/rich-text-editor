@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
-import { typeSelectOptions } from '../../../helpers/constants';
+import { typeSelectOptions } from '../../../utils/constants';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 

@@ -1,0 +1,46 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { getDOMElement } from '../../utils/DOMUtils';
+import { generateKey } from '../../utils/generateKey';
+import { NodeKey } from './types';
+
+export abstract class LexicalNode {
+    _key: NodeKey;
+    _type: string;
+    _parentKey?: NodeKey | null;
+
+    constructor(key: NodeKey, type: string, parentKey?: NodeKey | null) {
+        this._key = key;
+        this._type = type;
+        this._parentKey = parentKey;
+    }
+
+    setParent(parentKey: NodeKey) {
+        this._parentKey = parentKey;
+    }
+
+    public abstract render(): HTMLElement;
+
+    canHasText() {
+        return false;
+    }
+
+    public abstract updateText(text: string): HTMLElement;
+    public abstract getChildType(): string;
+    public abstract getChildren(): Array<NodeKey>;
+    public abstract addChild(child: NodeKey): void;
+    public abstract clone(): LexicalNode;
+
+    getKey() {
+        return this._key;
+    }
+
+    getDomElement() {
+        return getDOMElement(this._key);
+    }
+
+    getParent() {
+        return this._parentKey;
+    }
+}

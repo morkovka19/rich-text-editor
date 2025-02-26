@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useOnClickOutside } from '../../../helpers/hooks/useOnClickOutside';
 import { SVGRIcon } from '../../../types';
+import { useOnClickOutside } from '../../../utils/hooks/useOnClickOutside';
 import Button from '../Button';
 import './Select.styles.scss';
 import { IOption } from './Select.types';
