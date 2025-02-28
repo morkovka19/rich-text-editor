@@ -43,7 +43,6 @@ export class LexicalEditor {
         const selection = this._selection.getDefSelection();
         const anchorNode = selection?.anchorNode as HTMLElement;
         const focusNode = selection?.focusNode as HTMLElement;
-        console.log(selection);
         if (anchorNode!.id === focusNode!.id && anchorNode.nodeType !== 3) {
             this._state.handleSimpleEnter(anchorNode.id);
         } else if (selection?.isCollapsed) {
