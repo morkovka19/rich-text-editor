@@ -6,6 +6,12 @@ import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class ParagraphNode extends LexicalElement {
+    public getText(): string {
+        throw new Error('Method not implemented.');
+    }
+    public remodeChild(key: NodeKey): void {
+        this._children.filter(child => child !== key);
+    }
     public clone(): LexicalNode {
         return new ParagraphNode(generateKey());
     }

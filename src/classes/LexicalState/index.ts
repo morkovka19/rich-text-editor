@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { generateKey } from '../../utils/generateKey';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { ParagraphNode } from '../LexicalNode/ParagraphNode';
@@ -36,20 +37,39 @@ export class LexicalState {
     }
 
     addNode(parent: LexicalNode, child: LexicalNode) {
-        parent.addChild(child.getKey());
-        child.setParent(parent.getKey());
-        const childElement = child.render();
-        const parentElement = parent.getDomElement();
-        parentElement?.appendChild(childElement);
+        if (!this._nodeMap.get(child?.getKey())) {
+            this._nodeMap.set(child?.getKey(), child);
+            parent.addChild(child.getKey());
+            child.setParent(parent.getKey());
+
+            const parentElement = parent.getDomElement();
+            const childElement = child.render();
+            parentElement.appendChild(childElement);
+        }
     }
 
     updateNodeText(key: NodeKey, text: string) {
+        const selection = this._selection.getDefSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        const range = selection.getRangeAt(0);
+        const startOffset = range.startOffset; // Сохраняем текущую позицию курсора
+
         const checkAndUpdate = (node: LexicalNode) => {
             const element = node.getDomElement();
             if (element?.textContent) element.textContent = '';
             if (node.canHasText()) {
+                const element = node.getDomElement();
+                if (!element) return;
+
+                // Сохраняем текущий текст до обновления
+                const currentText = node.getText();
+
+                // Обновляем текст узла
                 node.updateText(text);
-                this._selection.setSelection(node, 1);
+                // Восстанавливаем позицию курсора
+                const textNode = element?.childNodes[0] || element;
+                this._selection.setSelection(textNode, Math.min(startOffset, text.length));
                 return;
             } else {
                 const childType = node.getChildType();
@@ -75,5 +95,45 @@ export class LexicalState {
             return null;
         };
         return search(this._rootNode);
+    }
+
+    addNodeWithKey(parent: NodeKey, child: LexicalNode) {
+        const parentNode = this.getNodeByKey(parent) as LexicalNode;
+        this.addNode(parentNode, child);
+    }
+
+    removeNode(node: LexicalNode) {
+        const parent = this.getNodeByKey(node.getParent() as NodeKey) as LexicalNode;
+        if (parent.getChildren().includes(node.getKey())) parent.remodeChild(node.getKey());
+        this._nodeMap.delete(node.getKey());
+    }
+
+    createAfterEnter() {}
+
+    handleSimpleEnter(key: NodeKey) {
+        const node = this._nodeMap.get(key);
+        const newParent = this.getNodeByKey(node?.getParent() as NodeKey)?.clone() as LexicalNode;
+        const newNode = node?.clone() as LexicalNode;
+        const currentParentKey = (
+            this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode
+        )?.getParent() as NodeKey;
+        this.addNodeWithKey(currentParentKey, newParent);
+        this.addNode(newParent, newNode);
+        newNode.updateText('\n');
+        this._selection.setSelection(newNode.getDomElement(), 1);
+        return newNode;
+    }
+
+    handleEnterInText(key: NodeKey, position: number) {
+        const newNode = this.handleSimpleEnter(key);
+        const node = this.getNodeByKey(key) as TextNode;
+        const text = node.getText() || '';
+        const textBefore = text.slice(0, position);
+        const textAfter = text.slice(position);
+        newNode.updateText(textAfter);
+        node.updateText(textBefore);
+
+        const elenent = newNode.getDomElement()?.childNodes[0] || newNode.getDomElement();
+        this._selection.setSelection(elenent, 0);
     }
 }

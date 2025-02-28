@@ -31,7 +31,7 @@ export class DomSync {
         mutations.forEach(mutation => {
             if (mutation.type === 'characterData') {
                 const target = mutation.target.parentElement as HTMLElement;
-                const key = target.id;
+                const key = target?.id;
                 if (key) {
                     const text = target.textContent;
                     this._state.updateNodeText(key, text || '');

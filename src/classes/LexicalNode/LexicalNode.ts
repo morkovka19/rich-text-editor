@@ -2,7 +2,6 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { getDOMElement } from '../../utils/DOMUtils';
-import { generateKey } from '../../utils/generateKey';
 import { NodeKey } from './types';
 
 export abstract class LexicalNode {
@@ -31,6 +30,8 @@ export abstract class LexicalNode {
     public abstract getChildren(): Array<NodeKey>;
     public abstract addChild(child: NodeKey): void;
     public abstract clone(): LexicalNode;
+    public abstract remodeChild(key: NodeKey): void;
+    public abstract getText(): string;
 
     getKey() {
         return this._key;

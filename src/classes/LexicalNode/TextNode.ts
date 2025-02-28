@@ -5,6 +5,9 @@ import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class TextNode extends LexicalNode {
+    public remodeChild(key: NodeKey): void {
+        throw new Error('Method not implemented.');
+    }
     _text: string;
     _style: string;
 

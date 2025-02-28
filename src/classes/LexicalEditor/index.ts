@@ -1,6 +1,4 @@
-import { createLineBreak } from '../../utils/DOMUtils';
 import { DomSync } from '../DomSync';
-import { TextNode } from '../LexicalNode/TextNode';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
 import { SelectionManager } from '../SelectionManager';
@@ -24,76 +22,37 @@ export class LexicalEditor {
         this._container = container;
         const rootElement = this._dom.render(container);
         this._rootElement = rootElement;
+        this.setBaseEventListeners();
     }
 
     registerKeydownListener() {
-        this._rootElement?.addEventListener('keydown', this.handleKeydown);
-        return () => this._rootElement?.removeEventListener('keydown', this.handleKeydown);
+        this._container?.addEventListener('keydown', this.handleKeydown, true);
+        return () => this._container?.removeEventListener('keydown', this.handleKeydown);
     }
 
-    private handleKeydown(e: KeyboardEvent) {
+    private handleKeydown = (e: KeyboardEvent) => {
         const key = e.key;
         switch (key) {
             case 'Enter':
                 this.handleEnter(e);
         }
-    }
+    };
 
-    private handleEnter(e: KeyboardEvent) {
+    private handleEnter = (e: KeyboardEvent) => {
         e.preventDefault();
         const selection = this._selection.getDefSelection();
-        if (selection && selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const startNode = range.startContainer as HTMLElement;
-            const startOffset = range.startOffset;
-
-            // Если курсор внутри текста
-            if (startNode.nodeType === Node.TEXT_NODE) {
-                const textNode = this._state.getNodeByKey(startNode.parentElement!.id);
-                if (textNode && textNode instanceof TextNode) {
-                    const textBefore = textNode.getText().slice(0, startOffset);
-                    // const textAfter = textNode.getText().slice(startOffset);
-                    textNode.updateText(textBefore);
-                    textNode.getDomElement().textContent = textBefore;
-
-                    const parent = textNode.getParent() as NodeKey;
-                    const parentNode = this._state.getNodeByKey(parent);
-                    const newNode = parentNode?.clone();
-                    const newNodeElement = newNode?.render() as Node;
-                    const parentElement = parentNode?.getDomElement();
-                    parentElement?.parentElement!.insertBefore(parentElement, newNodeElement);
-                    newNode?.setParent(parentElement!.parentElement!.id);
-                    // Создаем <br>
-                    const br = createLineBreak();
-                    startNode.parentElement!.insertBefore(br, startNode);
-                }
-
-                // // Если курсор внутри списка
-                // if (startNode.closest('li')) {
-                //     const listItem = startNode.closest('li') as HTMLLIElement;
-                //     const list = listItem.parentElement as HTMLOListElement | HTMLUListElement;
-
-                //     // Если список пустой, удаляем его и создаем <br>
-                //     if (listItem.textContent === '') {
-                //         listItem.remove();
-                //         const br = document.createElement('br');
-                //         list.parentElement!.insertBefore(br, list);
-                //     } else {
-                //         // Создаем новый <li>
-                //         const newListItem = new ListItemNode();
-                //         const newTextNode = new TextNode();
-                //         newListItem.appendChild(newTextNode);
-                //         this.nodeMap.addNode(getNodeId(newListItem), newListItem, getNodeId(list));
-                //         this.nodeMap.addNode(getNodeId(newTextNode), newTextNode, getNodeId(newListItem));
-
-                //         list.appendChild(newListItem.render());
-                //     }
-            }
+        const anchorNode = selection?.anchorNode as HTMLElement;
+        const focusNode = selection?.focusNode as HTMLElement;
+        console.log(selection);
+        if (anchorNode!.id === focusNode!.id && anchorNode.nodeType !== 3) {
+            this._state.handleSimpleEnter(anchorNode.id);
+        } else if (selection?.isCollapsed) {
+            this._state.handleEnterInText(anchorNode.parentElement!.id as NodeKey, selection.anchorOffset as number);
         }
-    }
+    };
 
     setBaseEventListeners() {
-        if (this._rootElement) {
+        if (this._container) {
             this.registerKeydownListener();
         }
     }

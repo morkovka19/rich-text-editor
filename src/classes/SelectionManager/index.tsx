@@ -1,8 +1,12 @@
-import { LexicalNode } from '../LexicalNode/LexicalNode';
-import { TextNode } from '../LexicalNode/TextNode';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export class SelectionManager {
-    public getSelection(): { startKey: string; startOffset: number; endKey: string; endOffset: number } | null {
+    public getSelection(): {
+        startKey: string;
+        startOffset: number;
+        endKey: string;
+        endOffset: number;
+    } | null {
         const selection = this.getDefSelection();
         if (!selection || selection.rangeCount === 0) return null;
 
@@ -18,20 +22,12 @@ export class SelectionManager {
         };
     }
 
-    public setSelection(node: LexicalNode, offset: number) {
-        console.log(node, offset);
-        if (node && node instanceof TextNode) {
-            const range = document.createRange();
-            const element = node.getDomElement();
-            range.setStart(element, offset);
-            range.collapse(true);
-
-            const selection = window.getSelection();
-            if (selection) {
-                selection.removeAllRanges();
-                selection.addRange(range);
-            }
-        }
+    public setSelection(node: any, offset: number) {
+        const newRange = document.createRange();
+        newRange.setStart(node, offset);
+        newRange.collapse(true);
+        this.getDefSelection()?.removeAllRanges();
+        this.getDefSelection()?.addRange(newRange);
     }
 
     getDefSelection() {
