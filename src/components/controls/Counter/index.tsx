@@ -3,8 +3,8 @@ import { ChangeEvent, FC, useEffect, useReducer } from 'react';
 import MinusIcon from '../../../icons/topbar-font-size/minus.svg';
 import PlusIcon from '../../../icons/topbar-font-size/plus.svg';
 import Button from '../Button';
-import './Counter.styles.scss';
 import { reducer } from './helpers/reducer';
+import './styles.scss';
 
 export interface ICounterProps {
     handelUpdate: (value: number) => void;

@@ -1,3 +1,4 @@
+import { StyleProps } from '../../context/ToolbarContext';
 import { DomSync } from '../DomSync';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
@@ -9,6 +10,8 @@ export class LexicalEditor {
     _container: HTMLElement | null;
     _rootElement: HTMLElement | null;
     _selection: SelectionManager;
+    _focusElement: HTMLElement | null;
+    _triggerClickForStyle: ((trigger: HTMLElement | null) => void) | null;
 
     constructor() {
         this._selection = new SelectionManager();
@@ -16,6 +19,8 @@ export class LexicalEditor {
         this._rootElement = null;
         this._container = null;
         this._dom = new DomSync(this._state);
+        this._focusElement = null;
+        this._triggerClickForStyle = null;
     }
 
     start(container: HTMLElement) {
@@ -35,6 +40,9 @@ export class LexicalEditor {
         switch (key) {
             case 'Enter':
                 this.handleEnter(e);
+                break;
+            case 'Backspace':
+                this.handleBackspace(e);
         }
     };
 
@@ -50,9 +58,66 @@ export class LexicalEditor {
         }
     };
 
+    handleBackspace(e: KeyboardEvent) {
+        const selection = this._selection.getDefSelection();
+        const focusNode = selection?.focusNode;
+        const parent = focusNode?.parentElement as HTMLElement;
+        if ((parent.id as string) === 'root' && focusNode?.textContent?.length === 0 && parent.children.length === 1) {
+            e.preventDefault();
+        }
+    }
+
+    registerClickListener() {
+        this._container?.addEventListener('click', this.handleClick, true);
+        return () => this._container?.removeEventListener('click', this.handleClick);
+    }
+
+    getTriggerClickForStyle() {
+        return this._triggerClickForStyle;
+    }
+
+    handleClick = (e: Event) => {
+        const targetElement = e.target as HTMLElement;
+        if (
+            targetElement.localName === 'span' &&
+            targetElement.id &&
+            (this._focusElement === null || this._focusElement?.id !== targetElement.id)
+        ) {
+            this._focusElement = targetElement;
+            const fan = this?.getTriggerClickForStyle();
+            if (fan !== null) fan(targetElement);
+            e.preventDefault();
+        }
+    };
+
+    setTriggerClickForStyle(fan: (target: HTMLElement | null) => void) {
+        this._triggerClickForStyle = fan;
+    }
+
     setBaseEventListeners() {
         if (this._container) {
             this.registerKeydownListener();
+            this.registerClickListener();
         }
+    }
+
+    triggerDecoratedUpdate(style: StyleProps) {
+        const selection = this._selection.getDefSelection();
+        if (
+            selection?.anchorNode?.nodeType === 3 &&
+            selection.focusNode?.nodeType === 3 &&
+            selection.anchorOffset === (selection.anchorNode as HTMLElement)?.textContent?.length
+        ) {
+            this._state.handleSimpleUpdateStyle(selection.anchorNode.parentElement!.id, style);
+        } else if (
+            selection?.anchorNode?.nodeType === 3 &&
+            selection.focusNode?.nodeType === 3 &&
+            selection.anchorOffset !== (selection.anchorNode as HTMLElement)?.textContent?.length
+        ) {
+            this._state.handleUpdateStyleInText(selection.anchorNode.parentElement!.id, selection.anchorOffset, style);
+        }
+        // } else if (selection?.isCollapsed) {
+        //     this._state.handleEnterInText(anchorNode.parentElement!.id as NodeKey, selection.anchorOffset as number);
+        // }
     }
 }

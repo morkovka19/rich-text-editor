@@ -1,30 +1,29 @@
 import { useCallback, useMemo } from 'react';
 
-import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
-import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { useTooltip } from '../../../context/ToolbarContext';
 import FontIcon from '../../../icons/topbar-font/topbar-font.svg';
 import { fontSelectOptions } from '../../../utils/constants';
+import { StylePropsConst } from '../../../utils/styleUtils';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
 export const FontsBlock = () => {
-    const { updateStyle, style, activeNode } = useEditor();
+    const { style, togetherSetStyle, updateActualStyle } = useTooltip();
+    const fontFamily = useMemo(() => style.fontFamily, [style.fontFamily]);
+    const activeOption = useMemo(() => fontSelectOptions.find(val => val.value === fontFamily), [fontFamily]);
 
     const onChangeFont = useCallback(
         (value: string) => {
-            updateStyle(value, StylePropType.FONT_FAMILY);
+            const newStyleProp = { [StylePropsConst.FONT_FAMILY]: value };
+            updateActualStyle(newStyleProp);
+            togetherSetStyle(newStyleProp);
         },
-        [updateStyle]
+        [togetherSetStyle, updateActualStyle]
     );
-
-    const activeFont = useMemo(() => {
-        const styleActual = activeNode?.getStyle()?.fontFamily || style.fontFamily;
-        return fontSelectOptions.find(font => font.value === styleActual) || fontSelectOptions[0];
-    }, [style.fontFamily, activeNode]);
 
     return (
         <ButtonsContainer>
-            <Select options={fontSelectOptions} Icon={FontIcon} onChange={onChangeFont} value={activeFont} />
+            <Select options={fontSelectOptions} Icon={FontIcon} onChange={onChangeFont} value={activeOption} />
         </ButtonsContainer>
     );
 };

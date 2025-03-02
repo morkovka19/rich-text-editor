@@ -1,10 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { StyleProps } from '../../context/ToolbarContext';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class RootNode extends LexicalElement {
+    public setStyle(style: StyleProps): void {
+        throw new Error('Method not implemented.');
+    }
+    public getStyle(): StyleProps {
+        throw new Error('Method not implemented.');
+    }
+    public removeChild(key: NodeKey): void {
+        this._children.filter(child => child !== key);
+    }
+    public getText(): string {
+        throw new Error('Method not implemented.');
+    }
     public getChildren(): Array<NodeKey> {
         return this._children;
     }

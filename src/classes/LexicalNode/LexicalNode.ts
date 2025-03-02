@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { StyleProps } from '../../context/ToolbarContext';
 import { getDOMElement } from '../../utils/DOMUtils';
 import { NodeKey } from './types';
 
@@ -28,10 +29,13 @@ export abstract class LexicalNode {
     public abstract updateText(text: string): HTMLElement;
     public abstract getChildType(): string;
     public abstract getChildren(): Array<NodeKey>;
-    public abstract addChild(child: NodeKey): void;
+    public abstract addChild(child: NodeKey, position?: number): void;
     public abstract clone(): LexicalNode;
-    public abstract remodeChild(key: NodeKey): void;
+    public abstract removeChild(key: NodeKey): void;
     public abstract getText(): string;
+    public abstract setStyle(style: StyleProps): void;
+    public abstract getStyle(): StyleProps;
+    public abstract getChildIndex(key: NodeKey): number;
 
     getKey() {
         return this._key;

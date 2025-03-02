@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { IEditor } from './Editor.types';
 import Editor from './index';
+import { IEditor } from './types';
 
 const meta: Meta<typeof Editor> = {
     component: Editor,

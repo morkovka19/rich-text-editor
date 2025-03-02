@@ -3,7 +3,7 @@ import { FC, MouseEventHandler } from 'react';
 
 import Arrow from '../../../icons/arrow.svg';
 import { SVGRIcon } from '../../../types';
-import './Button.styles.scss';
+import './styles.scss';
 
 type ButtonTheme = 'text' | 'icon' | 'select' | 'color';
 

@@ -9,7 +9,7 @@ import { NodeKeyType } from '../../types/nodes';
 import { ActionWithTag, LINK_START } from '../../utils/constants';
 import { useOnClickOutside } from '../../utils/hooks/useOnClickOutside';
 import Button from '../controls/Button';
-import './LinkEditor.styles.scss';
+import './styles.scss';
 
 interface ILinkEditorProps {
     value?: string;

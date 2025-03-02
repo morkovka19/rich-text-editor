@@ -6,8 +6,8 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SVGRIcon } from '../../../types';
 import { useOnClickOutside } from '../../../utils/hooks/useOnClickOutside';
 import Button from '../Button';
-import './Select.styles.scss';
-import { IOption } from './Select.types';
+import './styles.scss';
+import { IOption } from './types';
 
 export interface ISelectProps {
     options: IOption[];

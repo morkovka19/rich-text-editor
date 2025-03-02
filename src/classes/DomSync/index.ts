@@ -36,6 +36,14 @@ export class DomSync {
                     const text = target.textContent;
                     this._state.updateNodeText(key, text || '');
                 }
+            } else if (mutation.type === 'childList') {
+                mutation.removedNodes.forEach(element => {
+                    const key = (element as HTMLElement)?.id;
+                    const node = this._state.getNodeByKey(key);
+                    if (key && node) {
+                        this._state.removeNode(node);
+                    }
+                });
             }
         });
     }

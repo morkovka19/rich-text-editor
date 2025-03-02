@@ -1,4 +1,4 @@
-import { IOption } from '../../components/controls/Select/Select.types';
+import { IOption } from '../../components/controls/Select/types';
 import HorRuleIcon from '../../icons/topbar-insert/horRule.svg';
 import ImageIcon from '../../icons/topbar-insert/image.svg';
 import TableIcon from '../../icons/topbar-insert/table.svg';
@@ -12,7 +12,6 @@ import H2Icon from '../../icons/topbar-type-text/h2.svg';
 import H3Icon from '../../icons/topbar-type-text/h3.svg';
 import NoramlIcon from '../../icons/topbar-type-text/normal.svg';
 import NumberListIcon from '../../icons/topbar-type-text/number-list.svg';
-import { IStyleNode } from '../../types/nodes';
 
 export const TAGS = {
     NORMAL: 'p',
@@ -177,27 +176,10 @@ export const baseColors = [
     'rgb(155, 155, 155)',
     'rgb(255, 255, 255)',
 ];
-
-export const baseStyle: Record<string, IStyleNode> = {
-    h1: {
-        fontSize: 26,
-    },
-    h2: {
-        fontSize: 22,
-    },
-    h3: {
-        fontSize: 18,
-    },
-    a: {
-        color: 'blue',
-        textDecoration: 'underline',
-    },
-};
-
 export enum ActionWithTag {
     CREATE,
     DELETE,
     EDIT,
 }
-
 export const LINK_START = 'https://';
+export const EMPTY_FOR_SELECT = '\u200B';

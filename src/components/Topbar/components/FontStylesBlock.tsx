@@ -1,62 +1,70 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 
-import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
-import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { useTooltip } from '../../../context/ToolbarContext';
 import BackgroundColor from '../../../icons/topbar-font-color/backgroundColor.svg';
 import Color from '../../../icons/topbar-font-color/color.svg';
 import Bold from '../../../icons/topbar-font-styles/bold.svg';
 import CodeBlock from '../../../icons/topbar-font-styles/codeBlock.svg';
 import Italic from '../../../icons/topbar-font-styles/italic.svg';
-import Link from '../../../icons/topbar-font-styles/link.svg';
+// import Link from '../../../icons/topbar-font-styles/link.svg';
 import Underline from '../../../icons/topbar-font-styles/underline.svg';
-import { NodeKeyType } from '../../../types/nodes';
-import { ActionWithTag, TAGS } from '../../../utils/constants';
-import LinkEditor from '../../LinkEditor';
+import { StylePropsConst } from '../../../utils/styleUtils';
+// import { ActionWithTag, TAGS } from '../../../utils/constants';
+// import LinkEditor from '../../LinkEditor';
 import Button from '../../controls/Button';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import ColorPicker from '../../controls/ColorPicker';
 
 const FontStylesBlock = () => {
-    const [isOpenLink, setIsOpenLink] = useState(false);
-    const { updateStyle, style, activeNode, focuseNode, editLinkTag } = useEditor();
+    // const [isOpenLink, setIsOpenLink] = useState(false);
+    const { style, togetherSetStyle, updateActualStyle } = useTooltip();
 
     const handleUpdateColor = useCallback(
         (value: string) => {
-            updateStyle(value, StylePropType.COLOR);
+            const newStyleProp = { [StylePropsConst.COLOR]: value };
+            updateActualStyle(newStyleProp);
+            togetherSetStyle(newStyleProp);
         },
-        [updateStyle]
+        [togetherSetStyle, updateActualStyle]
     );
 
     const handleUpdateBackground = useCallback(
         (value: string) => {
-            updateStyle(value, StylePropType.BACKGROUND_COLOR);
+            const newStyleProp = { [StylePropsConst.BACKGROUND_COLOR]: value };
+            updateActualStyle(newStyleProp);
+            togetherSetStyle(newStyleProp);
         },
-        [updateStyle]
+        [togetherSetStyle, updateActualStyle]
     );
 
     const handleUpdateFontWeight = useCallback(() => {
-        const value = style.fontWeight === 400 ? '700' : '400';
-        updateStyle(value, StylePropType.FONT_WEIGHT);
-    }, [updateStyle, style.fontWeight]);
+        const value = style.fontWeight === '400' ? '700' : '400';
+        const newStyleProp = { [StylePropsConst.FONT_WEIGHT]: value };
+        updateActualStyle(newStyleProp);
+        togetherSetStyle(newStyleProp);
+    }, [style.fontWeight, togetherSetStyle, updateActualStyle]);
 
     const handleUpdateFontStyle = useCallback(() => {
         const value = style.fontStyle === 'normal' ? 'italic' : 'normal';
-        updateStyle(value, StylePropType.FONT_STYLE);
-    }, [style.fontStyle, updateStyle]);
+        const newStyleProp = { [StylePropsConst.FONT_STYLE]: value };
+        updateActualStyle(newStyleProp);
+        togetherSetStyle(newStyleProp);
+    }, [style.fontStyle, togetherSetStyle, updateActualStyle]);
 
     const handleUpdateTextDecoration = useCallback(() => {
-        const value = style.textDecoration === 'none' ? 'underline' : 'none';
-        updateStyle(value, StylePropType.TEXT_DECORATION);
-    }, [updateStyle, style.textDecoration]);
+        const value = style.textDecoration === 'normal' ? 'underline' : 'normal';
 
-    const activeStyle = useMemo(() => activeNode?.getStyle() || style, [activeNode, style]);
+        const newStyleProp = { [StylePropsConst.TEXT_DECORATION]: value };
+        updateActualStyle(newStyleProp);
+        togetherSetStyle(newStyleProp);
+    }, [style.textDecoration, togetherSetStyle, updateActualStyle]);
 
-    const handleEditLink = useCallback(
-        (action: ActionWithTag, key: NodeKeyType, href?: string) => {
-            editLinkTag(action, key, href);
-        },
-        [editLinkTag]
-    );
+    // const handleEditLink = useCallback(
+    //     (action: ActionWithTag, key: NodeKeyType, href?: string) => {
+    //         editLinkTag(action, key, href);
+    //     },
+    //     [editLinkTag]
+    // );
 
     return (
         <ButtonsContainer>
@@ -64,34 +72,34 @@ const FontStylesBlock = () => {
                 Icon={Bold}
                 theme="icon"
                 onClick={handleUpdateFontWeight}
-                isActive={activeStyle.fontWeight === 700}
+                isActive={Number(style[StylePropsConst.FONT_WEIGHT]) === 700}
             />
             <Button
                 Icon={Italic}
                 theme="icon"
                 onClick={handleUpdateFontStyle}
-                isActive={activeStyle.fontStyle === 'italic'}
+                isActive={style[StylePropsConst.FONT_STYLE] === 'italic'}
             />
             <Button
                 Icon={Underline}
                 theme="icon"
                 onClick={handleUpdateTextDecoration}
-                isActive={activeStyle.textDecoration === 'underline'}
+                isActive={style[StylePropsConst.TEXT_DECORATION] === 'underline'}
             />
             <Button Icon={CodeBlock} theme="icon" />
-            <Button Icon={Link} theme="icon" onClick={() => setIsOpenLink(prev => !prev)} />
-            {isOpenLink && (
+            {/* <Button Icon={Link} theme="icon" onClick={() => setIsOpenLink(prev => !prev)} /> */}
+            {/* {isOpenLink && (
                 <LinkEditor
                     onClose={() => setIsOpenLink(false)}
                     activeNode={focuseNode as HTMLElement}
                     value={focuseNode?.nodeName === TAGS.LINK ? focuseNode?.textContent || '' : ''}
                     onChange={handleEditLink}
                 />
-            )}
-            <ColorPicker Icon={Color} color={activeStyle.color || '#000000'} handleUpdate={handleUpdateColor} />
+            )} */}
+            <ColorPicker Icon={Color} color={style[StylePropsConst.COLOR]} handleUpdate={handleUpdateColor} />
             <ColorPicker
                 Icon={BackgroundColor}
-                color={activeStyle.backgroundColor || '#ffffff'}
+                color={style[StylePropsConst.BACKGROUND_COLOR]}
                 handleUpdate={handleUpdateBackground}
             />
         </ButtonsContainer>

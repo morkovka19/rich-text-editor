@@ -12,9 +12,12 @@ export abstract class LexicalElement extends LexicalNode {
     addChildren(child: Array<NodeKey>) {
         this._children.push(...child);
     }
-
-    public abstract render(): HTMLElement;
-    public addChild(child: NodeKey): void {
-        this._children.push(child);
+    public addChild(child: NodeKey, position?: number): void {
+        if (position) {
+            this._children.splice(position, 0, child);
+        } else this._children.push(child);
+    }
+    public getChildIndex(key: NodeKey): number {
+        return this._children.indexOf(key);
     }
 }

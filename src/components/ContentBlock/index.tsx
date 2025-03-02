@@ -2,6 +2,8 @@
 import { PropsWithChildren, RefObject, forwardRef, useLayoutEffect } from 'react';
 
 import { useEditor } from '../../context/LexicalContext';
+import { useTooltip } from '../../context/ToolbarContext';
+import { getStyleString } from '../../utils/styleUtils';
 import './styles.scss';
 
 export type ContentBlockProps = PropsWithChildren<{
@@ -12,9 +14,13 @@ export type ContentBlockProps = PropsWithChildren<{
 const ContentBlock = forwardRef<ContentBlockProps & HTMLDivElement>(
     ({ isEditable = true, children }: ContentBlockProps, ref) => {
         const { editor } = useEditor();
+        const { style } = useTooltip();
 
         useLayoutEffect(() => {
-            if (ref && 'current' in ref) editor.start(ref.current as HTMLElement);
+            if (ref && 'current' in ref) {
+                editor.start(ref.current as HTMLElement);
+                (ref.current as HTMLElement).setAttribute('style', getStyleString(style));
+            }
         }, []);
 
         return (

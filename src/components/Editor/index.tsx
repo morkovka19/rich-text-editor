@@ -1,16 +1,17 @@
 import { FC, useRef } from 'react';
 
 import ContentBlock, { ContentBlockProps } from '../ContentBlock';
+import { Topbar } from '../Topbar';
 import { Container } from '../controls/Container';
-import './Editor.styles.scss';
-import { IEditor } from './Editor.types';
+import './styles.scss';
+import { IEditor } from './types';
 
-const Editor: FC<IEditor> = () => {
+const Editor: FC<IEditor> = ({ isEditable }) => {
     const ref = useRef<HTMLDivElement & ContentBlockProps>(null);
 
     return (
         <Container>
-            {/* <Topbar isEditable={props.isEditable || true} /> */}
+            <Topbar isEditable={isEditable || true} />
             <ContentBlock ref={ref} />
         </Container>
     );

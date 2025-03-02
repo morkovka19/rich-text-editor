@@ -1,22 +1,22 @@
 import { FC } from 'react';
 
-import './Topbar.styles.scss';
-import { ITopbar } from './Topbar.types';
 import { Divider } from './components/Divider';
 import FontSizeBlock from './components/FontSizeBlock';
 import FontStylesBlock from './components/FontStylesBlock';
 import { FontsBlock } from './components/FontsBlock';
-import { HistoryBlock } from './components/HistoryBlock';
+// import { HistoryBlock } from './components/HistoryBlock';
 import InsertBlock from './components/InsertBlock';
-import { TagsBlock } from './components/TagsBlock';
+// import { TagsBlock } from './components/TagsBlock';
 import TextStyleBlock from './components/TextStyleBlock';
+import './styles.scss';
+import { ITopbar } from './types';
 
 const Topbar: FC<ITopbar> = () => {
     return (
         <div className="topbar">
-            <HistoryBlock />
+            {/* <HistoryBlock /> */}
             <Divider />
-            <TagsBlock />
+            {/* <TagsBlock /> */}
             <Divider />
             <FontsBlock />
             <Divider />

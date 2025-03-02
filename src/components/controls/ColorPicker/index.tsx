@@ -2,17 +2,17 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import min from 'lodash/min';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { SVGRIcon } from '../../../types';
 import { baseColors } from '../../../utils/constants';
 import { useOnClickOutside } from '../../../utils/hooks/useOnClickOutside';
 import Button from '../Button';
-import './ColorPicker.styles.scss';
-import { Position } from './ColorPicker.types';
 import MoveWrapper from './components/MoveWrapper';
 import { convertStrToRGB, transformColor } from './helpers';
 import { COLOR_FORMAT, HEIGHT, N_MAX_LINE, N_MAX_RAD, WIDTH } from './helpers/constants';
+import './styles.scss';
+import { Position } from './types';
 
 export interface IColorPickerProps {
     Icon?: SVGRIcon;
@@ -99,7 +99,7 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color, handleUpdate }) => {
         setIsOpen(false);
     });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setInputColor(selfColor.hex);
         handleUpdate(selfColor.hex);
     }, [selfColor.hex]);

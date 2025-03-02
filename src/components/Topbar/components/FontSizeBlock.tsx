@@ -1,24 +1,26 @@
 import { useCallback, useMemo } from 'react';
 
-import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
-import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { useTooltip } from '../../../context/ToolbarContext';
+import { StylePropsConst } from '../../../utils/styleUtils';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Counter from '../../controls/Counter';
 
 const FontSizeBlock = () => {
-    const { updateStyle, activeNode, style } = useEditor();
+    const { style, togetherSetStyle, updateActualStyle } = useTooltip();
 
     const handleUpdate = useCallback(
         (value: number) => {
-            updateStyle(String(value), StylePropType.FONT_SIZE);
+            const newStyleProp = { [StylePropsConst.FONT_SIZE]: `${value}px` };
+            updateActualStyle(newStyleProp);
+            togetherSetStyle(newStyleProp);
         },
-        [updateStyle]
+        [togetherSetStyle, updateActualStyle]
     );
 
     const activeSize = useMemo(() => {
-        const styleSize = activeNode?.getStyle()?.fontSize || style.fontSize || 14;
-        return styleSize;
-    }, [style.fontSize, activeNode]);
+        const styleSize = style[StylePropsConst.FONT_SIZE];
+        return Number(styleSize.replace('px', ''));
+    }, [style]);
 
     return (
         <ButtonsContainer>

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { StyleProps } from '../../context/ToolbarContext';
+import { EMPTY_FOR_SELECT } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { ParagraphNode } from '../LexicalNode/ParagraphNode';
@@ -36,15 +38,18 @@ export class LexicalState {
         }
     }
 
-    addNode(parent: LexicalNode, child: LexicalNode) {
+    addNode(parent: LexicalNode, child: LexicalNode, position?: { index: number; lastElement: HTMLElement }) {
         if (!this._nodeMap.get(child?.getKey())) {
             this._nodeMap.set(child?.getKey(), child);
-            parent.addChild(child.getKey());
+            parent.addChild(child.getKey(), position?.index);
             child.setParent(parent.getKey());
 
             const parentElement = parent.getDomElement();
             const childElement = child.render();
-            parentElement.appendChild(childElement);
+            if (!position) parentElement.appendChild(childElement);
+            else {
+                position.lastElement.after(childElement);
+            }
         }
     }
 
@@ -104,7 +109,7 @@ export class LexicalState {
 
     removeNode(node: LexicalNode) {
         const parent = this.getNodeByKey(node.getParent() as NodeKey) as LexicalNode;
-        if (parent.getChildren().includes(node.getKey())) parent.remodeChild(node.getKey());
+        if (parent.getChildren().includes(node.getKey())) parent.removeChild(node.getKey());
         this._nodeMap.delete(node.getKey());
     }
 
@@ -135,5 +140,33 @@ export class LexicalState {
 
         const elenent = newNode.getDomElement()?.childNodes[0] || newNode.getDomElement();
         this._selection.setSelection(elenent, 0);
+    }
+
+    handleSimpleUpdateStyle(key: NodeKey, style: StyleProps) {
+        const node = this.getNodeByKey(key) as TextNode;
+        const parent = this.getNodeByKey(node.getParent() as NodeKey) as LexicalNode;
+        const newNode = node.clone() as TextNode;
+        this.addNode(parent, newNode);
+        newNode.updateText(EMPTY_FOR_SELECT);
+        newNode.setStyle(style);
+        this._selection.setSelection(newNode.getDomElement(), 1);
+    }
+
+    handleUpdateStyleInText(key: NodeKey, position: number, style: StyleProps) {
+        const nodeBefore = this.getNodeByKey(key) as TextNode;
+        const parent = this.getNodeByKey(nodeBefore.getParent() as NodeKey) as LexicalNode;
+        const indexNode = parent.getChildIndex(key);
+        const newNodeInsert = nodeBefore.clone() as TextNode;
+        const nodeAfter = nodeBefore.clone() as TextNode;
+        const text = nodeBefore.getText() || '';
+        const textBefore = text.slice(0, position);
+        const textAfter = text.slice(position);
+        nodeBefore.updateText(textBefore);
+        this.addNode(parent, newNodeInsert, { index: indexNode, lastElement: nodeBefore.getDomElement() });
+        newNodeInsert.updateText(EMPTY_FOR_SELECT);
+        newNodeInsert.setStyle(style);
+        this.addNode(parent, nodeAfter, { index: indexNode + 1, lastElement: newNodeInsert.getDomElement() });
+        nodeAfter.updateText(textAfter);
+        this._selection.setSelection(newNodeInsert.getDomElement(), 1);
     }
 }

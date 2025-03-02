@@ -1,20 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { StyleProps } from '../../context/ToolbarContext';
 import { createTextElement, updateTextContent } from '../../utils/DOMUtils';
 import { generateKey } from '../../utils/generateKey';
+import { getStyleString } from '../../utils/styleUtils';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class TextNode extends LexicalNode {
-    public remodeChild(key: NodeKey): void {
+    public getChildIndex(key: NodeKey): number {
+        throw new Error('Method not implemented.');
+    }
+    public removeChild(key: NodeKey): void {
         throw new Error('Method not implemented.');
     }
     _text: string;
-    _style: string;
+    _style: StyleProps;
 
     constructor(key: NodeKey) {
         super(key, 'span');
         this._text = '';
-        this._style = '';
+        this._style = {};
     }
 
     canHasText(): boolean {
@@ -50,5 +55,18 @@ export class TextNode extends LexicalNode {
 
     public clone(): LexicalNode {
         return new TextNode(generateKey());
+    }
+
+    public setStyle(style: StyleProps): void {
+        this._style = { ...this._style, ...style };
+        this.setStyleThisElement();
+    }
+    public getStyle(): StyleProps {
+        return this._style;
+    }
+
+    setStyleThisElement() {
+        const element = this.getDomElement();
+        element.setAttribute('style', getStyleString(this._style));
     }
 }
