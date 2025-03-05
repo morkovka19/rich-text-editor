@@ -20,6 +20,8 @@ type TooltipContextProps = {
     style: StyleProps;
     togetherSetStyle: (styleNew: StyleProps) => void;
     updateActualStyle: (styleNew: StyleProps) => void;
+    tag: string;
+    triggerUpdateTag: (value: string) => void;
 };
 
 export interface StyleProps {
@@ -35,17 +37,27 @@ const TooltipContext = createContext<TooltipContextProps | null>(null);
 export const TooltipProvider: FC<Props> = ({ children }) => {
     const { editor } = useEditor();
     const [style, setStyle] = useState(initialStyle);
+    const [tag, setTag] = useState('p');
     const actualStyle: StyleProps = {};
     const actualStyleRef = useRef<StyleProps>(actualStyle);
 
-    const triggerClickForStyle = useCallback((target: HTMLElement | null) => {
+    const triggerClickForStyleAndTag = useCallback((target: HTMLElement | null) => {
         const focusStyle = target?.style.cssText;
         if (focusStyle !== getStyleString(actualStyleRef.current)) {
-            setStyle(() => ({ ...initialStyle, ...getStyleState(focusStyle || '') }));
+            setStyle(() => ({
+                ...initialStyle,
+                ...getStyleState(focusStyle || ''),
+            }));
         }
+        const focusTag =
+            target?.parentElement?.nodeValue === 'li'
+                ? target.parentElement.parentElement?.nodeValue
+                : (target?.parentElement?.nodeValue as string);
+        console.log(focusTag);
+        setTag(focusTag || 'p');
     }, []);
 
-    useEffect(() => editor.setTriggerClickForStyle(triggerClickForStyle), []);
+    useEffect(() => editor.setTriggerClickForStyleAndTag(triggerClickForStyleAndTag), []);
 
     const updateActualStyle = useCallback(
         (styleNew: StyleProps) => {
@@ -67,6 +79,12 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         },
         [actualStyle]
     );
+    const triggerUpdateTag = useCallback(
+        (value: string) => {
+            setTag(value);
+        },
+        [editor]
+    );
 
     const togetherSetStyle = useCallback(
         (styleNew: StyleProps) => {
@@ -76,8 +94,8 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         [editor]
     );
     const tooltipContext = useMemo(
-        () => ({ style, togetherSetStyle, updateActualStyle }),
-        [style, togetherSetStyle, updateActualStyle]
+        () => ({ style, togetherSetStyle, updateActualStyle, tag, triggerUpdateTag }),
+        [style, togetherSetStyle, updateActualStyle, tag, triggerUpdateTag]
     );
 
     return <TooltipContext.Provider value={tooltipContext}>{children}</TooltipContext.Provider>;

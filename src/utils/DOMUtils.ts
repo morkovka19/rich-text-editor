@@ -12,6 +12,17 @@ export const createParagraphElement = (key: NodeKey) => {
     return p;
 };
 
+export const createHeadingElement = (key: NodeKey, range: number) => {
+    const h = document.createElement(`h${range}`);
+    h.id = key;
+    return h;
+};
+
+export const createNewListElement = (key: NodeKey, typeList: 'ol' | 'ul') => {
+    const list = document.createElement(typeList);
+    list.id = key;
+    return list;
+};
 export const createTextElement = (key: NodeKey) => {
     const p = document.createElement('span');
     p.id = key;
@@ -42,4 +53,10 @@ export const setupMutationObserver = (container: HTMLElement, callback: (mutatio
         characterData: true,
     });
     return observer;
+};
+
+export const createNewListItemElement = (key: NodeKey) => {
+    const li = document.createElement('li');
+    li.id = key;
+    return li;
 };

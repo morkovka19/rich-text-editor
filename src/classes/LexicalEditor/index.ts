@@ -12,6 +12,7 @@ export class LexicalEditor {
     _selection: SelectionManager;
     _focusElement: HTMLElement | null;
     _triggerClickForStyle: ((trigger: HTMLElement | null) => void) | null;
+    _activeTag: string | null;
 
     constructor() {
         this._selection = new SelectionManager();
@@ -21,12 +22,14 @@ export class LexicalEditor {
         this._dom = new DomSync(this._state);
         this._focusElement = null;
         this._triggerClickForStyle = null;
+        this._activeTag = null;
     }
 
     start(container: HTMLElement) {
         this._container = container;
         const rootElement = this._dom.render(container);
         this._rootElement = rootElement;
+        this._activeTag = 'p';
         this.setBaseEventListeners();
     }
 
@@ -51,6 +54,12 @@ export class LexicalEditor {
         const selection = this._selection.getDefSelection();
         const anchorNode = selection?.anchorNode as HTMLElement;
         const focusNode = selection?.focusNode as HTMLElement;
+        if (
+            focusNode.parentElement?.localName === 'li' &&
+            (focusNode.textContent?.length === 0 || focusNode.textContent?.length === 0)
+        ) {
+            this._state.handleEnterInEmptyLi();
+        }
         if (anchorNode!.id === focusNode!.id && anchorNode.nodeType !== 3) {
             this._state.handleSimpleEnter(anchorNode.id);
         } else if (selection?.isCollapsed) {
@@ -90,7 +99,7 @@ export class LexicalEditor {
         }
     };
 
-    setTriggerClickForStyle(fan: (target: HTMLElement | null) => void) {
+    setTriggerClickForStyleAndTag(fan: (target: HTMLElement | null) => void) {
         this._triggerClickForStyle = fan;
     }
 
@@ -119,5 +128,13 @@ export class LexicalEditor {
         // } else if (selection?.isCollapsed) {
         //     this._state.handleEnterInText(anchorNode.parentElement!.id as NodeKey, selection.anchorOffset as number);
         // }
+    }
+
+    triggerAddNewTagElement(tag: string) {
+        this._state.addNewTag(tag);
+    }
+
+    getActiveTag() {
+        return this._activeTag;
     }
 }

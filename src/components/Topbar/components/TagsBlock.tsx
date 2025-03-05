@@ -1,27 +1,26 @@
 import { useCallback, useMemo } from 'react';
 
-import { useEditor } from '../../../context/EditorContext/hooks/useEditor';
+import { useEditor } from '../../../context/LexicalContext';
+import { useTooltip } from '../../../context/ToolbarContext';
 import { typeSelectOptions } from '../../../utils/constants';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
 export const TagsBlock = () => {
-    const context = useEditor();
-
-    const { updateLastTag, activeNode, tag } = context;
+    const { editor } = useEditor();
+    const { tag, triggerUpdateTag } = useTooltip();
 
     const handleUpdateTag = useCallback(
         (value: string) => {
-            updateLastTag(value);
+            editor.triggerAddNewTagElement(value);
+            triggerUpdateTag(value);
         },
-        [updateLastTag]
+        [editor, triggerUpdateTag]
     );
 
     const activeTag = useMemo(
-        () =>
-            typeSelectOptions.find(type => type.label === (activeNode?.getType() || tag.lastTag)) ||
-            typeSelectOptions[0],
-        [activeNode, tag.lastTag]
+        () => typeSelectOptions.find(op => op.value === tag) || typeSelectOptions.find(op => op.value === 'p'),
+        [tag]
     );
 
     return (

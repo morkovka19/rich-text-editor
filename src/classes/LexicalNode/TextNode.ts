@@ -7,6 +7,15 @@ import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class TextNode extends LexicalNode {
+    public setTypeList(type: string): void {
+        throw new Error('Method not implemented.');
+    }
+    public setRange(range: number): void {
+        throw new Error('Method not implemented.');
+    }
+    public getRange(): number {
+        throw new Error('Method not implemented.');
+    }
     public getChildIndex(key: NodeKey): number {
         throw new Error('Method not implemented.');
     }

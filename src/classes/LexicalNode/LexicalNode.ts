@@ -36,7 +36,13 @@ export abstract class LexicalNode {
     public abstract setStyle(style: StyleProps): void;
     public abstract getStyle(): StyleProps;
     public abstract getChildIndex(key: NodeKey): number;
+    public abstract setRange(range: number): void;
+    public abstract getRange(): number | undefined;
+    public abstract setTypeList(type: string): void;
 
+    getType() {
+        return this._type;
+    }
     getKey() {
         return this._key;
     }
