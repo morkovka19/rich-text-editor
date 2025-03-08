@@ -8,14 +8,13 @@ import Select from '../../controls/Select';
 
 export const TagsBlock = () => {
     const { editor } = useEditor();
-    const { tag, triggerUpdateTag } = useTooltip();
+    const { tag } = useTooltip();
 
     const handleUpdateTag = useCallback(
         (value: string) => {
-            editor.triggerAddNewTagElement(value);
-            triggerUpdateTag(value);
+            editor.triggerTagUpdate(value);
         },
-        [editor, triggerUpdateTag]
+        [editor]
     );
 
     const activeTag = useMemo(

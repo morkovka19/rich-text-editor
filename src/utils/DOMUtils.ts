@@ -12,6 +12,12 @@ export const createParagraphElement = (key: NodeKey) => {
     return p;
 };
 
+export const createLinkElement = (key: NodeKey) => {
+    const a = document.createElement('a');
+    a.id = key;
+    return a;
+};
+
 export const createHeadingElement = (key: NodeKey, range: number) => {
     const h = document.createElement(`h${range}`);
     h.id = key;
@@ -59,4 +65,13 @@ export const createNewListItemElement = (key: NodeKey) => {
     const li = document.createElement('li');
     li.id = key;
     return li;
+};
+
+export const updateHrefLinkElement = (key: NodeKey, href: string) => {
+    const a = getDOMElement(key) as HTMLElement;
+    a.setAttribute('href', href);
+};
+
+export const removeChildElement = (parent: NodeKey, child: NodeKey) => {
+    document.getElementById(parent)?.removeChild(document.getElementById(child) as Node);
 };

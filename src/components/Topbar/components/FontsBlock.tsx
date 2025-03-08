@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { useEditor } from '../../../context/LexicalContext';
 import { useTooltip } from '../../../context/ToolbarContext';
 import FontIcon from '../../../icons/topbar-font/topbar-font.svg';
 import { fontSelectOptions } from '../../../utils/constants';
@@ -8,7 +9,8 @@ import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
 export const FontsBlock = () => {
-    const { style, togetherSetStyle, updateActualStyle } = useTooltip();
+    const { style, actualStyleRef, updateActualStyle } = useTooltip();
+    const { editor } = useEditor();
     const fontFamily = useMemo(() => style.fontFamily, [style.fontFamily]);
     const activeOption = useMemo(() => fontSelectOptions.find(val => val.value === fontFamily), [fontFamily]);
 
@@ -16,9 +18,9 @@ export const FontsBlock = () => {
         (value: string) => {
             const newStyleProp = { [StylePropsConst.FONT_FAMILY]: value };
             updateActualStyle(newStyleProp);
-            togetherSetStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [togetherSetStyle, updateActualStyle]
+        [actualStyleRef, editor, updateActualStyle]
     );
 
     return (

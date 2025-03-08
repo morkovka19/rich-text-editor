@@ -1,44 +1,57 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StyleProps } from '../../context/ToolbarContext';
-import { DomSync } from '../DomSync';
-import { NodeKey } from '../LexicalNode/types';
+// import { ActionWithTag } from '../../utils/constants';
+// import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
-import { SelectionManager } from '../SelectionManager';
 
 export class LexicalEditor {
     _state: LexicalState;
-    _dom: DomSync;
     _container: HTMLElement | null;
-    _rootElement: HTMLElement | null;
-    _selection: SelectionManager;
-    _focusElement: HTMLElement | null;
-    _triggerClickForStyle: ((trigger: HTMLElement | null) => void) | null;
-    _activeTag: string | null;
+    _handleIsOpenLinkEditor: null | React.Dispatch<React.SetStateAction<boolean>>;
+    _inputObservers: Array<any>;
+    _clickObservers: Array<any>;
+    _styleObservers: Array<any>;
+    _tagUpdateObserver: Array<any>;
 
     constructor() {
-        this._selection = new SelectionManager();
-        this._state = new LexicalState(this._selection);
-        this._rootElement = null;
+        this._state = new LexicalState();
         this._container = null;
-        this._dom = new DomSync(this._state);
-        this._focusElement = null;
-        this._triggerClickForStyle = null;
-        this._activeTag = null;
+        this._handleIsOpenLinkEditor = null;
+        this._inputObservers = [];
+        this._clickObservers = [];
+        this._styleObservers = [];
+        this._tagUpdateObserver = [];
     }
 
     start(container: HTMLElement) {
         this._container = container;
-        const rootElement = this._dom.render(container);
-        this._rootElement = rootElement;
-        this._activeTag = 'p';
+        this._state.start(container);
         this.setBaseEventListeners();
+        this.setBaseEventObservers();
     }
 
+    setBaseEventListeners() {
+        if (this._container) {
+            this.registerSelectListener();
+            this.registerKeydownListener();
+            // this.registerClickListener();
+            // this.registerClickContextMenu();
+        }
+    }
+
+    setBaseEventObservers = () => {
+        // this.registerClickObserver(this._state);
+        // this.registerClickObserver(this._selection);
+        this.registerTagUpdateObserver(this._state);
+        this.registerStyleObserver(this._state);
+    };
+
     registerKeydownListener() {
-        this._container?.addEventListener('keydown', this.handleKeydown, true);
+        this._container?.addEventListener('keydown', this.handleKeydown);
         return () => this._container?.removeEventListener('keydown', this.handleKeydown);
     }
 
-    private handleKeydown = (e: KeyboardEvent) => {
+    handleKeydown = (e: KeyboardEvent) => {
         const key = e.key;
         switch (key) {
             case 'Enter':
@@ -49,92 +62,73 @@ export class LexicalEditor {
         }
     };
 
-    private handleEnter = (e: KeyboardEvent) => {
+    handleEnter = (e: KeyboardEvent) => {
         e.preventDefault();
-        const selection = this._selection.getDefSelection();
-        const anchorNode = selection?.anchorNode as HTMLElement;
-        const focusNode = selection?.focusNode as HTMLElement;
-        if (
-            focusNode.parentElement?.localName === 'li' &&
-            (focusNode.textContent?.length === 0 || focusNode.textContent?.length === 0)
-        ) {
-            this._state.handleEnterInEmptyLi();
-        }
-        if (anchorNode!.id === focusNode!.id && anchorNode.nodeType !== 3) {
-            this._state.handleSimpleEnter(anchorNode.id);
-        } else if (selection?.isCollapsed) {
-            this._state.handleEnterInText(anchorNode.parentElement!.id as NodeKey, selection.anchorOffset as number);
-        }
+        this._state.triggerHandleEnter();
     };
 
     handleBackspace(e: KeyboardEvent) {
-        const selection = this._selection.getDefSelection();
-        const focusNode = selection?.focusNode;
-        const parent = focusNode?.parentElement as HTMLElement;
-        if ((parent.id as string) === 'root' && focusNode?.textContent?.length === 0 && parent.children.length === 1) {
-            e.preventDefault();
-        }
+        this._state.triggerHandleBackspace(e);
     }
 
-    registerClickListener() {
-        this._container?.addEventListener('click', this.handleClick, true);
-        return () => this._container?.removeEventListener('click', this.handleClick);
+    // registerClickListener() {
+    //     this._container?.addEventListener('click', this.handleClick);
+    //     return () => this._container?.removeEventListener('click', this.handleClick);
+    // }
+
+    registerSelectListener() {
+        this._container?.addEventListener('selectstart', this.handleUpdateSelect);
+        return () => this._container?.removeEventListener('selectstart', this.handleUpdateSelect);
     }
 
-    getTriggerClickForStyle() {
-        return this._triggerClickForStyle;
-    }
-
-    handleClick = (e: Event) => {
-        const targetElement = e.target as HTMLElement;
-        if (
-            targetElement.localName === 'span' &&
-            targetElement.id &&
-            (this._focusElement === null || this._focusElement?.id !== targetElement.id)
-        ) {
-            this._focusElement = targetElement;
-            const fan = this?.getTriggerClickForStyle();
-            if (fan !== null) fan(targetElement);
-            e.preventDefault();
-        }
+    handleUpdateSelect = () => {
+        const selection = window.getSelection() as Selection;
+        this._state?.setSelection(selection);
     };
 
-    setTriggerClickForStyleAndTag(fan: (target: HTMLElement | null) => void) {
-        this._triggerClickForStyle = fan;
+    // handleClick = (e: Event) => {
+
+    // };
+
+    registerClickContextMenu() {
+        this._container?.addEventListener('contextmenu', this.handleClickContextMenu);
+        return () => this._container?.removeEventListener('contextmenu', this.handleClickContextMenu);
     }
 
-    setBaseEventListeners() {
-        if (this._container) {
-            this.registerKeydownListener();
-            this.registerClickListener();
-        }
+    handleClickContextMenu(e: Event) {
+        e.preventDefault();
+        if (this._handleIsOpenLinkEditor) this._handleIsOpenLinkEditor(true);
     }
+
+    // triggerAddNewTagElement(tag: string) {
+    //     this._state.addNewTag(tag);
+    // }
+    // triggerEditLinkTag(action: ActionWithTag, key: NodeKey, href?: string) {
+    //     this._state.triggerActionWithLink(action, key, href)
+    // }
 
     triggerDecoratedUpdate(style: StyleProps) {
-        const selection = this._selection.getDefSelection();
-        if (
-            selection?.anchorNode?.nodeType === 3 &&
-            selection.focusNode?.nodeType === 3 &&
-            selection.anchorOffset === (selection.anchorNode as HTMLElement)?.textContent?.length
-        ) {
-            this._state.handleSimpleUpdateStyle(selection.anchorNode.parentElement!.id, style);
-        } else if (
-            selection?.anchorNode?.nodeType === 3 &&
-            selection.focusNode?.nodeType === 3 &&
-            selection.anchorOffset !== (selection.anchorNode as HTMLElement)?.textContent?.length
-        ) {
-            this._state.handleUpdateStyleInText(selection.anchorNode.parentElement!.id, selection.anchorOffset, style);
-        }
-        // } else if (selection?.isCollapsed) {
-        //     this._state.handleEnterInText(anchorNode.parentElement!.id as NodeKey, selection.anchorOffset as number);
-        // }
+        console.log(style, this._styleObservers);
+        this._styleObservers.forEach(observer => observer.updateStyle(style));
     }
 
-    triggerAddNewTagElement(tag: string) {
-        this._state.addNewTag(tag);
+    triggerTagUpdate(tag: string) {
+        this._styleObservers.forEach(observer => observer.updateTag(tag));
     }
 
-    getActiveTag() {
-        return this._activeTag;
+    registerStyleObserver(observer: any) {
+        this._styleObservers.push(observer);
+    }
+
+    registerTagUpdateObserver(observer: any) {
+        this._tagUpdateObserver.push(observer);
+    }
+
+    registerClickObserver(observer: any) {
+        this._clickObservers.push(observer);
+    }
+
+    registerInputObserver(observer: any) {
+        this._inputObservers.push(observer);
     }
 }

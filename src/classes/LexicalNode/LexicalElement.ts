@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
+import { removeChildElement } from '../../utils/DOMUtils';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
@@ -24,11 +25,15 @@ export abstract class LexicalElement extends LexicalNode {
     }
 
     public removeChild(key: NodeKey): void {
-        this._children.filter(child => child !== key);
+        this._children = this._children.filter(child => child !== key);
     }
 
     public getChildren(): Array<NodeKey> {
         return this._children;
+    }
+
+    public removeChildElement(key: NodeKey) {
+        removeChildElement(this._key, key);
     }
 
     public setStyle(style: Record<string, string | number>): void {
@@ -54,6 +59,13 @@ export abstract class LexicalElement extends LexicalNode {
     }
 
     public setTypeList(type: string): void {
+        throw new Error('Method not implemented.');
+    }
+
+    public setHref(href: string): void {
+        throw new Error('Method not implemented.');
+    }
+    public getHref(): string {
         throw new Error('Method not implemented.');
     }
 }

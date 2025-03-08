@@ -7,6 +7,15 @@ import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class TextNode extends LexicalNode {
+    public removeChildElement(key: NodeKey): void {
+        throw new Error('Method not implemented.');
+    }
+    public setHref(href: string): void {
+        throw new Error('Method not implemented.');
+    }
+    public getHref(): string {
+        throw new Error('Method not implemented.');
+    }
     public setTypeList(type: string): void {
         throw new Error('Method not implemented.');
     }
@@ -41,7 +50,7 @@ export class TextNode extends LexicalNode {
 
     updateText(text: string) {
         this._text = text;
-        return this.renderMutate();
+        // return this.renderMutate();
     }
 
     renderMutate() {
@@ -63,19 +72,15 @@ export class TextNode extends LexicalNode {
     }
 
     public clone(): LexicalNode {
-        return new TextNode(generateKey());
+        const node = new TextNode(generateKey());
+        node.setStyle(this._style);
+        return node;
     }
 
     public setStyle(style: StyleProps): void {
         this._style = { ...this._style, ...style };
-        this.setStyleThisElement();
     }
     public getStyle(): StyleProps {
         return this._style;
-    }
-
-    setStyleThisElement() {
-        const element = this.getDomElement();
-        element.setAttribute('style', getStyleString(this._style));
     }
 }

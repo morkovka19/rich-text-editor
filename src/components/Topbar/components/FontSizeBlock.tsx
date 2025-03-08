@@ -1,20 +1,22 @@
 import { useCallback, useMemo } from 'react';
 
+import { useEditor } from '../../../context/LexicalContext';
 import { useTooltip } from '../../../context/ToolbarContext';
 import { StylePropsConst } from '../../../utils/styleUtils';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Counter from '../../controls/Counter';
 
 const FontSizeBlock = () => {
-    const { style, togetherSetStyle, updateActualStyle } = useTooltip();
+    const { style, actualStyleRef, updateActualStyle } = useTooltip();
+    const { editor } = useEditor();
 
     const handleUpdate = useCallback(
         (value: number) => {
             const newStyleProp = { [StylePropsConst.FONT_SIZE]: `${value}px` };
             updateActualStyle(newStyleProp);
-            togetherSetStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [togetherSetStyle, updateActualStyle]
+        [actualStyleRef, editor, updateActualStyle]
     );
 
     const activeSize = useMemo(() => {

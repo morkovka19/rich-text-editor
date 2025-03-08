@@ -26,7 +26,7 @@ export abstract class LexicalNode {
         return false;
     }
 
-    public abstract updateText(text: string): HTMLElement;
+    public abstract updateText(text: string): void;
     public abstract getChildType(): string;
     public abstract getChildren(): Array<NodeKey>;
     public abstract addChild(child: NodeKey, position?: number): void;
@@ -39,6 +39,9 @@ export abstract class LexicalNode {
     public abstract setRange(range: number): void;
     public abstract getRange(): number | undefined;
     public abstract setTypeList(type: string): void;
+    public abstract setHref(href: string): void;
+    public abstract getHref(): string;
+    public abstract removeChildElement(key: NodeKey): void;
 
     getType() {
         return this._type;

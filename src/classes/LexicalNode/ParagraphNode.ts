@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { StyleProps } from '../../context/ToolbarContext';
 import { createParagraphElement } from '../../utils/DOMUtils';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';

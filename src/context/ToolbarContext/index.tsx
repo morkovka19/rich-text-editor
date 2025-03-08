@@ -7,21 +7,22 @@ import {
     createContext,
     useCallback,
     useContext,
-    useEffect,
+    useLayoutEffect,
     useMemo,
     useRef,
     useState,
 } from 'react';
 
-import { getStyleState, getStyleString, initialStyle } from '../../utils/styleUtils';
+import { initialStyle } from '../../utils/styleUtils';
 import { useEditor } from '../LexicalContext';
 
-type TooltipContextProps = {
+export type TooltipContextProps = {
     style: StyleProps;
-    togetherSetStyle: (styleNew: StyleProps) => void;
-    updateActualStyle: (styleNew: StyleProps) => void;
     tag: string;
-    triggerUpdateTag: (value: string) => void;
+    updateStyle: (newStyleProp: StyleProps) => void;
+    actualStyleRef: React.MutableRefObject<StyleProps>;
+    updateActualStyle: (styleNew: StyleProps) => void;
+    updateTag: (tag: string) => void;
 };
 
 export interface StyleProps {
@@ -40,24 +41,6 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
     const [tag, setTag] = useState('p');
     const actualStyle: StyleProps = {};
     const actualStyleRef = useRef<StyleProps>(actualStyle);
-
-    const triggerClickForStyleAndTag = useCallback((target: HTMLElement | null) => {
-        const focusStyle = target?.style.cssText;
-        if (focusStyle !== getStyleString(actualStyleRef.current)) {
-            setStyle(() => ({
-                ...initialStyle,
-                ...getStyleState(focusStyle || ''),
-            }));
-        }
-        const focusTag =
-            target?.parentElement?.nodeValue === 'li'
-                ? target.parentElement.parentElement?.nodeValue
-                : (target?.parentElement?.nodeValue as string);
-        console.log(focusTag);
-        setTag(focusTag || 'p');
-    }, []);
-
-    useEffect(() => editor.setTriggerClickForStyleAndTag(triggerClickForStyleAndTag), []);
 
     const updateActualStyle = useCallback(
         (styleNew: StyleProps) => {
@@ -79,24 +62,33 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         },
         [actualStyle]
     );
-    const triggerUpdateTag = useCallback(
-        (value: string) => {
-            setTag(value);
-        },
-        [editor]
-    );
 
     const togetherSetStyle = useCallback(
         (styleNew: StyleProps) => {
             setStyle(prev => ({ ...prev, ...styleNew }));
-            editor.triggerDecoratedUpdate(actualStyleRef.current);
         },
         [editor]
     );
+    const click = useCallback(() => {}, []);
+
+    const updateStyle = useCallback((newStyleProp: StyleProps) => {
+        setStyle(prev => ({ ...prev, ...newStyleProp }));
+    }, []);
+
+    const updateTag = useCallback((tag: string) => {
+        setTag(tag);
+    }, []);
+
     const tooltipContext = useMemo(
-        () => ({ style, togetherSetStyle, updateActualStyle, tag, triggerUpdateTag }),
-        [style, togetherSetStyle, updateActualStyle, tag, triggerUpdateTag]
+        () => ({ style, updateActualStyle, tag, updateStyle, click, actualStyleRef, updateTag }),
+        [style, togetherSetStyle, updateActualStyle, tag, updateStyle, click, updateTag]
     );
+
+    useLayoutEffect(() => {
+        editor.registerStyleObserver(tooltipContext);
+        editor.registerClickObserver(tooltipContext);
+        editor.registerTagUpdateObserver(tooltipContext);
+    }, []);
 
     return <TooltipContext.Provider value={tooltipContext}>{children}</TooltipContext.Provider>;
 };
