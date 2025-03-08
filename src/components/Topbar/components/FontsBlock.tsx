@@ -1,27 +1,31 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { EditorContext } from '../../../context/EditorContext';
-import { IEditorContextProps } from '../../../context/EditorContext/EditorContext.types';
-import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { useEditor } from '../../../context/LexicalContext';
+import { useTooltip } from '../../../context/ToolbarContext';
 import FontIcon from '../../../icons/topbar-font/topbar-font.svg';
-import { fontSelectOptions } from '../../../scripts/constants';
+import { fontSelectOptions } from '../../../utils/constants';
+import { StylePropsConst } from '../../../utils/styleUtils';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Select from '../../controls/Select';
 
 export const FontsBlock = () => {
-    const context = useContext(EditorContext) as IEditorContextProps;
-    const { setStyle } = context;
+    const { style, actualStyleRef, updateActualStyle } = useTooltip();
+    const { editor } = useEditor();
+    const fontFamily = useMemo(() => style.fontFamily, [style.fontFamily]);
+    const activeOption = useMemo(() => fontSelectOptions.find(val => val.value === fontFamily), [fontFamily]);
 
     const onChangeFont = useCallback(
         (value: string) => {
-            setStyle(value, StylePropType.FONT_FAMILY);
+            const newStyleProp = { [StylePropsConst.FONT_FAMILY]: value };
+            updateActualStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [setStyle]
+        [actualStyleRef, editor, updateActualStyle]
     );
 
     return (
         <ButtonsContainer>
-            <Select options={fontSelectOptions} Icon={FontIcon} onChange={onChangeFont} />
+            <Select options={fontSelectOptions} Icon={FontIcon} onChange={onChangeFont} value={activeOption} />
         </ButtonsContainer>
     );
 };

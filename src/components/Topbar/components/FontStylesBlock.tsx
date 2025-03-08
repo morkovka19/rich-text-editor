@@ -1,71 +1,111 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { EditorContext } from '../../../context/EditorContext';
-import { IEditorContextProps } from '../../../context/EditorContext/EditorContext.types';
-import { StylePropType } from '../../../context/EditorContext/hooks/useStyle';
+import { useEditor } from '../../../context/LexicalContext';
+import { useTooltip } from '../../../context/ToolbarContext';
 import BackgroundColor from '../../../icons/topbar-font-color/backgroundColor.svg';
 import Color from '../../../icons/topbar-font-color/color.svg';
 import Bold from '../../../icons/topbar-font-styles/bold.svg';
 import CodeBlock from '../../../icons/topbar-font-styles/codeBlock.svg';
 import Italic from '../../../icons/topbar-font-styles/italic.svg';
-import Link from '../../../icons/topbar-font-styles/link.svg';
 import Underline from '../../../icons/topbar-font-styles/underline.svg';
+import { StylePropsConst } from '../../../utils/styleUtils';
 import Button from '../../controls/Button';
 import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import ColorPicker from '../../controls/ColorPicker';
 
 const FontStylesBlock = () => {
-    const context = useContext(EditorContext) as IEditorContextProps;
-    const { setStyle, style } = context;
+    const { style, actualStyleRef, updateActualStyle } = useTooltip();
+    const { editor } = useEditor();
 
     const handleUpdateColor = useCallback(
         (value: string) => {
-            setStyle(value, StylePropType.COLOR);
+            const newStyleProp = { [StylePropsConst.COLOR]: value };
+            updateActualStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [setStyle]
+        [actualStyleRef, editor, updateActualStyle]
     );
+
+    // const setIsOpenRef = useRef(setIsOpenLink);
+
+    // useEffect(() => {
+    //     editor.setHandleOpenLinkEditor(setIsOpenRef.currepn)
+    // }, [editor])
 
     const handleUpdateBackground = useCallback(
         (value: string) => {
-            setStyle(value, StylePropType.BACKGROUND_COLOR);
+            const newStyleProp = { [StylePropsConst.BACKGROUND_COLOR]: value };
+            updateActualStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [setStyle]
+
+        [actualStyleRef, editor, updateActualStyle]
     );
 
     const handleUpdateFontWeight = useCallback(() => {
-        const value = style.fontWeight === 400 ? '700' : '400';
-        setStyle(value, StylePropType.FONT_WEIGHT);
-    }, [setStyle, style.fontWeight]);
+        const value = style.fontWeight === '400' ? '700' : '400';
+        const newStyleProp = { [StylePropsConst.FONT_WEIGHT]: value };
+        updateActualStyle(newStyleProp);
+        editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+    }, [actualStyleRef, editor, style.fontWeight, updateActualStyle]);
 
     const handleUpdateFontStyle = useCallback(() => {
         const value = style.fontStyle === 'normal' ? 'italic' : 'normal';
-        setStyle(value, StylePropType.FONT_STYLE);
-    }, [style.fontStyle, setStyle]);
+        const newStyleProp = { [StylePropsConst.FONT_STYLE]: value };
+        updateActualStyle(newStyleProp);
+        editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+    }, [actualStyleRef, editor, style.fontStyle, updateActualStyle]);
 
     const handleUpdateTextDecoration = useCallback(() => {
-        const value = style.textDecoration === 'none' ? 'underline' : 'none';
-        setStyle(value, StylePropType.TEXT_DECORATION);
-    }, [setStyle, style.textDecoration]);
+        const value = style.textDecoration === 'normal' ? 'underline' : 'normal';
+
+        const newStyleProp = { [StylePropsConst.TEXT_DECORATION]: value };
+        updateActualStyle(newStyleProp);
+        editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+    }, [actualStyleRef, editor, style.textDecoration, updateActualStyle]);
+
+    // const handleEditLink = useCallback(
+    //     (action: ActionWithTag, key: NodeKey, href?: string) => {
+    //         editor.triggerEditLinkTag(action, key, href);
+    //     },
+    //     [editor]
+    // );
+
+    const colorBg = useMemo(() => style[StylePropsConst.BACKGROUND_COLOR], [style]);
+    const color = useMemo(() => style[StylePropsConst.COLOR], [style]);
 
     return (
         <ButtonsContainer>
-            <Button Icon={Bold} theme="icon" onClick={handleUpdateFontWeight} isActive={style.fontWeight === 700} />
+            <Button
+                Icon={Bold}
+                theme="icon"
+                onClick={handleUpdateFontWeight}
+                isActive={Number(style[StylePropsConst.FONT_WEIGHT]) === 700}
+            />
             <Button
                 Icon={Italic}
                 theme="icon"
                 onClick={handleUpdateFontStyle}
-                isActive={style.fontStyle === 'italic'}
+                isActive={style[StylePropsConst.FONT_STYLE] === 'italic'}
             />
             <Button
                 Icon={Underline}
                 theme="icon"
                 onClick={handleUpdateTextDecoration}
-                isActive={style.textDecoration === 'underline'}
+                isActive={style[StylePropsConst.TEXT_DECORATION] === 'underline'}
             />
             <Button Icon={CodeBlock} theme="icon" />
-            <Button Icon={Link} theme="icon" />
-            <ColorPicker Icon={Color} color={'#000000'} handleUpdate={handleUpdateColor} />
-            <ColorPicker Icon={BackgroundColor} color={'#ffffff'} handleUpdate={handleUpdateBackground} />
+            {/* <Button Icon={Link} theme="icon" onClick={() => setIsOpenLink(prev => !prev)} />
+            {isOpenLink && (
+                <LinkEditor
+                    onClose={() => setIsOpenLink(false)}
+                    activeNode={editor.getfocuseNode() as HTMLElement}
+                    value={editor.getfocuseNode()?.nodeName === TAGS.LINK ? editor.getfocuseNode()?.textContent || '' : ''}
+                    onChange={handleEditLink}
+                />
+            )} */}
+            <ColorPicker Icon={Color} color={color} handleUpdate={handleUpdateColor} />
+            <ColorPicker Icon={BackgroundColor} color={colorBg} handleUpdate={handleUpdateBackground} />
         </ButtonsContainer>
     );
 };

@@ -1,6 +1,6 @@
 import { HTMLProps, ReactNode, forwardRef } from 'react';
 
-import './Container.styles.scss';
+import './styles.scss';
 
 export interface IContainerProps extends HTMLProps<HTMLDivElement> {
     children: ReactNode;

@@ -1,6 +1,6 @@
 import { FC, HTMLProps, ReactNode } from 'react';
 
-import './ButtonsContainer.styles.scss';
+import './styles.scss';
 
 export interface IButtonsContainerProps extends HTMLProps<HTMLDivElement> {
     children?: ReactNode | ReactNode[];

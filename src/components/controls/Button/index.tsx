@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC } from 'react';
+import { FC, MouseEventHandler } from 'react';
 
 import Arrow from '../../../icons/arrow.svg';
 import { SVGRIcon } from '../../../types';
-import './Button.styles.scss';
+import './styles.scss';
 
 type ButtonTheme = 'text' | 'icon' | 'select' | 'color';
 
 export interface IButtonProps {
     theme: ButtonTheme;
     text?: string;
-    onClick?: () => void;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
     disabled?: boolean;
     iconAfter?: boolean;
     Icon?: SVGRIcon;
@@ -19,6 +19,7 @@ export interface IButtonProps {
     isPartSelect?: boolean;
     title?: string;
     isActive?: boolean;
+    className?: string;
 }
 
 const Button: FC<IButtonProps> = ({
@@ -33,10 +34,11 @@ const Button: FC<IButtonProps> = ({
     isPartSelect,
     title,
     isActive = false,
+    className,
 }) => {
     return (
         <button
-            className={`button ${theme === 'text' && 'button_text'} ${theme === 'icon' && 'button_icon'} ${theme === 'icon' && 'button_select'} ${theme === 'color' && 'button_color'} ${isActive && 'button_active'}`}
+            className={`button ${theme === 'text' ? 'button_text' : null} ${theme === 'icon' ? 'button_icon' : null} ${theme === 'icon' ? 'button_select' : ''} ${theme === 'color' ? 'button_color' : ''} ${isActive ? 'button_active' : ''} ${className}`}
             onClick={onClick}
             disabled={disabled}
             style={theme === 'color' && color ? { background: color } : {}}

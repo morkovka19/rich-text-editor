@@ -1,10 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const enum TAGS {
-    PARAGRAPH = 'p',
-    BLOCK = 'div',
-    TEXT = 'span',
-}
-export type TextTagType = 'text';
 
 export type KlassConstructor<Cls extends GenericConstructor<any>> = GenericConstructor<InstanceType<Cls>> & {
     [k in keyof Cls]: Cls[k];

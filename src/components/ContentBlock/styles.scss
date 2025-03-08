@@ -1,0 +1,71 @@
+@import 'src/styles/tokens/functions.scss';
+
+.content-block {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    min-height: gs(70);
+    background: #fff;
+    padding: gs(3);
+    border-bottom-left-radius: gs(2);
+    border-bottom-right-radius: gs(2);
+    outline: none;
+
+    user-select: text;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 0;
+    font-size: 15px;
+    display: block;
+    position: relative;
+    outline: 0;
+    padding: 8px 28px 40px;
+
+    ul,
+    ol {
+        margin: gs(2) 0;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    ul li {
+        list-style: disc;
+        margin: gs(1) gs(4);
+    }
+
+    ol li {
+        list-style: decimal;
+        margin: gs(1) gs(4);
+    }
+
+    h1,
+    h2,
+    h3 {
+        margin-top: gs(1);
+        margin-bottom: gs(1);
+    }
+
+    h1 {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    h2 {
+        font-size: 20px;
+        font-weight: 500;
+    }
+    h3 {
+        font-size: 18px;
+        font-weight: 400;
+    }
+
+    a {
+        text-decoration: underline;
+        color: blue;
+    }
+}
