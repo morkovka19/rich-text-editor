@@ -2,9 +2,9 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
-import { ActionWithTag, EMPTY_FOR_SELECT } from '../../utils/constants';
+import { EMPTY_FOR_SELECT } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
-import { getStyleString } from '../../utils/styleUtils';
+import { StylePropsConst, getStyleString } from '../../utils/styleUtils';
 import { DomSync } from '../DomSync';
 import { HeadingNode } from '../LexicalNode/HeadingNode';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
@@ -33,7 +33,7 @@ export class LexicalState {
         this._dom.render(container);
     }
 
-    setSelection = (selection: Selection) => {
+    handleUpdateSelect = (selection: Selection) => {
         this._selection = selection;
     };
 
@@ -90,34 +90,45 @@ export class LexicalState {
     addNode(parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey: NodeKey }) {
         if (!this._nodeMap.get(child?.getKey())) {
             this._nodeMap.set(child?.getKey(), child);
-            parent.addChild(child.getKey(), position?.index);
-            child.setParent(parent.getKey());
-            this._dom.addNode(parent, child, position);
         }
+        parent.addChild(child.getKey(), position?.index);
+        child.setParent(parent.getKey());
+        this._dom.addNode(parent, child, position);
     }
 
-    updateStyle(style: StyleProps) {
+    updateStyle = (style: StyleProps) => {
         const selection = this._selection;
-        const key = selection?.anchorNode?.parentElement!.id as NodeKey;
+        const key =
+            selection?.anchorNode?.nodeType !== 3
+                ? ((selection?.anchorNode as HTMLElement)?.id as NodeKey)
+                : (selection?.anchorNode?.parentElement!.id as NodeKey);
         const node = this.getNodeByKey(key) as TextNode;
         const parent = this.getNodeByKey(node.getParent() as NodeKey) as LexicalNode;
         const newNode = node.clone() as TextNode;
         const position = selection?.anchorOffset || 0;
-        const nodeAfter = node.clone() as TextNode;
+
         const textBefore = node.getText().slice(0, position);
         const textAfter = node.getText().slice(position);
+
         this.addNode(parent, newNode, { index: position, lastKey: node.getKey() as NodeKey });
-        this.addNode(parent, nodeAfter, { index: position + 1, lastKey: newNode.getKey() as NodeKey });
+
         newNode.updateText(EMPTY_FOR_SELECT);
         node.updateText(textBefore);
-        nodeAfter.updateText(textAfter);
+
         this._dom.updateTextContent(node.getKey(), textBefore);
         this._dom.updateTextContent(newNode.getKey(), EMPTY_FOR_SELECT);
-        this._dom.updateTextContent(nodeAfter.getKey(), textAfter);
+
+        if (textAfter.length > 0) {
+            const nodeAfter = node.clone() as TextNode;
+            this.addNode(parent, nodeAfter, { index: position + 1, lastKey: newNode.getKey() as NodeKey });
+            nodeAfter.updateText(textAfter);
+            this._dom.updateTextContent(nodeAfter.getKey(), textAfter);
+        }
+
         newNode.setStyle(style);
         this._dom.setAttribute('style', getStyleString(style), newNode.getKey());
         this._dom.setSelection(newNode.getDomElement(), 1);
-    }
+    };
 
     findNodeById(key: string): LexicalNode | null {
         const search = (node: LexicalNode): LexicalNode | null => {
@@ -152,22 +163,28 @@ export class LexicalState {
         const node = this.getNodeByKey(key) as LexicalNode;
         const parent = this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode;
         const currentParentKey = parent?.getParent() as NodeKey;
-        if (node?.canHasText() && node?.getText().length === 0) {
+        if (node?.canHasText() && node?.getText().length === 0 && parent.getType() === 'li') {
             const currentParent = this.getNodeByKey(currentParentKey) as LexicalNode;
             const index = currentParent.getChildIndex(parent.getKey());
             this.removeNode(parent);
             this._dom.removeElement(parent.getKey());
             const newParent = this.createLexicalNode(generateKey(), 'p');
+            const styleNewParent = parent.getStyle() as StyleProps;
+
             this.addNode(this._rootNode, newParent, { index, lastKey: currentParent.getKey() });
             const newNode = this.createLexicalNode(generateKey(), 'span');
             this.addNode(newParent, newNode);
             newNode.updateText(EMPTY_FOR_SELECT);
             const element = this._dom.updateTextContent(newNode.getKey(), EMPTY_FOR_SELECT);
-            this._dom.setSelection(element, 1);
 
+            if (styleNewParent[StylePropsConst.TEXT_ALIGN]) {
+                this._dom?.setAttribute('style', getStyleString(styleNewParent), newParent.getKey());
+            }
+            this._dom.setSelection(element, 1);
             return;
         }
         const newParent = parent?.clone() as LexicalNode;
+        const styleNewParent = parent.getStyle() as StyleProps;
         const newNode = node?.clone() as LexicalNode;
         this.addNode(this.getNodeByKey(currentParentKey) as LexicalNode, newParent, {
             index: position,
@@ -186,7 +203,11 @@ export class LexicalState {
         this._dom.updateTextContent(newNode.getKey(), textAfter || EMPTY_FOR_SELECT);
         this._dom.updateTextContent(node.getKey(), textBefore || EMPTY_FOR_SELECT);
         const element = newNode.getDomElement()?.childNodes[0] || newNode.getDomElement();
-        this._dom.setSelection(element, 0);
+
+        if (styleNewParent[StylePropsConst.TEXT_ALIGN]) {
+            this._dom?.setAttribute('style', getStyleString(styleNewParent), newParent.getKey());
+        }
+        this._dom.setSelection(element, 1);
     };
 
     updateTag = (tag: string) => {
@@ -225,44 +246,43 @@ export class LexicalState {
         }
     };
 
-    handleEnterInEmptyLi() {
-        const nodeElement = this._selection?.focusNode as HTMLElement;
-        const parentElement = nodeElement.parentElement as HTMLElement;
-        const parentNode = this.getNodeByKey(parentElement?.id as NodeKey) as LexicalNode;
-        this.removeNode(parentNode);
-        const currentParrent = this.getNodeByKey(parentNode.getParent() as NodeKey) as LexicalNode;
-        currentParrent.getDomElement().removeChild(parentElement);
-        const newParent = this.createLexicalNode(generateKey(), 'p');
-        this.addNode(this.getNodeByKey(currentParrent.getParent() as NodeKey) as LexicalNode, newParent);
-        const newChild = this.createLexicalNode(generateKey(), 'span');
-        this.addNode(newParent, newChild);
-        newChild.updateText(EMPTY_FOR_SELECT);
-        this._dom.setSelection(newChild.getDomElement(), 1);
-    }
+    triggerLinkAction = (key: NodeKey, href?: string) => {
+        const node = this.getNodeByKey(key) as LexicalNode;
+        const parent = this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode;
+        const index = parent?.getChildIndex(key);
+        const lastKey = index ? parent?.getChildren()?.at(index - 1) : null;
+        if (parent?.getType() !== 'a') {
+            const newParent = this.createLexicalNode(generateKey(), 'a');
+            if (href) newParent.setHref(href);
+            this._dom.removeElement(key);
+            this.addNode(parent, newParent, index && lastKey ? { index, lastKey } : undefined);
+            this.addNode(newParent, node);
+            this._dom.setAttribute('href', href, newParent.getKey());
+            this._dom.setAttribute('target', '_blank', newParent.getKey());
+            this._dom.updateTextContent(key, node.getText());
+            const newNodeAfter = this.createLexicalNode(generateKey(), 'span');
+            this.addNode(parent, newNodeAfter, { index: index + 1, lastKey: newParent.getKey() });
+            newNodeAfter.updateText(EMPTY_FOR_SELECT);
+            const element = this._dom.updateTextContent(newNodeAfter.getKey(), EMPTY_FOR_SELECT);
+            this._dom.setSelection(element, 1);
+        } else {
+            if (href) {
+                parent.setHref(href);
+                this._dom.setAttribute('href', href, parent.getKey());
+            } else {
+                const newNode = node.clone() as LexicalNode;
+                newNode.updateText(node.getText());
+                this._dom.setAttribute('href', '', parent.getKey());
+                this._dom.removeElement(parent.getKey());
 
-    // insertNewParentNode = (child: LexicalNode, parent: LexicalNode, newParent: LexicalNode) => {
-    //     const childElement = child.getDomElement() as HTMLElement;
-    //     const newNodeElement = newParent.getDomElement();
-    //     parent.removeChild(child.getKey());
-    //     newParent.addChild(child.getKey());
-    //     child.setParent(newParent.getKey());
-    //     newNodeElement.appendChild(childElement);
-    // };
-
-    // triggerActionWithLink(action: ActionWithTag, key: NodeKey, href?: string) {
-    //     if (action === ActionWithTag.CREATE) {
-    //         const node = this.getNodeByKey(key) as LexicalNode;
-    //         const parentNode = this.getNodeByKey(node.getParent() as NodeKey) as LexicalNode;
-    //         const newNode = this.createLexicalNode(generateKey(), 'a');
-    //         this.addNode(parentNode, newNode);
-    //         newNode.setHref(href || '');
-    //         this.insertNewParentNode(node, parentNode, newNode);
-    //         const newChild = node.clone();
-    //         this.addNode(parentNode, newChild);
-    //         newChild.updateText(EMPTY_FOR_SELECT);
-    //         this._dom.setSelection(newChild.getDomElement(), 1);
-    //     }
-    // }
+                // this.removeNode(parent);
+                const newParent = this.getNodeByKey(parent.getParent() as NodeKey) as LexicalNode;
+                this.addNode(newParent, newNode);
+                const element = this._dom.updateTextContent(newNode.getKey(), newNode.getText());
+                this._dom.setSelection(element, newNode.getText().length);
+            }
+        }
+    };
 
     triggerHandleEnter = () => {
         const selection = this._selection;
@@ -279,4 +299,22 @@ export class LexicalState {
             e.preventDefault();
         }
     }
+
+    handleClick = (e: Event) => {
+        const target = e.target as HTMLElement;
+        if (target.localName !== 'span') {
+            this._dom.setSelection(this._selection?.anchorNode as HTMLElement, this._selection?.anchorOffset as number);
+        }
+    };
+
+    handleDecorateParent = (style: StyleProps) => {
+        console.log(style, this._selection);
+
+        const parent = this.getNodeByKey(
+            (((this._selection?.anchorNode as HTMLElement).parentElement as HTMLElement)?.parentElement as HTMLElement)
+                .id as NodeKey
+        ) as LexicalNode;
+        parent.setStyle(style);
+        this._dom.setAttribute('style', getStyleString(style), parent.getKey() as NodeKey);
+    };
 }

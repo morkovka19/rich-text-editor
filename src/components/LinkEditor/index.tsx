@@ -1,12 +1,13 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { NodeKey } from '../../classes/LexicalNode/types';
+import { useEditor } from '../../context/LexicalContext';
 import CancelIcon from '../../icons/cancel.svg';
 import ConfirmIcon from '../../icons/confirm.svg';
 import DeleteIcon from '../../icons/delete.svg';
 import EditIcon from '../../icons/edit.svg';
-import { ActionWithTag, LINK_START } from '../../utils/constants';
+import { LINK_START } from '../../utils/constants';
 import { useOnClickOutside } from '../../utils/hooks/useOnClickOutside';
 import Button from '../controls/Button';
 import './styles.scss';
@@ -15,14 +16,21 @@ interface ILinkEditorProps {
     value?: string;
     onClose: () => void;
     activeNode: HTMLElement;
-    onChange: (action: ActionWithTag, key: NodeKey, href?: string) => void;
+    onChange: (key: NodeKey, href?: string) => void;
 }
 
 const LinkEditor = ({ value, onClose, activeNode, onChange }: ILinkEditorProps) => {
     const [isActive, setIsActive] = useState(false);
     const [inputValue, setInputValue] = useState(value || LINK_START);
-    const key = useMemo(() => activeNode.id, [activeNode]);
+    const key = useMemo(() => activeNode?.id, [activeNode]);
     const linkEditorBlockRef = useRef<HTMLDivElement>(null);
+
+    const { editor } = useEditor();
+
+    useLayoutEffect(() => {
+        editor.registerLinkEditorObservers();
+    }, [editor]);
+
     useOnClickOutside(linkEditorBlockRef, () => {
         onClose();
     });
@@ -79,11 +87,7 @@ const LinkEditor = ({ value, onClose, activeNode, onChange }: ILinkEditorProps) 
                                         className="link-editor__button link-editor__button_mini"
                                         onClick={event => {
                                             event.stopPropagation();
-                                            onChange(
-                                                value ? ActionWithTag.EDIT : ActionWithTag.CREATE,
-                                                key,
-                                                inputValue
-                                            );
+                                            onChange(key, inputValue);
                                             setIsActive(false);
                                         }}
                                     />
@@ -113,7 +117,7 @@ const LinkEditor = ({ value, onClose, activeNode, onChange }: ILinkEditorProps) 
                                     <Button
                                         onClick={event => {
                                             event.stopPropagation();
-                                            onChange(ActionWithTag.DELETE, key);
+                                            onChange(key);
                                         }}
                                         Icon={DeleteIcon}
                                         theme="icon"

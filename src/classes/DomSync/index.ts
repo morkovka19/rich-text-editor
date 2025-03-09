@@ -99,7 +99,7 @@ export class DomSync {
 
     setAttribute(name: string, props: any, key: NodeKey) {
         const element = getDOMElement(key);
-        element.setAttribute(name, props);
+        element?.setAttribute(name, props);
     }
 
     removeElement = (key: NodeKey) => {

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StyleProps } from '../../context/ToolbarContext';
-// import { ActionWithTag } from '../../utils/constants';
-// import { NodeKey } from '../LexicalNode/types';
+import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
 
 export class LexicalEditor {
@@ -12,7 +11,10 @@ export class LexicalEditor {
     _clickObservers: Array<any>;
     _styleObservers: Array<any>;
     _tagUpdateObserver: Array<any>;
-
+    _linkEditorObservers: Array<any>;
+    _selectionObservers: Array<any>;
+    _clickContextMenuObservers: Array<any>;
+    _decorateParentObservers: Array<any>;
     constructor() {
         this._state = new LexicalState();
         this._container = null;
@@ -21,6 +23,10 @@ export class LexicalEditor {
         this._clickObservers = [];
         this._styleObservers = [];
         this._tagUpdateObserver = [];
+        this._linkEditorObservers = [];
+        this._selectionObservers = [];
+        this._clickContextMenuObservers = [];
+        this._decorateParentObservers = [];
     }
 
     start(container: HTMLElement) {
@@ -32,18 +38,20 @@ export class LexicalEditor {
 
     setBaseEventListeners() {
         if (this._container) {
-            this.registerSelectListener();
+            this.registerSelectStartListener();
             this.registerKeydownListener();
-            // this.registerClickListener();
-            // this.registerClickContextMenu();
+            this.registerClickListener();
+            this.registerInputListener();
+            this.registerClickContextMenuListener();
         }
     }
 
     setBaseEventObservers = () => {
-        // this.registerClickObserver(this._state);
-        // this.registerClickObserver(this._selection);
+        this.registerSelectObserver(this._state);
         this.registerTagUpdateObserver(this._state);
         this.registerStyleObserver(this._state);
+        this.registerClickObserver(this._state);
+        this.registerDecorateParentObserver(this._state);
     };
 
     registerKeydownListener() {
@@ -71,48 +79,57 @@ export class LexicalEditor {
         this._state.triggerHandleBackspace(e);
     }
 
-    // registerClickListener() {
-    //     this._container?.addEventListener('click', this.handleClick);
-    //     return () => this._container?.removeEventListener('click', this.handleClick);
-    // }
+    registerClickListener() {
+        this._container?.addEventListener('click', this.triggerHandleClick);
+        return () => this._container?.removeEventListener('click', this.triggerHandleClick);
+    }
 
-    registerSelectListener() {
+    registerInputListener() {
+        this._container?.addEventListener('input', this.handleInput);
+        return () => this._container?.removeEventListener('input', this.handleInput);
+    }
+
+    registerSelectStartListener() {
         this._container?.addEventListener('selectstart', this.handleUpdateSelect);
         return () => this._container?.removeEventListener('selectstart', this.handleUpdateSelect);
     }
 
     handleUpdateSelect = () => {
         const selection = window.getSelection() as Selection;
-        this._state?.setSelection(selection);
+        this._selectionObservers.forEach(observer => observer.handleUpdateSelect(selection));
     };
 
-    // handleClick = (e: Event) => {
+    triggerHandleClick = (e: Event) => {
+        this._clickObservers.forEach(observer => observer.handleClick(e));
+    };
 
-    // };
-
-    registerClickContextMenu() {
+    registerClickContextMenuListener() {
         this._container?.addEventListener('contextmenu', this.handleClickContextMenu);
         return () => this._container?.removeEventListener('contextmenu', this.handleClickContextMenu);
     }
 
-    handleClickContextMenu(e: Event) {
-        e.preventDefault();
-        if (this._handleIsOpenLinkEditor) this._handleIsOpenLinkEditor(true);
-    }
+    handleClickContextMenu = (e: Event) => {
+        this._clickContextMenuObservers.forEach(observer => observer.handleClickContextMenu(e));
+    };
 
-    // triggerAddNewTagElement(tag: string) {
-    //     this._state.addNewTag(tag);
-    // }
-    // triggerEditLinkTag(action: ActionWithTag, key: NodeKey, href?: string) {
-    //     this._state.triggerActionWithLink(action, key, href)
-    // }
+    handleInput = () => {
+        this._inputObservers.forEach(observer => observer.handleInput(getSelection()?.focusNode));
+    };
 
-    triggerDecoratedUpdate(style: StyleProps) {
+    triggerDecoratedUpdate = (style: StyleProps) => {
         this._styleObservers.forEach(observer => observer.updateStyle(style));
-    }
+    };
 
     triggerTagUpdate(tag: string) {
-        this._styleObservers.forEach(observer => observer.updateTag(tag));
+        this._tagUpdateObserver.forEach(observer => observer.updateTag(tag));
+    }
+
+    triggerLinkEditor(key: NodeKey, href?: string) {
+        this._linkEditorObservers.forEach(observer => observer.triggerLinkAction(key, href));
+    }
+
+    triggerDecorateParent(style: StyleProps) {
+        this._decorateParentObservers.forEach(observer => observer.handleDecorateParent(style));
     }
 
     registerStyleObserver(observer: any) {
@@ -127,7 +144,23 @@ export class LexicalEditor {
         this._clickObservers.push(observer);
     }
 
+    registerLinkEditorObservers() {
+        this._linkEditorObservers.push(this._state);
+    }
+
     registerInputObserver(observer: any) {
         this._inputObservers.push(observer);
+    }
+
+    registerSelectObserver(observer: any) {
+        this._selectionObservers.push(observer);
+    }
+
+    registerClickContextMenuObserver(observer: any) {
+        this._clickContextMenuObservers.push(observer);
+    }
+
+    registerDecorateParentObserver(observer: any) {
+        this._decorateParentObservers.push(observer);
     }
 }

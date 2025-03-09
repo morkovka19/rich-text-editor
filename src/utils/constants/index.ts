@@ -104,12 +104,12 @@ export const textBlockOptions: IOption[] = [
     },
     {
         label: 'Center Align',
-        value: 'right',
+        value: 'center',
         Icon: CenterIcon,
     },
     {
         label: 'Right Align',
-        value: 'center',
+        value: 'right',
         Icon: RightIcon,
     },
     {
@@ -176,10 +176,6 @@ export const baseColors = [
     'rgb(155, 155, 155)',
     'rgb(255, 255, 255)',
 ];
-export enum ActionWithTag {
-    CREATE,
-    DELETE,
-    EDIT,
-}
+
 export const LINK_START = 'https://';
 export const EMPTY_FOR_SELECT = '\u200B';

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useMemo } from 'react';
 
 import { useEditor } from '../../../context/LexicalContext';
@@ -20,7 +21,7 @@ export const FontsBlock = () => {
             updateActualStyle(newStyleProp);
             editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [actualStyleRef, editor, updateActualStyle]
+        [editor, updateActualStyle]
     );
 
     return (

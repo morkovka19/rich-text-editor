@@ -13,7 +13,7 @@ import { TopbarProps } from './types';
 
 const Topbar: FC<TopbarProps> = () => {
     return (
-        <div className="topbar">
+        <div className="topbar" onClick={e => e.preventDefault()}>
             {/* <HistoryBlock /> */}
             <Divider />
             <TagsBlock />
