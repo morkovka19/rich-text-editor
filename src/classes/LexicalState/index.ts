@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
 import { ActionWithTag, EMPTY_FOR_SELECT } from '../../utils/constants';
@@ -146,22 +148,30 @@ export class LexicalState {
         }
     };
 
-    handleEnter(key: NodeKey, position: number) {
-        const node = this.getNodeByKey(key) as TextNode;
-        const newParent = this.getNodeByKey(node?.getParent() as NodeKey)?.clone() as LexicalNode;
+    handleEnter = (key: NodeKey, position: number): any => {
+        const node = this.getNodeByKey(key) as LexicalNode;
+        const parent = this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode;
+        const currentParentKey = parent?.getParent() as NodeKey;
+        if (node?.canHasText() && node?.getText().length === 0) {
+            const currentParent = this.getNodeByKey(currentParentKey) as LexicalNode;
+            const index = currentParent.getChildIndex(parent.getKey());
+            this.removeNode(parent);
+            this._dom.removeElement(parent.getKey());
+            const newParent = this.createLexicalNode(generateKey(), 'p');
+            this.addNode(this._rootNode, newParent, { index, lastKey: currentParent.getKey() });
+            const newNode = this.createLexicalNode(generateKey(), 'span');
+            this.addNode(newParent, newNode);
+            newNode.updateText(EMPTY_FOR_SELECT);
+            const element = this._dom.updateTextContent(newNode.getKey(), EMPTY_FOR_SELECT);
+            this._dom.setSelection(element, 1);
+
+            return;
+        }
+        const newParent = parent?.clone() as LexicalNode;
         const newNode = node?.clone() as LexicalNode;
-        console.log(node, newParent);
-        const currentParentKey = (
-            this.getNodeByKey(
-                newParent.getType() === 'li'
-                    ? (this.getNodeByKey(node?.getParent() as NodeKey)?.getParent() as NodeKey)
-                    : (node?.getParent() as NodeKey)
-            ) as LexicalNode
-        )?.getParent() as NodeKey;
-        console.log(currentParentKey);
         this.addNode(this.getNodeByKey(currentParentKey) as LexicalNode, newParent, {
             index: position,
-            lastKey: node.getKey(),
+            lastKey: parent.getKey(),
         });
         this.addNode(newParent, newNode);
         newNode.updateText(EMPTY_FOR_SELECT);
@@ -177,7 +187,7 @@ export class LexicalState {
         this._dom.updateTextContent(node.getKey(), textBefore || EMPTY_FOR_SELECT);
         const element = newNode.getDomElement()?.childNodes[0] || newNode.getDomElement();
         this._dom.setSelection(element, 0);
-    }
+    };
 
     updateTag = (tag: string) => {
         const selection = this._selection;

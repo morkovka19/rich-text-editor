@@ -15,6 +15,10 @@ export abstract class LexicalElement extends LexicalNode {
     addChildren(child: Array<NodeKey>) {
         this._children.push(...child);
     }
+
+    canHasText() {
+        return false;
+    }
     public addChild(child: NodeKey, position?: number): void {
         if (position) {
             this._children.splice(position, 0, child);

@@ -108,7 +108,6 @@ export class LexicalEditor {
     // }
 
     triggerDecoratedUpdate(style: StyleProps) {
-        console.log(style, this._styleObservers);
         this._styleObservers.forEach(observer => observer.updateStyle(style));
     }
 
