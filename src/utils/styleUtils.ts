@@ -10,6 +10,10 @@ export const initialStyle: StyleProps = {
     fontStyle: 'normal',
 };
 
+export const initialStyleParent: StyleProps = {
+    textAlign: 'left',
+};
+
 export enum StylePropsConst {
     FONT_FAMILY = 'fontFamily',
     FONT_SIZE = 'fontSize',
@@ -18,6 +22,7 @@ export enum StylePropsConst {
     FONT_WEIGHT = 'fontWeight',
     TEXT_DECORATION = 'textDecoration',
     FONT_STYLE = 'fontStyle',
+    TEXT_ALIGN = 'textAlign',
 }
 
 export enum StylePropsStringConst {
@@ -28,6 +33,7 @@ export enum StylePropsStringConst {
     FONT_WEIGHT = 'font-weight',
     TEXT_DECORATION = 'text-decoration',
     FONT_STYLE = 'font-style',
+    TEXT_ALIGN = 'text-align',
 }
 
 // Mapping between StylePropsConst and StylePropsStringConst
@@ -39,6 +45,7 @@ export const StyleMapping: { [key in StylePropsConst]: StylePropsStringConst } =
     [StylePropsConst.FONT_WEIGHT]: StylePropsStringConst.FONT_WEIGHT,
     [StylePropsConst.TEXT_DECORATION]: StylePropsStringConst.TEXT_DECORATION,
     [StylePropsConst.FONT_STYLE]: StylePropsStringConst.FONT_STYLE,
+    [StylePropsConst.TEXT_ALIGN]: StylePropsStringConst.TEXT_ALIGN,
 };
 
 // Mapping between StylePropsConst and StylePropsStringConst
@@ -50,6 +57,7 @@ export const StyleMappingToString: { [key in StylePropsStringConst]: StylePropsC
     [StylePropsStringConst.FONT_WEIGHT]: StylePropsConst.FONT_WEIGHT,
     [StylePropsStringConst.TEXT_DECORATION]: StylePropsConst.TEXT_DECORATION,
     [StylePropsStringConst.FONT_STYLE]: StylePropsConst.FONT_STYLE,
+    [StylePropsStringConst.TEXT_ALIGN]: StylePropsConst.TEXT_ALIGN,
 };
 
 export const getStyleString = (style: StyleProps): string => {
@@ -76,23 +84,4 @@ export const getStyleState = (str: string): StyleProps => {
         }
         return style;
     }, {});
-};
-
-export const getStyleProp = (key: string, style: StyleProps) => {
-    switch (key) {
-        case 'fontFamily':
-            return { fontFamily: style.fontFamily };
-        case 'fontSize':
-            return { fontSize: style.fontSize };
-        case 'textDecoration':
-            return { textDecoration: style.textDecoration };
-        case 'fontWeight':
-            return { fontWeight: style.fontWeight };
-        case 'color':
-            return { color: style.color };
-        case 'backgroundColor':
-            return { backgroundColor: style.backgroundColor };
-        default:
-            return {};
-    }
 };

@@ -6,14 +6,20 @@ import { NodeKey } from './types';
 
 export abstract class LexicalElement extends LexicalNode {
     _children: Array<NodeKey>;
+    _style: StyleProps;
 
     constructor(key: NodeKey, type: string) {
         super(key, type);
         this._children = [];
+        this._style = {};
     }
 
     addChildren(child: Array<NodeKey>) {
         this._children.push(...child);
+    }
+
+    canHasText() {
+        return false;
     }
     public addChild(child: NodeKey, position?: number): void {
         if (position) {
@@ -36,11 +42,11 @@ export abstract class LexicalElement extends LexicalNode {
         removeChildElement(this._key, key);
     }
 
-    public setStyle(style: Record<string, string | number>): void {
-        throw new Error('Method not implemented.');
+    public setStyle(style: StyleProps): void {
+        this._style = style;
     }
     public getStyle(): StyleProps {
-        throw new Error('Method not implemented.');
+        return this._style;
     }
     public getText(): string {
         throw new Error('Method not implemented.');

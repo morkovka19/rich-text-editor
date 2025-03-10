@@ -2,7 +2,6 @@
 import { StyleProps } from '../../context/ToolbarContext';
 import { createTextElement, updateTextContent } from '../../utils/DOMUtils';
 import { generateKey } from '../../utils/generateKey';
-import { getStyleString } from '../../utils/styleUtils';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
@@ -50,11 +49,6 @@ export class TextNode extends LexicalNode {
 
     updateText(text: string) {
         this._text = text;
-        // return this.renderMutate();
-    }
-
-    renderMutate() {
-        return updateTextContent(this._key, this._text);
     }
 
     public getChildType(): string {

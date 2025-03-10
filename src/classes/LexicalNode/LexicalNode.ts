@@ -22,10 +22,7 @@ export abstract class LexicalNode {
 
     public abstract render(): HTMLElement;
 
-    canHasText() {
-        return false;
-    }
-
+    public abstract canHasText(): boolean;
     public abstract updateText(text: string): void;
     public abstract getChildType(): string;
     public abstract getChildren(): Array<NodeKey>;

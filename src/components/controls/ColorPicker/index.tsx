@@ -101,7 +101,7 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color, handleUpdate }) => {
 
     useLayoutEffect(() => {
         setInputColor(selfColor.hex);
-        handleUpdate(selfColor.hex);
+        if (isOpen) handleUpdate(selfColor.hex);
     }, [selfColor.hex]);
 
     return (

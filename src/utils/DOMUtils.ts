@@ -75,3 +75,17 @@ export const updateHrefLinkElement = (key: NodeKey, href: string) => {
 export const removeChildElement = (parent: NodeKey, child: NodeKey) => {
     document.getElementById(parent)?.removeChild(document.getElementById(child) as Node);
 };
+
+export const getLastChild = (element: HTMLElement) => {
+    if (element.localName === 'span') return element;
+    if (element.childElementCount) {
+        [...element.children].reverse().forEach(child => getLastChild(child as HTMLElement));
+    }
+    return undefined;
+};
+
+export const getMinElement = (element: HTMLElement | null | undefined) => {
+    if (!element) return undefined;
+    if (element.nodeType === 3) return element.parentElement as HTMLElement;
+    return getLastChild(element);
+};

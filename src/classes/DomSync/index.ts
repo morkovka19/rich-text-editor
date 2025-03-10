@@ -99,6 +99,24 @@ export class DomSync {
 
     setAttribute(name: string, props: any, key: NodeKey) {
         const element = getDOMElement(key);
-        element.setAttribute(name, props);
+        element?.setAttribute(name, props);
     }
+
+    removeElement = (key: NodeKey) => {
+        const deleteCallback = (key: NodeKey) => {
+            const element = document.getElementById(key);
+            if (element) {
+                const children = [...element.childNodes].filter(child => child.nodeType !== 3);
+                if (children.length > 0) {
+                    children.forEach(child => deleteCallback((child as HTMLElement).id as NodeKey));
+                }
+                const parent = element.parentElement as HTMLElement;
+
+                return parent.removeChild(element);
+            }
+        };
+        if (key) {
+            return deleteCallback(key);
+        }
+    };
 }

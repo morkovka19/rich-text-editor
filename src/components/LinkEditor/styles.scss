@@ -10,6 +10,8 @@
         inset 0 0 0 1px #ffffff80;
     padding: gs(1);
     width: gs(40);
+    position: absolute;
+    z-index: 100;
 
     &__main-block {
         display: flex;
