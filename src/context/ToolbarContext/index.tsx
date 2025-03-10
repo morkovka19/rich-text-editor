@@ -15,6 +15,7 @@ import {
     useState,
 } from 'react';
 
+import { getLastChild } from '../../utils/DOMUtils';
 import { getStyleState, initialStyle, initialStyleParent } from '../../utils/styleUtils';
 import { useEditor } from '../LexicalContext';
 
@@ -72,21 +73,20 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
     }, []);
 
     const handleClick = useCallback((e: Event) => {
-        const focusNode =
-            (e.target as HTMLElement).localName === 'span'
-                ? (e.target as HTMLElement)
-                : ((e.target as HTMLElement).lastElementChild as HTMLElement);
-        focusNodeRef.current = focusElement;
-        const style = focusNode.getAttribute('style') || '';
-        const styleProps: StyleProps = getStyleState(style);
-        actualStyleRef.current = styleProps;
-        setStyle({ ...initialStyle, ...styleProps });
-        const parentElement = focusNode.parentElement as HTMLElement;
-        const parentTag = parentElement.localName;
-        const styleParentActual = parentElement.getAttribute('style') || '';
-        const styleParentActualProps = getStyleState(styleParentActual);
-        setStyleParent({ ...initialStyleParent, ...styleParentActualProps });
-        setTag(parentTag);
+        const focusNode = getLastChild(e.target as HTMLElement);
+        if (focusNode) {
+            focusNodeRef.current = focusElement;
+            const style = focusNode.getAttribute('style') || '';
+            const styleProps: StyleProps = getStyleState(style);
+            actualStyleRef.current = styleProps;
+            setStyle({ ...initialStyle, ...styleProps });
+            const parentElement = focusNode.parentElement as HTMLElement;
+            const parentTag = parentElement.localName;
+            const styleParentActual = parentElement.getAttribute('style') || '';
+            const styleParentActualProps = getStyleState(styleParentActual);
+            setStyleParent({ ...initialStyleParent, ...styleParentActualProps });
+            setTag(parentTag);
+        }
     }, []);
 
     const updateStyle = useCallback((newStyleProp: StyleProps) => {

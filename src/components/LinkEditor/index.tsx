@@ -36,6 +36,7 @@ const LinkEditor = ({ value, onClose, activeNode, onChange }: ILinkEditorProps) 
     });
     const inputRef = useRef<HTMLInputElement>(null);
 
+    if (!activeNode) return;
     return (
         <>
             {createPortal(

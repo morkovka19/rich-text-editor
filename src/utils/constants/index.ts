@@ -98,7 +98,7 @@ export const insertOptions: IOption[] = [
 
 export const textBlockOptions: IOption[] = [
     {
-        label: 'Left Align',
+        label: 'LeftAlign',
         value: 'left',
         Icon: LeftIcon,
     },

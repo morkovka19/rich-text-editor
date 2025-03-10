@@ -41,7 +41,7 @@ const Select: FC<ISelectProps> = ({ options, Icon, name, onChange, value, isStat
     useOnClickOutside(dropdowmRef, () => setIsOpen(false));
 
     const nameButton = useMemo(() => {
-        if (Icon && activeOption.label.length > 6) return `${activeOption.label.slice(0, 6)}...`;
+        if (Icon && activeOption.label.length > 6) return `${activeOption.label.slice(0, 5)}...`;
         if (activeOption.label.length > 6) return `${activeOption.label.slice(0, 6)}...`;
         return activeOption.label;
     }, [Icon, activeOption.label]);

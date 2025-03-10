@@ -34,6 +34,7 @@ export class LexicalEditor {
         this._state.start(container);
         this.setBaseEventListeners();
         this.setBaseEventObservers();
+        this.handleUpdateSelect();
     }
 
     setBaseEventListeners() {
