@@ -18,7 +18,7 @@ import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import ColorPicker from '../../controls/ColorPicker';
 
 const FontStylesBlock = () => {
-    const { style, actualStyleRef, updateActualStyle, focusNodeRef } = useTooltip();
+    const { style, actualStyleRef, handleUpdateActualStyle, focusNodeRef } = useTooltip();
     const { editor } = useEditor();
     const [isOpenLinkEditor, setIsOpenLinkEditor] = useState(false);
 
@@ -35,48 +35,66 @@ const FontStylesBlock = () => {
         []
     );
 
-    useLayoutEffect(() => editor.registerClickContextMenuObserver(contextMenuObserver), [contextMenuObserver, editor]);
+    useLayoutEffect(
+        () => editor.registerObserver('handleClickContextMenu', contextMenuObserver),
+        [contextMenuObserver, editor]
+    );
 
     const handleUpdateColor = useCallback(
         (value: string) => {
             const newStyleProp = { [StylePropsConst.COLOR]: value };
-            updateActualStyle(newStyleProp);
-            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+            handleUpdateActualStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({
+                ...actualStyleRef.current,
+                ...newStyleProp,
+            });
         },
-        [editor, updateActualStyle]
+        [editor, handleUpdateActualStyle]
     );
 
     const handleUpdateBackground = useCallback(
         (value: string) => {
             const newStyleProp = { [StylePropsConst.BACKGROUND_COLOR]: value };
-            updateActualStyle(newStyleProp);
-            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+            handleUpdateActualStyle(newStyleProp);
+            editor.triggerDecoratedUpdate({
+                ...actualStyleRef.current,
+                ...newStyleProp,
+            });
         },
 
-        [editor, updateActualStyle]
+        [editor, handleUpdateActualStyle]
     );
 
     const handleUpdateFontWeight = useCallback(() => {
         const value = style.fontWeight === '400' ? '700' : '400';
         const newStyleProp = { [StylePropsConst.FONT_WEIGHT]: value };
-        updateActualStyle(newStyleProp);
-        editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
-    }, [editor, style.fontWeight, updateActualStyle]);
+        handleUpdateActualStyle(newStyleProp);
+        editor.triggerDecoratedUpdate({
+            ...actualStyleRef.current,
+            ...newStyleProp,
+        });
+    }, [editor, style.fontWeight, handleUpdateActualStyle]);
 
     const handleUpdateFontStyle = useCallback(() => {
         const value = style.fontStyle === 'normal' ? 'italic' : 'normal';
         const newStyleProp = { [StylePropsConst.FONT_STYLE]: value };
-        updateActualStyle(newStyleProp);
-        editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
-    }, [editor, style.fontStyle, updateActualStyle]);
+        handleUpdateActualStyle(newStyleProp);
+        editor.triggerDecoratedUpdate({
+            ...actualStyleRef.current,
+            ...newStyleProp,
+        });
+    }, [editor, style.fontStyle, handleUpdateActualStyle]);
 
     const handleUpdateTextDecoration = useCallback(() => {
         const value = style.textDecoration === 'normal' ? 'underline' : 'normal';
 
         const newStyleProp = { [StylePropsConst.TEXT_DECORATION]: value };
-        updateActualStyle(newStyleProp);
-        editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
-    }, [editor, style.textDecoration, updateActualStyle]);
+        handleUpdateActualStyle(newStyleProp);
+        editor.triggerDecoratedUpdate({
+            ...actualStyleRef.current,
+            ...newStyleProp,
+        });
+    }, [editor, style.textDecoration, handleUpdateActualStyle]);
 
     const handleEditLink = useCallback(
         (key: NodeKey, href?: string) => {

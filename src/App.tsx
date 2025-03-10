@@ -1,6 +1,7 @@
 import { FC } from 'react';
 
 import Editor from './components/Editor/index';
+import { HistoryProvider } from './context/HistoryContext';
 import { LexicalProvider } from './context/LexicalContext';
 import { TooltipProvider } from './context/ToolbarContext';
 import './styles.scss';
@@ -9,11 +10,13 @@ import { initialStyle } from './utils/styleUtils';
 
 const App: FC = () => (
     <LexicalProvider>
-        <TooltipProvider initialSettings={initialStyle}>
-            <div className="demo-main-container">
-                <Editor />
-            </div>
-        </TooltipProvider>
+        <HistoryProvider>
+            <TooltipProvider initialSettings={initialStyle}>
+                <div className="demo-main-container">
+                    <Editor />
+                </div>
+            </TooltipProvider>
+        </HistoryProvider>
     </LexicalProvider>
 );
 

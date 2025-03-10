@@ -7,16 +7,16 @@ import { ButtonsContainer } from '../../controls/ButtonsContainer';
 import Counter from '../../controls/Counter';
 
 const FontSizeBlock = () => {
-    const { style, actualStyleRef, updateActualStyle } = useTooltip();
+    const { style, actualStyleRef, handleUpdateActualStyle } = useTooltip();
     const { editor } = useEditor();
 
     const handleUpdate = useCallback(
         (value: number) => {
             const newStyleProp = { [StylePropsConst.FONT_SIZE]: `${value}px` };
-            updateActualStyle(newStyleProp);
+            handleUpdateActualStyle(newStyleProp);
             editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
         },
-        [actualStyleRef, editor, updateActualStyle]
+        [actualStyleRef, editor, handleUpdateActualStyle]
     );
 
     const activeSize = useMemo(() => {

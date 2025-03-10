@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createParagraphElement } from '../../utils/DOMUtils';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';

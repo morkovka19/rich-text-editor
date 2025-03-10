@@ -31,12 +31,12 @@ export class DomSync {
         this.setupMutationObserver();
     }
 
-    resetTextElement(key: NodeKey) {
+    handleResetTextElement(key: NodeKey) {
         const element = getDOMElement(key) as HTMLElement;
         if (element && element?.textContent) element.textContent = '';
     }
 
-    addNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey: NodeKey }) => {
+    handleAddNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey: NodeKey }) => {
         const parentElement = parent.getDomElement();
         const childElement = child.getDomElement() || child.render();
 
@@ -50,13 +50,13 @@ export class DomSync {
         if (childElement.localName === 'span') childElement.textContent = EMPTY_FOR_SELECT;
     };
 
-    updateTextContent = (key: NodeKey, text: string) => {
+    handleUpdateTextContent = (key: NodeKey, text: string) => {
         const textNode = getDOMElement(key) as HTMLElement;
         if (textNode?.textContent) textNode.textContent = text;
         return textNode.childNodes[0] || textNode;
     };
 
-    setSelection = (node: HTMLElement | ChildNode, offset: number) => {
+    handleSetSelection = (node: HTMLElement | ChildNode, offset: number) => {
         const newRange = document.createRange();
         newRange?.setStart(node, offset);
         newRange?.collapse(true);
@@ -75,7 +75,7 @@ export class DomSync {
             });
     }
 
-    handleMutations(mutations: MutationRecord[]) {
+    private handleMutations(mutations: MutationRecord[]) {
         mutations.forEach(mutation => {
             if (mutation.type === 'characterData') {
                 const target = mutation.target.parentElement as HTMLElement;
@@ -97,12 +97,12 @@ export class DomSync {
         });
     }
 
-    setAttribute(name: string, props: any, key: NodeKey) {
+    handleSetAttribute(name: string, props: any, key: NodeKey) {
         const element = getDOMElement(key);
         element?.setAttribute(name, props);
     }
 
-    removeElement = (key: NodeKey) => {
+    handleRemoveElement = (key: NodeKey) => {
         const deleteCallback = (key: NodeKey) => {
             const element = document.getElementById(key);
             if (element) {
