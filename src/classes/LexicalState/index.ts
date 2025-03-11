@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { HistoryItem } from '../../context/HistoryContext';
 import { StyleProps } from '../../context/ToolbarContext';
-import { getLastChild, getMinElement } from '../../utils/DOMUtils';
+import { getMinElement } from '../../utils/DOMUtils';
 import { EMPTY_FOR_SELECT } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { StylePropsConst, getStyleString } from '../../utils/styleUtils';
@@ -146,7 +147,7 @@ export class LexicalState {
             this.removeNode(parent);
             this._dom.handleRemoveElement(parent.getKey());
             const newParent = this.createLexicalNode(generateKey(), 'p');
-            const styleNewParent = parent.getStyle() as StyleProps;
+            const styleNewParent = parent?.getStyle() as StyleProps;
 
             this.addNode(this._rootNode, newParent, { index, lastKey: currentParent.getKey() });
             newParent.setStyle(styleNewParent);
@@ -162,7 +163,7 @@ export class LexicalState {
             return;
         }
         const newParent = parent?.clone() as LexicalNode;
-        const styleNewParent = parent.getStyle() as StyleProps;
+        const styleNewParent = parent?.getStyle() as StyleProps;
         newParent.setStyle(styleNewParent);
         const newNode = node?.clone() as LexicalNode;
         this.addNode(this.getNodeByKey(currentParentKey) as LexicalNode, newParent, {
@@ -307,5 +308,24 @@ export class LexicalState {
         ) as LexicalNode;
         parent.setStyle(style);
         this._dom.handleSetAttribute('style', getStyleString(style), parent.getKey() as NodeKey);
+    };
+
+    handleRedo = (state: HistoryItem) => {
+        const node = this.getNodeByKey(state.id);
+        console.log(node, state, node);
+        if (node && node.getType() === 'span') {
+            console.log(state);
+            node.updateText(state.after);
+
+            this._dom.handleUpdateTextContent(node.getKey(), state.after);
+        }
+    };
+
+    handleUndo = (state: HistoryItem) => {
+        const node = this.getNodeByKey(state.id);
+        if (node && node.getType() === 'span') {
+            node.updateText(state.before);
+            this._dom.handleUpdateTextContent(node.getKey(), state.before);
+        }
     };
 }

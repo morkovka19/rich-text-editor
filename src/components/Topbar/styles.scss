@@ -16,7 +16,7 @@
 
     z-index: 2;
     @media (max-width: 900px) {
-        justify-content: start;
+        // justify-content: start;
         gap: gs(1, true);
     }
     &__divider {

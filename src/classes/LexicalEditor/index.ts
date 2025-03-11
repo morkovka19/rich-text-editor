@@ -1,3 +1,4 @@
+import { HistoryItem } from '../../context/HistoryContext';
 import { StyleProps } from '../../context/ToolbarContext';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
@@ -39,6 +40,8 @@ export class LexicalEditor {
         this.registerObserver('handleDecorate', this._state);
         this.registerObserver('handleDecorateParent', this._state);
         this.registerObserver('handleClick', this._state);
+        this.registerObserver('handleUndo', this._state);
+        this.registerObserver('handleRedo', this._state);
     };
 
     registerKeydownListener() {
@@ -97,6 +100,14 @@ export class LexicalEditor {
 
     triggerHandleClickContextMenu = (e: Event) => {
         this._observers['handleClickContextMenu']?.forEach(observer => observer.callback(e));
+    };
+
+    triggerHandleUndo = (state: HistoryItem) => {
+        this._observers['handleUndo']?.forEach(observer => observer.callback(state));
+    };
+
+    triggerHandleRedo = (state: HistoryItem) => {
+        this._observers['handleRedo']?.forEach(observer => observer.callback(state));
     };
 
     triggerHandleInput = () => {

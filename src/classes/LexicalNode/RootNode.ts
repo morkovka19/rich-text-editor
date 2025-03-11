@@ -11,7 +11,7 @@ export class RootNode extends LexicalElement {
     render() {
         const rootElement = document.createElement('div');
         rootElement.id = this._type;
-        rootElement.setAttribute('style', 'min-height: 100px');
+        rootElement.setAttribute('style', 'min-height: 400px');
         return rootElement;
     }
 

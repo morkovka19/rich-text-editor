@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, useEffect, useReducer } from 'react';
 
-import MinusIcon from '../../../icons/topbar-font-size/minus.svg';
-import PlusIcon from '../../../icons/topbar-font-size/plus.svg';
+import MinusIcon from '../../../icons/topbar/minus.svg';
+import PlusIcon from '../../../icons/topbar/plus.svg';
 import Button from '../Button';
 import { reducer } from './helpers/reducer';
 import './styles.scss';

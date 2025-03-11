@@ -1,11 +1,5 @@
 import { NodeKey } from '../classes/LexicalNode/types';
 
-export const createRoot = () => {
-    const root = document.createElement('div');
-    root.id = 'root';
-    return root;
-};
-
 export const createParagraphElement = (key: NodeKey) => {
     const p = document.createElement('p');
     p.id = key;
