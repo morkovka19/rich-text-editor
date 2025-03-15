@@ -4,7 +4,7 @@ export const initialStyle: StyleProps = {
     fontFamily: 'Roboto',
     fontSize: '15px',
     color: '#000000',
-    backgroundColor: '#ffffff',
+    backgroundColor: '',
     fontWeight: '400',
     textDecoration: 'normal',
     fontStyle: 'normal',

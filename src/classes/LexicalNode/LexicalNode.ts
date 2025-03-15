@@ -1,13 +1,14 @@
 import { StyleProps } from '../../context/ToolbarContext';
 import { getDOMElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { NodeKey } from './types';
 
 export abstract class LexicalNode {
     _key: NodeKey;
-    _type: string;
+    _type: TAGS;
     _parentKey?: NodeKey | null;
 
-    constructor(key: NodeKey, type: string, parentKey?: NodeKey | null) {
+    constructor(key: NodeKey, type: TAGS, parentKey?: NodeKey | null) {
         this._key = key;
         this._type = type;
         this._parentKey = parentKey;

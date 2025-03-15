@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getDOMElement } from '../../utils/DOMUtils';
-import { EMPTY_FOR_SELECT } from '../../utils/constants';
+import { EMPTY_FOR_SELECT, NODE_TYPE_TEXT, TAGS } from '../../utils/constants';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { NodeKey } from '../LexicalNode/types';
 
@@ -47,7 +47,7 @@ export class DomSync {
             element.after(childElement);
         }
 
-        if (childElement.localName === 'span') childElement.textContent = EMPTY_FOR_SELECT;
+        if (childElement.localName === TAGS.TEXT) childElement.textContent = EMPTY_FOR_SELECT;
     };
 
     handleUpdateTextContent = (key: NodeKey, text: string) => {
@@ -57,11 +57,15 @@ export class DomSync {
     };
 
     handleSetSelection = (node: HTMLElement | ChildNode, offset: number) => {
-        const newRange = document.createRange();
-        newRange?.setStart(node, offset);
-        newRange?.collapse(true);
-        getSelection()?.removeAllRanges();
-        getSelection()?.addRange(newRange);
+        try {
+            const newRange = document.createRange();
+            newRange?.setStart(node, offset);
+            newRange?.collapse(true);
+            getSelection()?.removeAllRanges();
+            getSelection()?.addRange(newRange);
+        } catch {
+            // error
+        }
     };
 
     private setupMutationObserver() {
@@ -106,7 +110,7 @@ export class DomSync {
         const deleteCallback = (key: NodeKey) => {
             const element = document.getElementById(key);
             if (element) {
-                const children = [...element.childNodes].filter(child => child.nodeType !== 3);
+                const children = [...element.childNodes].filter(child => child.nodeType !== NODE_TYPE_TEXT);
                 if (children.length > 0) {
                     children.forEach(child => deleteCallback((child as HTMLElement).id as NodeKey));
                 }

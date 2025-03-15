@@ -3,6 +3,7 @@ import { PropsWithChildren, RefObject, forwardRef, useLayoutEffect } from 'react
 
 import { useEditor } from '../../context/LexicalContext';
 import { useTooltip } from '../../context/ToolbarContext';
+import { STYLE } from '../../utils/constants';
 import { getStyleString } from '../../utils/styleUtils';
 import './styles.scss';
 
@@ -19,7 +20,7 @@ const ContentBlock = forwardRef<ContentBlockProps & HTMLDivElement>(
         useLayoutEffect(() => {
             if (ref && 'current' in ref) {
                 editor.start(ref.current as HTMLElement);
-                (ref.current as HTMLElement).setAttribute('style', getStyleString(style));
+                (ref.current as HTMLElement).setAttribute(STYLE, getStyleString(style));
             }
         }, []);
 

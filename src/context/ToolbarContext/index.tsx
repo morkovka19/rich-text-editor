@@ -12,6 +12,7 @@ import {
 } from 'react';
 
 import { getLastChild } from '../../utils/DOMUtils';
+import { NODE_TYPE_TEXT, STYLE, TAGS } from '../../utils/constants';
 import { getStyleState, initialStyle, initialStyleParent } from '../../utils/styleUtils';
 import { useEditor } from '../LexicalContext';
 
@@ -45,7 +46,7 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
     const { editor } = useEditor();
     const [style, setStyle] = useState(initialStyle);
     const [styleParent, setStyleParent] = useState(initialStyle);
-    const [tag, setTag] = useState('p');
+    const [tag, setTag] = useState(TAGS.NORMAL);
     const focusElement: HTMLElement | null = null;
     const focusNodeRef = useRef<HTMLElement | null>(focusElement);
     const actualStyleRef = useRef<StyleProps>({});
@@ -75,16 +76,16 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         const focusNode = getLastChild(e.target as HTMLElement);
         if (focusNode) {
             focusNodeRef.current = focusElement;
-            const style = focusNode.getAttribute('style') || '';
+            const style = focusNode.getAttribute(STYLE) || '';
             const styleProps: StyleProps = getStyleState(style);
             actualStyleRef.current = styleProps;
             setStyle({ ...initialStyle, ...styleProps });
             const parentElement = focusNode.parentElement as HTMLElement;
             const parentTag = parentElement.localName;
-            const styleParentActual = parentElement.getAttribute('style') || '';
+            const styleParentActual = parentElement.getAttribute(STYLE) || '';
             const styleParentActualProps = getStyleState(styleParentActual);
             setStyleParent({ ...initialStyleParent, ...styleParentActualProps });
-            setTag(parentTag);
+            setTag(parentTag as TAGS);
         }
     }, []);
 
@@ -93,7 +94,7 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
     }, []);
 
     const handleUpdateTag = useCallback((tag: string) => {
-        setTag(tag);
+        setTag(tag as TAGS);
         setStyle(initialStyle);
     }, []);
 
@@ -101,12 +102,12 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         const focusElement = selection.focusNode as HTMLElement;
 
         focusNodeRef.current =
-            focusElement?.nodeType === 3 ? (focusElement?.parentElement as HTMLElement) : focusElement;
+            focusElement?.nodeType === NODE_TYPE_TEXT ? (focusElement?.parentElement as HTMLElement) : focusElement;
     }, []);
 
     const handleInput = useCallback((focusNode: Node | null) => {
         focusNodeRef.current =
-            (focusNode as HTMLElement)?.nodeType === 3
+            (focusNode as HTMLElement)?.nodeType === NODE_TYPE_TEXT
                 ? ((focusNode as HTMLElement)?.parentElement as HTMLElement)
                 : (focusNode as HTMLElement);
     }, []);

@@ -1,4 +1,5 @@
 import { createHeadingElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';
 import { LexicalNode } from './LexicalNode';
@@ -17,7 +18,7 @@ export class HeadingNode extends LexicalElement {
     }
 
     public getChildType(): string {
-        return 'span';
+        return TAGS.TEXT;
     }
     public getChildren(): Array<NodeKey> {
         return this._children;

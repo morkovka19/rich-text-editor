@@ -91,17 +91,18 @@ const ColorPicker: FC<IColorPickerProps> = ({ Icon, color, handleUpdate }) => {
 
     const colorPickerRef = useRef(null);
     useOnClickOutside(colorPickerRef, () => {
+        if (isOpen) handleUpdate(selfColor.hex);
         setIsOpen(false);
     });
 
     const colorPickerBlockRef = useRef(null);
     useOnClickOutside(colorPickerBlockRef, () => {
+        if (isOpen) handleUpdate(selfColor.hex);
         setIsOpen(false);
     });
 
     useLayoutEffect(() => {
         setInputColor(selfColor.hex);
-        if (isOpen) handleUpdate(selfColor.hex);
     }, [selfColor.hex]);
 
     return (

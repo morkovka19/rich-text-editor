@@ -3,7 +3,6 @@ import { FC, useRef } from 'react';
 import ContentBlock, { ContentBlockProps } from '../ContentBlock';
 import { Topbar } from '../Topbar';
 import { Container } from '../controls/Container';
-import './styles.scss';
 import { IEditor } from './types';
 
 const Editor: FC<IEditor> = ({ isEditable }) => {

@@ -22,7 +22,7 @@
     &__divider {
         width: 1px;
         background-color: #eee;
-        margin: 0 gs(1, true);
+        margin: 0 0;
         display: block;
         @media (max-width: 900px) {
             display: none;

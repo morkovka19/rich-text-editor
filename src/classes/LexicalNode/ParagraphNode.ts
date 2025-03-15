@@ -1,4 +1,5 @@
 import { createParagraphElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';
 import { LexicalNode } from './LexicalNode';
@@ -13,7 +14,7 @@ export class ParagraphNode extends LexicalElement {
     }
 
     constructor(key: NodeKey) {
-        super(key, 'p');
+        super(key, TAGS.NORMAL);
         this._children = [];
     }
 
@@ -22,6 +23,6 @@ export class ParagraphNode extends LexicalElement {
     }
 
     public getChildType(): string {
-        return 'span';
+        return TAGS.TEXT;
     }
 }

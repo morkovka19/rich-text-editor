@@ -15,7 +15,7 @@ import Redo from '../../icons/topbar/redo.svg';
 import FontIcon from '../../icons/topbar/topbar-font.svg';
 import Underline from '../../icons/topbar/underline.svg';
 import Undo from '../../icons/topbar/undo.svg';
-import { fontSelectOptions, insertOptions, textBlockOptions, typeSelectOptions } from '../../utils/constants';
+import { TAGS, fontSelectOptions, insertOptions, textBlockOptions, typeSelectOptions } from '../../utils/constants';
 import { StylePropsConst } from '../../utils/styleUtils';
 import LinkEditor from '../LinkEditor';
 import Button from '../controls/Button';
@@ -38,7 +38,7 @@ const Topbar: FC<TopbarProps> = () => {
         () => ({
             handleClickContextMenu: (e: Event) => {
                 const focusNode = e.target as HTMLElement;
-                if (focusNode.parentElement?.localName === 'a') {
+                if (focusNode.parentElement?.localName === TAGS.LINK) {
                     e.preventDefault();
                     setIsOpenLinkEditor(true);
                 }
@@ -149,7 +149,7 @@ const Topbar: FC<TopbarProps> = () => {
     const colorBg = useMemo(() => style[StylePropsConst.BACKGROUND_COLOR], [style]);
     const color = useMemo(() => style[StylePropsConst.COLOR], [style]);
     const activeTag = useMemo(
-        () => typeSelectOptions.find(op => op.value === tag) || typeSelectOptions.find(op => op.value === 'p'),
+        () => typeSelectOptions.find(op => op.value === tag) || typeSelectOptions.find(op => op.value === TAGS.NORMAL),
         [tag]
     );
     const fontFamily = useMemo(() => style.fontFamily, [style.fontFamily]);
@@ -201,7 +201,7 @@ const Topbar: FC<TopbarProps> = () => {
                         onClose={() => setIsOpenLinkEditor(false)}
                         activeNode={focusNodeRef.current as HTMLElement}
                         value={
-                            focusNodeRef.current?.parentElement?.localName === 'a'
+                            focusNodeRef.current?.parentElement?.localName === TAGS.LINK
                                 ? focusNodeRef.current?.parentElement?.getAttribute('href') || ''
                                 : ''
                         }

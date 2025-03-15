@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
 import { createTextElement, updateTextContent } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
@@ -34,7 +35,7 @@ export class TextNode extends LexicalNode {
     _style: StyleProps;
 
     constructor(key: NodeKey) {
-        super(key, 'span');
+        super(key, TAGS.TEXT);
         this._text = '';
         this._style = {};
     }
