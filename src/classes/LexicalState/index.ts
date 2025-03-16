@@ -100,7 +100,7 @@ export class LexicalState {
         }
     }
 
-    addNode(parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey: NodeKey }) {
+    addNode(parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey?: NodeKey }) {
         if (!this._nodeMap.get(child?.getKey())) {
             this._nodeMap.set(child?.getKey(), child);
         }
@@ -134,14 +134,41 @@ export class LexicalState {
         return this.getParentForChildNode(parent);
     }
 
-    removeNode = (node: LexicalNode) => {
-        const parent = this.getNodeByKey(node.getParent() as NodeKey) as LexicalNode;
-        if (parent?.getChildren().includes(node.getKey())) parent.removeChild(node.getKey());
-        this._nodeMap.delete(node.getKey());
-        if (node.getType() !== TAGS.TEXT) {
-            for (let i = 0; i < node?.getChildren().length; i++) {
-                this.removeNode(this.getNodeByKey(node?.getChildren()[i]) as LexicalNode);
+    getNodeForText(element: HTMLElement): any {
+        if (element.nodeType === NODE_TYPE_TEXT) {
+            const parentElement = element.parentElement;
+            if (!parentElement) return;
+            return this.getNodeForText(parentElement);
+        } else {
+            const node = this.getNodeByKey(element.id as NodeKey);
+            return node;
+        }
+    }
+
+    removeChildNodes = (node: LexicalNode): LexicalNode | undefined => {
+        const children = node.canHasText() ? [] : node.getChildren();
+        const key = node.getKey();
+        if (children.length)
+            for (const child in children) {
+                const node = this.getNodeByKey(child);
+                if (!node) return;
+                return this.removeChildNodes(node);
             }
+        const parent = node.getParent();
+
+        this._nodeMap.delete(key);
+        this._dom.handleRemoveElement(key);
+        if (!parent) return;
+        const parentNode = this.getNodeByKey(parent);
+        parentNode?.removeChild(key);
+        return parentNode;
+    };
+
+    removeNode = (node: LexicalNode) => {
+        const parent = this.removeChildNodes(node);
+        if (!parent || parent.getKey() === TAGS.ROOT) return;
+        if (parent.getChildren().length === 0) {
+            this.removeNode(parent);
         }
     };
 
@@ -223,7 +250,6 @@ export class LexicalState {
 
     handleDecorate = (style: StyleProps) => {
         const selection = this._selection;
-        console.log(style, selection);
         const key = this.getChildForParentNode(selection?.anchorNode as HTMLElement);
         const node = this.getNodeByKey(key) as TextNode;
         const oldStyle = node.getStyle();
@@ -237,6 +263,10 @@ export class LexicalState {
         this.addNode(parent, newNode, { index: position, lastKey: node.getKey() as NodeKey });
 
         newNode.updateText(EMPTY_FOR_SELECT);
+        if (textBefore.length === 0) {
+            this.removeNode(node);
+            this._dom.handleSetSelection(newNode.getDomElement(), 1);
+        }
         node.updateText(textBefore);
 
         this._dom.handleUpdateTextContent(node.getKey(), textBefore);
@@ -254,42 +284,58 @@ export class LexicalState {
         this._dom.handleSetSelection(newNode.getDomElement(), 1);
     };
 
+    getNodesInRange = () => {
+        const selection = this._selection;
+        // const andhorNode = this.getParentForChildNode(selection?.anchorNode as HTMLElement);
+
+        // const focuseNode = this.getParentForChildNode(selection?.focusNode as HTMLElement);
+        const andhorNode = this.getNodeForText(selection?.anchorNode as HTMLElement);
+
+        const focuseNode = this.getNodeForText(selection?.focusNode as HTMLElement);
+        console.log(andhorNode, focuseNode);
+    };
+
     handleUpdateTag = (tag: string) => {
         const selection = this._selection;
-        const node = this.getNodeByKey(selection?.anchorNode?.parentElement?.id as NodeKey) as LexicalNode;
-        const parent = this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode;
-        const currentParent = this.getNodeByKey(parent.getParent() as NodeKey) as LexicalNode;
-        const position = selection?.anchorOffset || 0;
-        const lastElement = { index: position, lastKey: parent.getKey() };
-        if (tag === TAGS.NORMAL) {
-            const newParent = this.createLexicalNode(generateKey(), tag);
-            this.addNode(currentParent, newParent, lastElement);
-            const newNode = this.createLexicalNode(generateKey(), newParent.getChildType() as TAGS);
-            this.addNode(newParent, newNode);
-            this.updateText(newNode);
-        } else if (tag.startsWith('h')) {
-            const newParent = this.createLexicalNode(generateKey(), tag as TAGS);
-            newParent.setRange(Number(tag.split('').pop()));
-            this.addNode(currentParent, newParent, lastElement);
-            const newNode = this.createLexicalNode(generateKey(), newParent.getChildType() as TAGS);
-            this.addNode(newParent, newNode);
-            this.updateText(newNode);
-            this._dom.handleSetSelection(newNode.getDomElement(), 1);
-        } else if (tag === TAGS.OL || tag === TAGS.UL) {
-            const newParent = this.createLexicalNode(generateKey(), tag);
-            newParent.setTypeList(tag);
-            this.addNode(currentParent, newParent, lastElement);
-            const newNodeItem = this.createLexicalNode(generateKey(), newParent.getChildType() as TAGS);
-            this.addNode(newParent, newNodeItem);
-            const newNode = this.createLexicalNode(generateKey(), newNodeItem.getChildType() as TAGS);
-            this.addNode(newNodeItem, newNode);
-            this.updateText(newNode);
-            this._dom.handleSetSelection(newNode.getDomElement(), 1);
+        if (selection?.type === 'Range') {
+            console.log(selection);
+            this.getNodesInRange();
+        } else {
+            const node = this.getNodeByKey(selection?.anchorNode?.parentElement?.id as NodeKey) as LexicalNode;
+            const parent = this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode;
+            const currentParent = this.getNodeByKey(parent.getParent() as NodeKey) as LexicalNode;
+            const position = selection?.anchorOffset || 0;
+            const lastElement = { index: position, lastKey: parent.getKey() };
+            if (tag === TAGS.NORMAL) {
+                const newParent = this.createLexicalNode(generateKey(), tag);
+                this.addNode(currentParent, newParent, lastElement);
+                const newNode = this.createLexicalNode(generateKey(), newParent.getChildType() as TAGS);
+                this.addNode(newParent, newNode);
+                this.updateText(newNode);
+                this._dom.handleSetSelection(newNode.getDomElement(), 1);
+            } else if (tag.startsWith('h')) {
+                const newParent = this.createLexicalNode(generateKey(), tag as TAGS);
+                newParent.setRange(Number(tag.split('').pop()));
+                this.addNode(currentParent, newParent, lastElement);
+                const newNode = this.createLexicalNode(generateKey(), newParent.getChildType() as TAGS);
+                this.addNode(newParent, newNode);
+                this.updateText(newNode);
+                this._dom.handleSetSelection(newNode.getDomElement(), 1);
+            } else if (tag === TAGS.OL || tag === TAGS.UL) {
+                const newParent = this.createLexicalNode(generateKey(), tag);
+                newParent.setTypeList(tag);
+                this.addNode(currentParent, newParent, lastElement);
+                const newNodeItem = this.createLexicalNode(generateKey(), newParent.getChildType() as TAGS);
+                this.addNode(newParent, newNodeItem);
+                const newNode = this.createLexicalNode(generateKey(), newNodeItem.getChildType() as TAGS);
+                this.addNode(newNodeItem, newNode);
+                this.updateText(newNode);
+                this._dom.handleSetSelection(newNode.getDomElement(), 1);
+            }
         }
     };
 
     handleSelect = (selection: Selection) => {
-        console.log(selection);
         this._selection = selection;
     };
 
@@ -327,7 +373,8 @@ export class LexicalState {
         if (target.localName !== TAGS.ROOT) {
             this._dom.handleSetSelection(
                 this._selection?.anchorNode as HTMLElement,
-                this._selection?.anchorOffset as number
+                this._selection?.anchorOffset as number,
+                this._selection?.type
             );
         }
     };
@@ -341,17 +388,45 @@ export class LexicalState {
         this._dom.handleSetAttribute(STYLE, getStyleString(style), parentNode.getKey() as NodeKey);
     };
 
+    getNodeMap = () => new Map(this._nodeMap);
+
     handleRedo = (state: HistoryItem) => {
         const node = this.getNodeByKey(state.id);
-        if (node && node.getType() === TAGS.TEXT) {
+        if (node) {
             this.updateText(node, state.after);
+            this._dom.handleSetSelection(node.getDomElement(), 1);
+            return;
         }
+
+        const getNewNode = (key: string) => {
+            const copyNode = state.branch.get(key) as LexicalNode;
+            const parentKey = copyNode?.getParent();
+            const parentNode = this.getNodeByKey(parentKey as NodeKey) || getNewNode(parentKey as NodeKey);
+            const newNode = copyNode.clone(key);
+            const copyParent = state.branch.get(parentKey as NodeKey) as LexicalNode;
+            const position = copyParent.getChildIndex(key);
+            const lastKey = copyParent.getChildren().at(position);
+            this.addNode(parentNode, newNode, { index: position + 1, lastKey });
+            if (newNode.getType() === TAGS.TEXT) {
+                this.updateText(newNode);
+            }
+            if (copyNode.getStyle()) {
+                this.updateStyle(newNode, copyNode.getStyle());
+            }
+            return newNode;
+        };
+        const newNode = getNewNode(state.id);
+        this.updateText(newNode, state.after);
+        this._dom.handleSetSelection(newNode.getDomElement(), 1);
     };
 
     handleUndo = (state: HistoryItem) => {
         const node = this.getNodeByKey(state.id);
         if (node && node.getType() === TAGS.TEXT) {
             this.updateText(node, state.before);
+            if (state.before === '' || state.before === EMPTY_FOR_SELECT) {
+                this.removeNode(node);
+            }
         }
     };
 }

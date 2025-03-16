@@ -25,7 +25,7 @@ export abstract class LexicalNode {
     public abstract getChildType(): string;
     public abstract getChildren(): Array<NodeKey>;
     public abstract addChild(child: NodeKey, position?: number): void;
-    public abstract clone(): LexicalNode;
+    public abstract clone(key?: string): LexicalNode;
     public abstract removeChild(key: NodeKey): void;
     public abstract getText(): string;
     public abstract setStyle(style: StyleProps): void;

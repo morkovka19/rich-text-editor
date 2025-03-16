@@ -16,19 +16,19 @@ import {
     useState,
 } from 'react';
 
+import { LexicalNode } from '../../classes/LexicalNode/LexicalNode';
 import { NodeKey } from '../../classes/LexicalNode/types';
-import { EMPTY_FOR_SELECT } from '../../utils/constants';
-import { getStyleState } from '../../utils/styleUtils';
+import { EMPTY_FOR_SELECT, TAGS } from '../../utils/constants';
 import { useEditor } from '../LexicalContext';
 import { StyleProps } from '../ToolbarContext';
 
 export type HistoryItem = {
     id: string;
-    type: 'add' | 'delete' | 'update' | 'style' | 'input';
+    type: 'input';
     before?: any;
     after?: any;
     style?: Record<string, string>;
-    parent: NodeKey;
+    branch: Map<NodeKey, LexicalNode>;
 };
 
 type HistoryContextProps = {
@@ -69,7 +69,7 @@ export const HistoryProvider: FC<Props> = ({ children }) => {
                 });
                 setCurrentIndex(prevIndex => prevIndex + 1);
                 setPrevTextState(state.after || EMPTY_FOR_SELECT);
-            }, 1000);
+            }, 500);
         },
         [currentIndex]
     );
@@ -97,24 +97,53 @@ export const HistoryProvider: FC<Props> = ({ children }) => {
     const canUndo = currentIndex >= 0;
     const canRedo = currentIndex < history.length - 1;
 
+    const getStateWithId = useCallback(
+        (id: string) => (history.filter(item => item.id === id) || []).at(-1),
+        [history]
+    );
+
+    const getBranchForNode = useCallback(
+        (key: string) => {
+            const nodeMap = editor.getCopyNodeMap();
+            const branch: Map<string, LexicalNode> = new Map();
+            const returnBranch = (id: string, canGoLeaves = false) => {
+                const node = nodeMap.get(id);
+                if (!node) return;
+                if (node?.getChildren() && node.getChildren()?.length > 0 && canGoLeaves) {
+                    node?.getChildren().forEach(item => returnBranch(item, true));
+                }
+                branch.set(node?.getKey() as NodeKey, node);
+                if (id === TAGS.ROOT) {
+                    return;
+                }
+                const parentKey = node.getParent();
+                if (!parentKey) return;
+                returnBranch(parentKey, false);
+            };
+            returnBranch(key);
+            return branch;
+        },
+        [editor]
+    );
+
     const handleInput = useCallback(
         (node: Node | null) => {
             if (!node) return;
             const nodeElement = (node as HTMLElement).parentElement;
             const { id, textContent } = nodeElement as HTMLSpanElement;
-            const parent = nodeElement?.parentElement as HTMLElement;
+            const actualState = history[currentIndex];
+            const actualId = (actualState && actualState?.id) || '';
             const historyItem: HistoryItem = {
                 id,
                 type: 'input',
-                before: prevTextState, // Используем prevTextState как before
+                before: actualId === id ? prevTextState : getStateWithId(id)?.after ? getStateWithId(id)?.after : '', // при записи изменения в новой узле нужно сбросить befor, иначе берем prevTextState как before
                 after: textContent as string,
-                style: {},
-                parent: parent?.id as NodeKey,
+                branch: getBranchForNode(id),
             };
 
             pushToHistoryTextItem(historyItem);
         },
-        [prevTextState, pushToHistoryTextItem]
+        [currentIndex, getBranchForNode, getStateWithId, history, prevTextState, pushToHistoryTextItem]
     );
 
     const handleDecorateParent = useCallback((style: StyleProps) => {}, []);

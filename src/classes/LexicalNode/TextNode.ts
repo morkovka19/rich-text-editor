@@ -59,15 +59,15 @@ export class TextNode extends LexicalNode {
         throw new Error('Method not implemented.');
     }
     public getChildren(): Array<NodeKey> {
-        throw new Error('Method not implemented.');
+        return [];
     }
 
     getText() {
         return this._text;
     }
 
-    public clone(): LexicalNode {
-        const node = new TextNode(generateKey());
+    public clone(key?: string): LexicalNode {
+        const node = new TextNode(key || generateKey());
         node.setStyle(this._style);
         return node;
     }

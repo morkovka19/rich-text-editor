@@ -13,13 +13,13 @@ export class ListNode extends LexicalElement {
     public getChildType(): string {
         return TAGS.LI;
     }
-    public clone(): LexicalNode {
-        return new ListNode(generateKey(), this._typeList as any);
+    public clone(key?: string): LexicalNode {
+        return new ListNode(key || generateKey(), this._typeList as any);
     }
     _typeList: undefined | TAGS.UL | TAGS.OL;
 
     constructor(key: NodeKey, typeList?: TAGS.OL | TAGS.UL) {
-        super(key, 'list');
+        super(key, TAGS.LIST);
         this._typeList = typeList;
     }
 

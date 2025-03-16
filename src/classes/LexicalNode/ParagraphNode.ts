@@ -6,8 +6,8 @@ import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class ParagraphNode extends LexicalElement {
-    public clone(): LexicalNode {
-        return new ParagraphNode(generateKey());
+    public clone(key?: string): LexicalNode {
+        return new ParagraphNode(key || generateKey());
     }
     public getChildren(): Array<NodeKey> {
         return this._children;

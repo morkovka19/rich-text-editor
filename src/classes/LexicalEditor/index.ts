@@ -1,5 +1,6 @@
 import { HistoryItem } from '../../context/HistoryContext';
 import { StyleProps } from '../../context/ToolbarContext';
+import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
 import { ActionsType, Observer } from './types';
@@ -11,9 +12,11 @@ export class LexicalEditor {
 
     _state: LexicalState;
     _container: HTMLElement | null;
+    _copyNodeMap: Map<string, LexicalNode>;
     constructor() {
         this._state = new LexicalState();
         this._container = null;
+        this._copyNodeMap = new Map(this._state.getNodeMap());
     }
 
     start(container: HTMLElement) {
@@ -90,7 +93,7 @@ export class LexicalEditor {
     }
 
     triggerSelect = () => {
-        const selection = window.getSelection() as Selection;
+        const selection = document.getSelection() as Selection;
         this._observers['handleSelect']?.forEach(observer => observer.callback(selection));
     };
 
@@ -111,6 +114,7 @@ export class LexicalEditor {
     };
 
     triggerHandleInput = () => {
+        this._copyNodeMap = this._state.getNodeMap();
         this._observers['handleInput']?.forEach(observer => observer.callback(getSelection()?.focusNode || null));
     };
 
@@ -146,4 +150,6 @@ export class LexicalEditor {
     registerLinkEditorObservers() {
         this.registerObserver('handleLinkAction', this._state);
     }
+
+    getCopyNodeMap = () => new Map<NodeKey, LexicalNode>(this._copyNodeMap);
 }

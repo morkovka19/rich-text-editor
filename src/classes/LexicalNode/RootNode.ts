@@ -1,5 +1,4 @@
 import { STYLE, TAGS } from '../../utils/constants';
-import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
@@ -20,7 +19,7 @@ export class RootNode extends LexicalElement {
         return TAGS.NORMAL;
     }
 
-    public clone(): LexicalNode {
-        return new RootNode(generateKey());
+    public clone(key?: string): LexicalNode {
+        return new RootNode(key || TAGS.ROOT);
     }
 }

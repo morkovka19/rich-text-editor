@@ -36,15 +36,22 @@ export class DomSync {
         if (element && element?.textContent) element.textContent = '';
     }
 
-    handleAddNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey: NodeKey }) => {
+    handleAddNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey?: NodeKey }) => {
         const parentElement = parent.getDomElement();
         const childElement = child.getDomElement() || child.render();
 
         parentElement.appendChild(childElement);
         if (!position) parentElement.appendChild(childElement);
         else {
-            const element = document.getElementById(position.lastKey) as HTMLElement;
-            element.after(childElement);
+            if (position.lastKey) {
+                const element = document.getElementById(position.lastKey) as HTMLElement;
+                element.after(childElement);
+            } else {
+                const element = parentElement.firstElementChild as HTMLElement;
+                if (element) {
+                    element.before(childElement);
+                }
+            }
         }
 
         if (childElement.localName === TAGS.TEXT) childElement.textContent = EMPTY_FOR_SELECT;
@@ -53,15 +60,15 @@ export class DomSync {
     handleUpdateTextContent = (key: NodeKey, text: string) => {
         const textNode = getDOMElement(key) as HTMLElement;
         if (textNode?.textContent) textNode.textContent = text;
-        return textNode.childNodes[0] || textNode;
+        return textNode?.childNodes[0] || textNode;
     };
 
-    handleSetSelection = (node: HTMLElement | ChildNode, offset: number) => {
+    handleSetSelection = (node: HTMLElement | ChildNode, offset: number, type?: string) => {
         try {
             const newRange = document.createRange();
             newRange?.setStart(node, offset);
             newRange?.collapse(true);
-            getSelection()?.removeAllRanges();
+            if (type !== 'Range') getSelection()?.removeAllRanges();
             getSelection()?.addRange(newRange);
         } catch {
             // error

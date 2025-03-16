@@ -12,8 +12,8 @@ export class LinkNode extends LexicalElement {
     public getChildType(): string {
         throw new Error('Method not implemented.');
     }
-    public clone(): LexicalNode {
-        return new LinkNode(generateKey());
+    public clone(key?: string): LexicalNode {
+        return new LinkNode(key || generateKey());
     }
     _href: string;
 

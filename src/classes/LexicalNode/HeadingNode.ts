@@ -9,7 +9,7 @@ export class HeadingNode extends LexicalElement {
     _range: number | undefined;
 
     constructor(key?: NodeKey, range?: number) {
-        super(key || generateKey(), 'h');
+        super(key || generateKey(), TAGS.H);
         this._range = range;
     }
 
@@ -23,8 +23,8 @@ export class HeadingNode extends LexicalElement {
     public getChildren(): Array<NodeKey> {
         return this._children;
     }
-    public clone(): LexicalNode {
-        return new HeadingNode(generateKey(), this._range);
+    public clone(key?: string): LexicalNode {
+        return new HeadingNode(key || generateKey(), this._range);
     }
 
     public setRange(range: number) {
