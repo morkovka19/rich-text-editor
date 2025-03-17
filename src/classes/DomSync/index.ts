@@ -86,7 +86,7 @@ export class DomSync {
             });
     }
 
-    private handleMutations(mutations: MutationRecord[]) {
+    handleMutations(mutations: MutationRecord[]) {
         mutations.forEach(mutation => {
             if (mutation.type === 'characterData') {
                 const target = mutation.target.parentElement as HTMLElement;
@@ -129,5 +129,20 @@ export class DomSync {
         if (key) {
             return deleteCallback(key);
         }
+    };
+
+    handleReplaceTag = (node: LexicalNode) => {
+        const newElement = node.render();
+        newElement.id = '';
+        const oldElement = document.getElementById(node.getKey()) as HTMLElement;
+        oldElement.replaceWith(newElement);
+        newElement.id = node.getKey();
+        console.log(node.getChildren());
+        node.getChildren().forEach(child => {
+            const childElement = document.getElementById(child);
+            if (childElement) {
+                newElement.appendChild(childElement);
+            }
+        });
     };
 }

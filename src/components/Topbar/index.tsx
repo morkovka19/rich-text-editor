@@ -10,12 +10,12 @@ import CodeBlock from '../../icons/topbar/codeBlock.svg';
 import Color from '../../icons/topbar/color.svg';
 import Italic from '../../icons/topbar/italic.svg';
 import Link from '../../icons/topbar/link.svg';
-import Plus from '../../icons/topbar/plus.svg';
+// import Plus from '../../icons/topbar/plus.svg';
 import Redo from '../../icons/topbar/redo.svg';
 import FontIcon from '../../icons/topbar/topbar-font.svg';
 import Underline from '../../icons/topbar/underline.svg';
 import Undo from '../../icons/topbar/undo.svg';
-import { TAGS, fontSelectOptions, insertOptions, textBlockOptions, typeSelectOptions } from '../../utils/constants';
+import { TAGS, fontSelectOptions, textBlockOptions, typeSelectOptions } from '../../utils/constants';
 import { StylePropsConst } from '../../utils/styleUtils';
 import LinkEditor from '../LinkEditor';
 import Button from '../controls/Button';
@@ -210,8 +210,8 @@ const Topbar: FC<TopbarProps> = () => {
                 )}
                 <ColorPicker Icon={Color} color={color} handleUpdate={handleUpdateColor} />
                 <ColorPicker Icon={BackgroundColor} color={colorBg} handleUpdate={handleUpdateBackground} />
-                <Divider />
-                <Select options={insertOptions} Icon={Plus} isStaticName name="Insert" />
+                {/* <Divider /> */}
+                {/* <Select options={insertOptions} Icon={Plus} isStaticName name="Insert" /> */}
                 <Divider />
                 <Select options={textBlockOptions} value={textStyleValue} onChange={handleUpdateParentStyle} />
             </ButtonsContainer>

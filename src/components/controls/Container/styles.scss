@@ -4,8 +4,9 @@
 .container {
     min-width: gs(10);
     min-height: gs(40);
-    max-width: gs(104);
+    max-width: gs(90);
     border-radius: gs(2);
     box-shadow: $shadow-big;
     margin: auto;
+    position: relative;
 }

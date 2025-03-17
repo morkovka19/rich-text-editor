@@ -37,6 +37,8 @@ export abstract class LexicalNode {
     public abstract setHref(href: string): void;
     public abstract getHref(): string;
     public abstract removeChildElement(key: NodeKey): void;
+    public abstract addChildren(children: Array<NodeKey>): void;
+    public abstract removeChildren(maxIndex: number, isStart: boolean): Array<string>;
 
     getType() {
         return this._type;

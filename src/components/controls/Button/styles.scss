@@ -48,11 +48,11 @@
         text-align: left;
         padding-right: 5px;
         padding-left: 2px;
-        @media (max-width: 920px) {
+        @media (max-width: 800px) {
             display: none;
         }
         &_visible {
-            @media (max-width: 900px) {
+            @media (max-width: 800px) {
                 display: inline;
             }
         }

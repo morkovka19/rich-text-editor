@@ -1,5 +1,6 @@
 import { FC, useRef } from 'react';
 
+import { AddButton } from '../AddButton';
 import ContentBlock, { ContentBlockProps } from '../ContentBlock';
 import { Topbar } from '../Topbar';
 import { Container } from '../controls/Container';
@@ -11,6 +12,7 @@ const Editor: FC<IEditor> = ({ isEditable }) => {
     return (
         <Container>
             <Topbar isEditable={isEditable || true} />
+            <AddButton />
             <ContentBlock ref={ref} />
         </Container>
     );

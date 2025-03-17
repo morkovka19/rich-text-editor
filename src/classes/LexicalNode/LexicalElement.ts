@@ -15,6 +15,11 @@ export abstract class LexicalElement extends LexicalNode {
         this._style = {};
     }
 
+    removeChildren(maxIndex: number, isStart: boolean): Array<string> {
+        this._children = this._children.slice(isStart ? 0 : maxIndex - 1, isStart ? maxIndex : undefined);
+        return this._children;
+    }
+
     addChildren(child: Array<NodeKey>) {
         this._children.push(...child);
     }
