@@ -16,15 +16,15 @@
 
     z-index: 2;
     @media (max-width: 900px) {
-        justify-content: start;
+        // justify-content: start;
         gap: gs(1, true);
     }
     &__divider {
         width: 1px;
         background-color: #eee;
-        margin: 0 gs(1, true);
+        margin: 0 0;
         display: block;
-        @media (max-width: 900px) {
+        @media (max-width: 800px) {
             display: none;
         }
     }

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
 import { removeChildElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
@@ -8,10 +9,15 @@ export abstract class LexicalElement extends LexicalNode {
     _children: Array<NodeKey>;
     _style: StyleProps;
 
-    constructor(key: NodeKey, type: string) {
+    constructor(key: NodeKey, type: TAGS) {
         super(key, type);
         this._children = [];
         this._style = {};
+    }
+
+    removeChildren(maxIndex: number, isStart: boolean): Array<string> {
+        this._children = this._children.slice(isStart ? 0 : maxIndex - 1, isStart ? maxIndex : undefined);
+        return this._children;
     }
 
     addChildren(child: Array<NodeKey>) {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, MouseEventHandler } from 'react';
 
 import Arrow from '../../../icons/arrow.svg';

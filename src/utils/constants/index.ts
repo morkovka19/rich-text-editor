@@ -1,34 +1,39 @@
 import { IOption } from '../../components/controls/Select/types';
-import HorRuleIcon from '../../icons/topbar-insert/horRule.svg';
-import ImageIcon from '../../icons/topbar-insert/image.svg';
-import TableIcon from '../../icons/topbar-insert/table.svg';
-import CenterIcon from '../../icons/topbar-text-block-style/center.svg';
-import JustifyIcon from '../../icons/topbar-text-block-style/justify.svg';
-import LeftIcon from '../../icons/topbar-text-block-style/left.svg';
-import RightIcon from '../../icons/topbar-text-block-style/right.svg';
-import BulletListIcon from '../../icons/topbar-type-text/bullet-list.svg';
-import H1Icon from '../../icons/topbar-type-text/h1.svg';
-import H2Icon from '../../icons/topbar-type-text/h2.svg';
-import H3Icon from '../../icons/topbar-type-text/h3.svg';
-import NoramlIcon from '../../icons/topbar-type-text/normal.svg';
-import NumberListIcon from '../../icons/topbar-type-text/number-list.svg';
+import BulletListIcon from '../../icons/topbar/bullet-list.svg';
+import CenterIcon from '../../icons/topbar/center.svg';
+import H1Icon from '../../icons/topbar/h1.svg';
+import H2Icon from '../../icons/topbar/h2.svg';
+import H3Icon from '../../icons/topbar/h3.svg';
+import HorRuleIcon from '../../icons/topbar/horRule.svg';
+import ImageIcon from '../../icons/topbar/image.svg';
+import JustifyIcon from '../../icons/topbar/justify.svg';
+import LeftIcon from '../../icons/topbar/left.svg';
+import NoramlIcon from '../../icons/topbar/normal.svg';
+import NumberListIcon from '../../icons/topbar/number-list.svg';
+import RightIcon from '../../icons/topbar/right.svg';
+import TableIcon from '../../icons/topbar/table.svg';
 
-export const TAGS = {
-    NORMAL: 'p',
-    BLOCK: 'div',
-    TEXT: 'span',
-    H1: 'h1',
-    H2: 'h2',
-    H3: 'h3',
-    OL: 'ol',
-    UL: 'ul',
-    LI: 'li',
-    LINK: 'a',
-};
+export enum TAGS {
+    NORMAL = 'p',
+    BLOCK = 'div',
+    TEXT = 'span',
+    H1 = 'h1',
+    H2 = 'h2',
+    H3 = 'h3',
+    OL = 'ol',
+    UL = 'ul',
+    LI = 'li',
+    LINK = 'a',
+    ROOT = 'root',
+    H = 'h',
+    LIST = 'list',
+}
 
 export const MAIN_DIV_ID = 'root-div';
 export const EDITOR_ID = 'editor';
 export const TEXT_TAG = 'text';
+
+export const NODE_TYPE_TEXT = 3;
 
 export const mapForAddedNodes = new Map<string, string>([
     [TAGS.BLOCK, TAGS.NORMAL],
@@ -40,15 +45,20 @@ export const mapForAddedNodes = new Map<string, string>([
     [TAGS.UL, TAGS.LI],
     [TAGS.LI, TAGS.TEXT],
     [TAGS.LINK, TAGS.TEXT],
+    [TAGS.ROOT, TAGS.NORMAL],
 ]);
 
 export const inlineTags = ['span', 'a'];
+
+export const STYLE = 'style';
+export const HREF = 'href';
+export const TARGET = 'target';
 
 export const HISTORY_TIMEOUT = 3000;
 export const typeSelectOptions: IOption[] = [
     {
         label: 'Normal',
-        value: 'p',
+        value: TAGS.NORMAL,
         Icon: NoramlIcon,
     },
     {

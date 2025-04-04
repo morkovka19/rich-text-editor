@@ -1,32 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { HistoryItem } from '../../context/HistoryContext';
 import { StyleProps } from '../../context/ToolbarContext';
+import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
+import { ActionsType, Observer } from './types';
 
 export class LexicalEditor {
+    private _observers: {
+        [K in keyof ActionsType]?: Array<Observer<K>>;
+    } = {};
+
     _state: LexicalState;
     _container: HTMLElement | null;
-    _handleIsOpenLinkEditor: null | React.Dispatch<React.SetStateAction<boolean>>;
-    _inputObservers: Array<any>;
-    _clickObservers: Array<any>;
-    _styleObservers: Array<any>;
-    _tagUpdateObserver: Array<any>;
-    _linkEditorObservers: Array<any>;
-    _selectionObservers: Array<any>;
-    _clickContextMenuObservers: Array<any>;
-    _decorateParentObservers: Array<any>;
+    _copyNodeMap: Map<string, LexicalNode>;
     constructor() {
         this._state = new LexicalState();
         this._container = null;
-        this._handleIsOpenLinkEditor = null;
-        this._inputObservers = [];
-        this._clickObservers = [];
-        this._styleObservers = [];
-        this._tagUpdateObserver = [];
-        this._linkEditorObservers = [];
-        this._selectionObservers = [];
-        this._clickContextMenuObservers = [];
-        this._decorateParentObservers = [];
+        this._copyNodeMap = new Map(this._state.getNodeMap());
     }
 
     start(container: HTMLElement) {
@@ -34,7 +24,7 @@ export class LexicalEditor {
         this._state.start(container);
         this.setBaseEventListeners();
         this.setBaseEventObservers();
-        this.handleUpdateSelect();
+        this.triggerSelect();
     }
 
     setBaseEventListeners() {
@@ -48,36 +38,18 @@ export class LexicalEditor {
     }
 
     setBaseEventObservers = () => {
-        this.registerSelectObserver(this._state);
-        this.registerTagUpdateObserver(this._state);
-        this.registerStyleObserver(this._state);
-        this.registerClickObserver(this._state);
-        this.registerDecorateParentObserver(this._state);
+        this.registerObserver('handleSelect', this._state);
+        this.registerObserver('handleUpdateTag', this._state);
+        this.registerObserver('handleDecorate', this._state);
+        this.registerObserver('handleDecorateParent', this._state);
+        this.registerObserver('handleClick', this._state);
+        this.registerObserver('handleUndo', this._state);
+        this.registerObserver('handleRedo', this._state);
     };
 
     registerKeydownListener() {
-        this._container?.addEventListener('keydown', this.handleKeydown);
-        return () => this._container?.removeEventListener('keydown', this.handleKeydown);
-    }
-
-    handleKeydown = (e: KeyboardEvent) => {
-        const key = e.key;
-        switch (key) {
-            case 'Enter':
-                this.handleEnter(e);
-                break;
-            case 'Backspace':
-                this.handleBackspace(e);
-        }
-    };
-
-    handleEnter = (e: KeyboardEvent) => {
-        e.preventDefault();
-        this._state.triggerHandleEnter();
-    };
-
-    handleBackspace(e: KeyboardEvent) {
-        this._state.triggerHandleBackspace(e);
+        this._container?.addEventListener('keydown', this.triggerHandleKeydown);
+        return () => this._container?.removeEventListener('keydown', this.triggerHandleKeydown);
     }
 
     registerClickListener() {
@@ -86,82 +58,98 @@ export class LexicalEditor {
     }
 
     registerInputListener() {
-        this._container?.addEventListener('input', this.handleInput);
-        return () => this._container?.removeEventListener('input', this.handleInput);
+        this._container?.addEventListener('input', this.triggerHandleInput);
+        return () => this._container?.removeEventListener('input', this.triggerHandleInput);
     }
 
     registerSelectStartListener() {
-        this._container?.addEventListener('selectstart', this.handleUpdateSelect);
-        return () => this._container?.removeEventListener('selectstart', this.handleUpdateSelect);
+        this._container?.addEventListener('selectstart', this.triggerSelect);
+        return () => this._container?.removeEventListener('selectstart', this.triggerSelect);
     }
 
-    handleUpdateSelect = () => {
-        const selection = window.getSelection() as Selection;
-        this._selectionObservers.forEach(observer => observer.handleUpdateSelect(selection));
+    registerClickContextMenuListener() {
+        this._container?.addEventListener('contextmenu', this.triggerHandleClickContextMenu);
+        return () => this._container?.removeEventListener('contextmenu', this.triggerHandleClickContextMenu);
+    }
+
+    triggerHandleKeydown = (e: KeyboardEvent) => {
+        const key = e.key;
+        switch (key) {
+            case 'Enter':
+                this.triggerHandleEnter(e);
+                break;
+            case 'Backspace':
+                this.triggerHandleBackspace(e);
+        }
+    };
+
+    triggerHandleEnter = (e: KeyboardEvent) => {
+        e.preventDefault();
+        this._state.triggerHandleEnter();
+    };
+
+    triggerHandleBackspace(e: KeyboardEvent) {
+        this._state.triggerHandleBackspace(e);
+    }
+
+    triggerSelect = () => {
+        const selection = document.getSelection() as Selection;
+        this._observers['handleSelect']?.forEach(observer => observer.callback(selection));
     };
 
     triggerHandleClick = (e: Event) => {
-        this._clickObservers.forEach(observer => observer.handleClick(e));
+        this._observers['handleClick']?.forEach(observer => observer.callback(e));
     };
 
-    registerClickContextMenuListener() {
-        this._container?.addEventListener('contextmenu', this.handleClickContextMenu);
-        return () => this._container?.removeEventListener('contextmenu', this.handleClickContextMenu);
-    }
-
-    handleClickContextMenu = (e: Event) => {
-        this._clickContextMenuObservers.forEach(observer => observer.handleClickContextMenu(e));
+    triggerHandleClickContextMenu = (e: Event) => {
+        this._observers['handleClickContextMenu']?.forEach(observer => observer.callback(e));
     };
 
-    handleInput = () => {
-        this._inputObservers.forEach(observer => observer.handleInput(getSelection()?.focusNode));
+    triggerHandleUndo = (state: HistoryItem) => {
+        this._observers['handleUndo']?.forEach(observer => observer.callback(state));
+    };
+
+    triggerHandleRedo = (state: HistoryItem) => {
+        this._observers['handleRedo']?.forEach(observer => observer.callback(state));
+    };
+
+    triggerHandleInput = () => {
+        this._copyNodeMap = this._state.getNodeMap();
+        this._observers['handleInput']?.forEach(observer => observer.callback(getSelection()?.focusNode || null));
     };
 
     triggerDecoratedUpdate = (style: StyleProps) => {
-        this._styleObservers.forEach(observer => observer.updateStyle(style));
+        this._observers['handleDecorate']?.forEach(observer => observer.callback(style));
     };
 
     triggerTagUpdate(tag: string) {
-        this._tagUpdateObserver.forEach(observer => observer.updateTag(tag));
+        this._observers['handleUpdateTag']?.forEach(observer => observer.callback(tag));
     }
 
     triggerLinkEditor(key: NodeKey, href?: string) {
-        this._linkEditorObservers.forEach(observer => observer.triggerLinkAction(key, href));
+        this._observers['handleLinkAction']?.forEach(observer => observer.callback(key, href));
     }
 
     triggerDecorateParent(style: StyleProps) {
-        this._decorateParentObservers.forEach(observer => observer.handleDecorateParent(style));
+        this._observers['handleDecorateParent']?.forEach(observer => observer.callback(style));
     }
 
-    registerStyleObserver(observer: any) {
-        this._styleObservers.push(observer);
+    registerObserver<T extends keyof ActionsType>(action: T, observer: { [K in T]: ActionsType[K] }) {
+        if (!this._observers[action]) {
+            this._observers[action] = [];
+        }
+        this._observers[action]?.push({ action, callback: observer[action] });
     }
 
-    registerTagUpdateObserver(observer: any) {
-        this._tagUpdateObserver.push(observer);
-    }
-
-    registerClickObserver(observer: any) {
-        this._clickObservers.push(observer);
+    triggerObservers<T extends keyof ActionsType>(action: T, ...args: Parameters<ActionsType[T]>) {
+        this._observers[action]?.forEach(observer => {
+            (observer.callback as (...args: Parameters<ActionsType[T]>) => void)(...args);
+        });
     }
 
     registerLinkEditorObservers() {
-        this._linkEditorObservers.push(this._state);
+        this.registerObserver('handleLinkAction', this._state);
     }
 
-    registerInputObserver(observer: any) {
-        this._inputObservers.push(observer);
-    }
-
-    registerSelectObserver(observer: any) {
-        this._selectionObservers.push(observer);
-    }
-
-    registerClickContextMenuObserver(observer: any) {
-        this._clickContextMenuObservers.push(observer);
-    }
-
-    registerDecorateParentObserver(observer: any) {
-        this._decorateParentObservers.push(observer);
-    }
+    getCopyNodeMap = () => new Map<NodeKey, LexicalNode>(this._copyNodeMap);
 }

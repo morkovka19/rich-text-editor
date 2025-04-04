@@ -1,16 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
 import { getDOMElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { NodeKey } from './types';
 
 export abstract class LexicalNode {
     _key: NodeKey;
-    _type: string;
+    _type: TAGS;
     _parentKey?: NodeKey | null;
 
-    constructor(key: NodeKey, type: string, parentKey?: NodeKey | null) {
+    constructor(key: NodeKey, type: TAGS, parentKey?: NodeKey | null) {
         this._key = key;
         this._type = type;
         this._parentKey = parentKey;
@@ -27,7 +25,7 @@ export abstract class LexicalNode {
     public abstract getChildType(): string;
     public abstract getChildren(): Array<NodeKey>;
     public abstract addChild(child: NodeKey, position?: number): void;
-    public abstract clone(): LexicalNode;
+    public abstract clone(key?: string): LexicalNode;
     public abstract removeChild(key: NodeKey): void;
     public abstract getText(): string;
     public abstract setStyle(style: StyleProps): void;
@@ -39,6 +37,8 @@ export abstract class LexicalNode {
     public abstract setHref(href: string): void;
     public abstract getHref(): string;
     public abstract removeChildElement(key: NodeKey): void;
+    public abstract addChildren(children: Array<NodeKey>): void;
+    public abstract removeChildren(maxIndex: number, isStart: boolean): Array<string>;
 
     getType() {
         return this._type;

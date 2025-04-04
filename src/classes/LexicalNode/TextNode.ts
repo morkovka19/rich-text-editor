@@ -1,11 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleProps } from '../../context/ToolbarContext';
-import { createTextElement, updateTextContent } from '../../utils/DOMUtils';
+import { createTextElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalNode } from './LexicalNode';
 import { NodeKey } from './types';
 
 export class TextNode extends LexicalNode {
+    public removeChildren(maxIndex: number, isStart: boolean): Array<string> {
+        throw new Error('Method not implemented.');
+    }
+    public addChildren(children: Array<NodeKey>): void {
+        throw new Error('Method not implemented.');
+    }
     public removeChildElement(key: NodeKey): void {
         throw new Error('Method not implemented.');
     }
@@ -34,7 +41,7 @@ export class TextNode extends LexicalNode {
     _style: StyleProps;
 
     constructor(key: NodeKey) {
-        super(key, 'span');
+        super(key, TAGS.TEXT);
         this._text = '';
         this._style = {};
     }
@@ -58,15 +65,15 @@ export class TextNode extends LexicalNode {
         throw new Error('Method not implemented.');
     }
     public getChildren(): Array<NodeKey> {
-        throw new Error('Method not implemented.');
+        return [];
     }
 
     getText() {
         return this._text;
     }
 
-    public clone(): LexicalNode {
-        const node = new TextNode(generateKey());
+    public clone(key?: string): LexicalNode {
+        const node = new TextNode(key || generateKey());
         node.setStyle(this._style);
         return node;
     }

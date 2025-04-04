@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-/* eslint-disable react-hooks/exhaustive-deps */
-
 /* eslint-disable react-refresh/only-export-components */
 import {
     FC,
@@ -16,19 +12,20 @@ import {
 } from 'react';
 
 import { getLastChild } from '../../utils/DOMUtils';
+import { NODE_TYPE_TEXT, STYLE, TAGS } from '../../utils/constants';
 import { getStyleState, initialStyle, initialStyleParent } from '../../utils/styleUtils';
 import { useEditor } from '../LexicalContext';
 
 export type TooltipContextProps = {
     style: StyleProps;
     tag: string;
-    updateStyle: (newStyleProp: StyleProps) => void;
+    handleDecorate: (newStyleProp: StyleProps) => void;
     actualStyleRef: React.MutableRefObject<StyleProps>;
-    updateActualStyle: (styleNew: StyleProps) => void;
-    updateTag: (tag: string) => void;
+    handleUpdateActualStyle: (styleNew: StyleProps) => void;
+    handleUpdateTag: (tag: string) => void;
     focusNodeRef: React.MutableRefObject<HTMLElement | null>;
     handleClick: (e: Event) => void;
-    handleUpdateSelect: (selection: Selection) => void;
+    handleSelect: (selection: Selection) => void;
     handleInput: (focusNode: HTMLElement) => void;
     handleClickContextMenu: (e: Event) => void;
     handleDecorateParent: (newStyle: StyleProps) => void;
@@ -49,64 +46,70 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
     const { editor } = useEditor();
     const [style, setStyle] = useState(initialStyle);
     const [styleParent, setStyleParent] = useState(initialStyle);
-    const [tag, setTag] = useState('p');
+    const [tag, setTag] = useState(TAGS.NORMAL);
     const focusElement: HTMLElement | null = null;
     const focusNodeRef = useRef<HTMLElement | null>(focusElement);
     const actualStyleRef = useRef<StyleProps>({});
 
-    const updateActualStyle = useCallback((styleNew: StyleProps) => {
-        Object.keys(styleNew).forEach(key => {
-            if (styleNew[key] === style[key]) return;
-            if (actualStyleRef.current[key]) {
-                if (styleNew[key] !== actualStyleRef.current[key])
+    const handleUpdateActualStyle = useCallback(
+        (styleNew: StyleProps) => {
+            Object.keys(styleNew).forEach(key => {
+                if (styleNew[key] === style[key]) return;
+                if (actualStyleRef.current[key]) {
+                    if (styleNew[key] !== actualStyleRef.current[key])
+                        actualStyleRef.current = {
+                            ...actualStyleRef.current,
+                            [key]: styleNew[key],
+                        };
+                } else {
                     actualStyleRef.current = {
                         ...actualStyleRef.current,
                         [key]: styleNew[key],
                     };
-            } else {
-                actualStyleRef.current = {
-                    ...actualStyleRef.current,
-                    [key]: styleNew[key],
-                };
-            }
-        });
-    }, []);
+                }
+            });
+        },
+        [style]
+    );
 
     const handleClick = useCallback((e: Event) => {
         const focusNode = getLastChild(e.target as HTMLElement);
         if (focusNode) {
             focusNodeRef.current = focusElement;
-            const style = focusNode.getAttribute('style') || '';
+            const style = focusNode.getAttribute(STYLE) || '';
             const styleProps: StyleProps = getStyleState(style);
             actualStyleRef.current = styleProps;
             setStyle({ ...initialStyle, ...styleProps });
             const parentElement = focusNode.parentElement as HTMLElement;
             const parentTag = parentElement.localName;
-            const styleParentActual = parentElement.getAttribute('style') || '';
+            const styleParentActual = parentElement.getAttribute(STYLE) || '';
             const styleParentActualProps = getStyleState(styleParentActual);
             setStyleParent({ ...initialStyleParent, ...styleParentActualProps });
-            setTag(parentTag);
+            setTag(parentTag as TAGS);
         }
     }, []);
 
-    const updateStyle = useCallback((newStyleProp: StyleProps) => {
+    const handleDecorate = useCallback((newStyleProp: StyleProps) => {
         setStyle(prev => ({ ...prev, ...newStyleProp }));
     }, []);
 
-    const updateTag = useCallback((tag: string) => {
-        setTag(tag);
+    const handleUpdateTag = useCallback((tag: string) => {
+        setTag(tag as TAGS);
         setStyle(initialStyle);
     }, []);
 
-    const handleUpdateSelect = useCallback((selection: Selection) => {
+    const handleSelect = useCallback((selection: Selection) => {
         const focusElement = selection.focusNode as HTMLElement;
 
         focusNodeRef.current =
-            focusElement?.nodeType === 3 ? (focusElement?.parentElement as HTMLElement) : focusElement;
+            focusElement?.nodeType === NODE_TYPE_TEXT ? (focusElement?.parentElement as HTMLElement) : focusElement;
     }, []);
 
-    const handleInput = useCallback((focusNode: HTMLElement) => {
-        focusNodeRef.current = focusNode?.nodeType === 3 ? (focusNode?.parentElement as HTMLElement) : focusNode;
+    const handleInput = useCallback((focusNode: Node | null) => {
+        focusNodeRef.current =
+            (focusNode as HTMLElement)?.nodeType === NODE_TYPE_TEXT
+                ? ((focusNode as HTMLElement)?.parentElement as HTMLElement)
+                : (focusNode as HTMLElement);
     }, []);
 
     const handleClickContextMenu = useCallback((e: Event) => {
@@ -114,39 +117,55 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         focusNodeRef.current = focusElement;
     }, []);
 
-    const handleDecorateParent = useCallback((newStyle: StyleProps) => {
-        setStyleParent({ ...styleParent, ...newStyle });
-    }, []);
+    const handleDecorateParent = useCallback(
+        (newStyle: StyleProps) => {
+            setStyleParent({ ...styleParent, ...newStyle });
+        },
+        [styleParent]
+    );
 
-    const tooltipContext = useMemo(
+    const context = useMemo(
         () => ({
             style,
-            updateActualStyle,
+            handleUpdateActualStyle,
             tag,
-            updateStyle,
+            handleDecorate,
             focusNodeRef,
             actualStyleRef,
-            updateTag,
+            handleUpdateTag,
             handleClick,
-            handleUpdateSelect,
+            handleSelect,
             handleInput,
             handleClickContextMenu,
             handleDecorateParent,
             styleParent,
         }),
-        [style, updateActualStyle, tag, styleParent]
+        [
+            style,
+            handleUpdateActualStyle,
+            tag,
+            handleDecorate,
+            handleUpdateTag,
+            handleClick,
+            handleSelect,
+            handleInput,
+            handleClickContextMenu,
+            handleDecorateParent,
+            styleParent,
+        ]
     );
 
     useLayoutEffect(() => {
-        editor.registerStyleObserver(tooltipContext);
-        editor.registerInputObserver(tooltipContext);
-        editor.registerClickObserver(tooltipContext);
-        editor.registerSelectObserver(tooltipContext);
-        editor.registerTagUpdateObserver(tooltipContext);
-        editor.registerClickContextMenuObserver(tooltipContext);
-    }, []);
+        editor.registerObserver('handleInput', context);
+        editor.registerObserver('handleDecorateParent', context);
+        editor.registerObserver('handleDecorate', context);
+        editor.registerObserver('handleClick', context);
+        editor.registerObserver('handleSelect', context);
+        editor.registerObserver('handleUpdateTag', context);
+        editor.registerObserver('handleClickContextMenu', context);
+    }, [context, editor]);
 
-    return <TooltipContext.Provider value={tooltipContext}>{children}</TooltipContext.Provider>;
+    return <TooltipContext.Provider value={context}>{children}</TooltipContext.Provider>;
 };
 
 export const useTooltip = () => {

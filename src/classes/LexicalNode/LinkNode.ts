@@ -1,4 +1,5 @@
 import { createLinkElement, updateHrefLinkElement } from '../../utils/DOMUtils';
+import { TAGS } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';
 import { LexicalElement } from './LexicalElement';
 import { LexicalNode } from './LexicalNode';
@@ -11,13 +12,13 @@ export class LinkNode extends LexicalElement {
     public getChildType(): string {
         throw new Error('Method not implemented.');
     }
-    public clone(): LexicalNode {
-        return new LinkNode(generateKey());
+    public clone(key?: string): LexicalNode {
+        return new LinkNode(key || generateKey());
     }
     _href: string;
 
     constructor(key: NodeKey) {
-        super(key, 'a');
+        super(key, TAGS.LINK);
         this._href = '';
     }
 

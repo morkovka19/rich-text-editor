@@ -1,0 +1,43 @@
+@import '../../styles/tokens/functions.scss';
+
+.add-button {
+    position: absolute;
+    border-radius: 50%;
+    background-color: #686161;
+    color: white;
+    font-size: 18px;
+    z-index: 100;
+    top: calc(100% - gs(5));
+    left: calc(100% - gs(5));
+    width: gs(4);
+    height: gs(4);
+
+    &__top-selection {
+        background-color: #686161;
+        position: absolute;
+        top: calc(100% - gs(17));
+        left: calc(100% - gs(5) + 1px);
+        color: white;
+        z-index: 100;
+        border-radius: 10px;
+        transition: display 5s linear;
+        &_active {
+            display: inline;
+        }
+        &_not-active {
+            display: none;
+        }
+        ul {
+            width: 100%;
+            svg {
+                fill: white;
+            }
+
+            li {
+                :hover {
+                    background-color: #524c4c;
+                }
+            }
+        }
+    }
+}

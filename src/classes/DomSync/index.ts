@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getDOMElement } from '../../utils/DOMUtils';
-import { EMPTY_FOR_SELECT } from '../../utils/constants';
+import { EMPTY_FOR_SELECT, NODE_TYPE_TEXT, TAGS } from '../../utils/constants';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { NodeKey } from '../LexicalNode/types';
 
@@ -31,37 +31,48 @@ export class DomSync {
         this.setupMutationObserver();
     }
 
-    resetTextElement(key: NodeKey) {
+    handleResetTextElement(key: NodeKey) {
         const element = getDOMElement(key) as HTMLElement;
         if (element && element?.textContent) element.textContent = '';
     }
 
-    addNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey: NodeKey }) => {
+    handleAddNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey?: NodeKey }) => {
         const parentElement = parent.getDomElement();
         const childElement = child.getDomElement() || child.render();
 
         parentElement.appendChild(childElement);
         if (!position) parentElement.appendChild(childElement);
         else {
-            const element = document.getElementById(position.lastKey) as HTMLElement;
-            element.after(childElement);
+            if (position.lastKey) {
+                const element = document.getElementById(position.lastKey) as HTMLElement;
+                element.after(childElement);
+            } else {
+                const element = parentElement.firstElementChild as HTMLElement;
+                if (element) {
+                    element.before(childElement);
+                }
+            }
         }
 
-        if (childElement.localName === 'span') childElement.textContent = EMPTY_FOR_SELECT;
+        if (childElement.localName === TAGS.TEXT) childElement.textContent = EMPTY_FOR_SELECT;
     };
 
-    updateTextContent = (key: NodeKey, text: string) => {
+    handleUpdateTextContent = (key: NodeKey, text: string) => {
         const textNode = getDOMElement(key) as HTMLElement;
         if (textNode?.textContent) textNode.textContent = text;
-        return textNode.childNodes[0] || textNode;
+        return textNode?.childNodes[0] || textNode;
     };
 
-    setSelection = (node: HTMLElement | ChildNode, offset: number) => {
-        const newRange = document.createRange();
-        newRange?.setStart(node, offset);
-        newRange?.collapse(true);
-        getSelection()?.removeAllRanges();
-        getSelection()?.addRange(newRange);
+    handleSetSelection = (node: HTMLElement | ChildNode, offset: number, type?: string) => {
+        try {
+            const newRange = document.createRange();
+            newRange?.setStart(node, offset);
+            newRange?.collapse(true);
+            if (type !== 'Range') getSelection()?.removeAllRanges();
+            getSelection()?.addRange(newRange);
+        } catch {
+            // error
+        }
     };
 
     private setupMutationObserver() {
@@ -97,16 +108,16 @@ export class DomSync {
         });
     }
 
-    setAttribute(name: string, props: any, key: NodeKey) {
+    handleSetAttribute(name: string, props: any, key: NodeKey) {
         const element = getDOMElement(key);
         element?.setAttribute(name, props);
     }
 
-    removeElement = (key: NodeKey) => {
+    handleRemoveElement = (key: NodeKey) => {
         const deleteCallback = (key: NodeKey) => {
             const element = document.getElementById(key);
             if (element) {
-                const children = [...element.childNodes].filter(child => child.nodeType !== 3);
+                const children = [...element.childNodes].filter(child => child.nodeType !== NODE_TYPE_TEXT);
                 if (children.length > 0) {
                     children.forEach(child => deleteCallback((child as HTMLElement).id as NodeKey));
                 }
@@ -118,5 +129,20 @@ export class DomSync {
         if (key) {
             return deleteCallback(key);
         }
+    };
+
+    handleReplaceTag = (node: LexicalNode) => {
+        const newElement = node.render();
+        newElement.id = '';
+        const oldElement = document.getElementById(node.getKey()) as HTMLElement;
+        oldElement.replaceWith(newElement);
+        newElement.id = node.getKey();
+        console.log(node.getChildren());
+        node.getChildren().forEach(child => {
+            const childElement = document.getElementById(child);
+            if (childElement) {
+                newElement.appendChild(childElement);
+            }
+        });
     };
 }

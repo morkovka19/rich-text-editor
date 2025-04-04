@@ -1,19 +1,14 @@
 import { NodeKey } from '../classes/LexicalNode/types';
-
-export const createRoot = () => {
-    const root = document.createElement('div');
-    root.id = 'root';
-    return root;
-};
+import { NODE_TYPE_TEXT, TAGS } from './constants';
 
 export const createParagraphElement = (key: NodeKey) => {
-    const p = document.createElement('p');
+    const p = document.createElement(TAGS.NORMAL);
     p.id = key;
     return p;
 };
 
 export const createLinkElement = (key: NodeKey) => {
-    const a = document.createElement('a');
+    const a = document.createElement(TAGS.LINK);
     a.id = key;
     return a;
 };
@@ -24,13 +19,13 @@ export const createHeadingElement = (key: NodeKey, range: number) => {
     return h;
 };
 
-export const createNewListElement = (key: NodeKey, typeList: 'ol' | 'ul') => {
+export const createNewListElement = (key: NodeKey, typeList: TAGS.OL | TAGS.UL) => {
     const list = document.createElement(typeList);
     list.id = key;
     return list;
 };
 export const createTextElement = (key: NodeKey) => {
-    const p = document.createElement('span');
+    const p = document.createElement(TAGS.TEXT);
     p.id = key;
     return p;
 };
@@ -77,7 +72,7 @@ export const removeChildElement = (parent: NodeKey, child: NodeKey) => {
 };
 
 export const getLastChild = (element: HTMLElement) => {
-    if (element.localName === 'span') return element;
+    if (element.localName === TAGS.TEXT) return element;
     if (element.childElementCount) {
         [...element.children].reverse().forEach(child => getLastChild(child as HTMLElement));
     }
@@ -86,6 +81,6 @@ export const getLastChild = (element: HTMLElement) => {
 
 export const getMinElement = (element: HTMLElement | null | undefined) => {
     if (!element) return undefined;
-    if (element.nodeType === 3) return element.parentElement as HTMLElement;
+    if (element.nodeType === NODE_TYPE_TEXT) return element.parentElement as HTMLElement;
     return getLastChild(element);
 };
