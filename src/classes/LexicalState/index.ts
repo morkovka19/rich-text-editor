@@ -2,8 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { HistoryItem } from '../../context/HistoryContext';
-import { StyleProps } from '../../context/ToolbarContext';
-import { getDOMElement, getMinElement } from '../../utils/DOMUtils';
+import { StyleProps } from '../../context/StylesContext';
+import { getMinElement } from '../../utils/DOMUtils';
 import { EMPTY_FOR_SELECT, HREF, NODE_TYPE_TEXT, STYLE, TAGS, TARGET } from '../../utils/constants';
 import { inlineTags } from '../../utils/constants/index';
 import { generateKey } from '../../utils/generateKey';
@@ -373,9 +373,9 @@ export class LexicalState {
         } else {
             const node = this.getNodeByKey(selection?.anchorNode?.parentElement?.id as NodeKey) as LexicalNode;
             const parent = this.getNodeByKey(node?.getParent() as NodeKey) as LexicalNode;
-            const currentParent = this.getNodeByKey(parent.getParent() as NodeKey) as LexicalNode;
+            const currentParent = this.getNodeByKey(parent?.getParent() as NodeKey) as LexicalNode;
             const position = selection?.anchorOffset || 0;
-            const lastElement = { index: position, lastKey: parent.getKey() };
+            const lastElement = { index: position, lastKey: parent?.getKey() };
             if (tag === TAGS.NORMAL) {
                 const newParent = this.createLexicalNode(generateKey(), tag);
                 this.addNode(currentParent, newParent, lastElement);

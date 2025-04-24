@@ -1,5 +1,5 @@
 import { HistoryItem } from '../../context/HistoryContext';
-import { StyleProps } from '../../context/ToolbarContext';
+import { StyleProps } from '../../context/StylesContext';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';

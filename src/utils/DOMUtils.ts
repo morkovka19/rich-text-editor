@@ -71,10 +71,14 @@ export const removeChildElement = (parent: NodeKey, child: NodeKey) => {
     document.getElementById(parent)?.removeChild(document.getElementById(child) as Node);
 };
 
-export const getLastChild = (element: HTMLElement) => {
+export const getLastChild = (element: HTMLElement): HTMLElement | undefined => {
     if (element.localName === TAGS.TEXT) return element;
     if (element.childElementCount) {
-        [...element.children].reverse().forEach(child => getLastChild(child as HTMLElement));
+        for (let i = element.children.length - 1; i >= 0; i--) {
+            const child = element.children[i] as HTMLElement;
+            const result = getLastChild(child);
+            if (result) return result;
+        }
     }
     return undefined;
 };

@@ -2,7 +2,7 @@
 import { PropsWithChildren, RefObject, forwardRef, useLayoutEffect, useState } from 'react';
 
 import { useEditor } from '../../context/LexicalContext';
-import { useTooltip } from '../../context/ToolbarContext';
+import { useStyles } from '../../context/StylesContext';
 import { STYLE } from '../../utils/constants';
 import { getStyleString } from '../../utils/styleUtils';
 import './styles.scss';
@@ -15,7 +15,7 @@ export type ContentBlockProps = PropsWithChildren<{
 const ContentBlock = forwardRef<ContentBlockProps & HTMLDivElement>(
     ({ isEditable = true, children }: ContentBlockProps, ref) => {
         const { editor } = useEditor();
-        const { style } = useTooltip();
+        const { style } = useStyles();
 
         useLayoutEffect(() => {
             if (ref && 'current' in ref) {
@@ -34,6 +34,7 @@ const ContentBlock = forwardRef<ContentBlockProps & HTMLDivElement>(
                 suppressContentEditableWarning={isEditable}
                 ref={ref}
                 onClick={() => setIsActive(true)}
+                role="textbox"
             >
                 {children}
                 {!children && !isAcrtive && <p className="content-block__placeholder">Enter some rich text...</p>}

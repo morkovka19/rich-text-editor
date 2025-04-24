@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { StyleProps } from '../../context/ToolbarContext';
+import { StyleProps } from '../../context/StylesContext';
 import { removeChildElement } from '../../utils/DOMUtils';
 import { TAGS } from '../../utils/constants';
 import { LexicalNode } from './LexicalNode';
@@ -58,7 +58,7 @@ export abstract class LexicalElement extends LexicalNode {
         throw new Error('Method not implemented.');
     }
 
-    public updateText(text: string): HTMLElement {
+    public updateText(_text: string): HTMLElement {
         throw new Error('Method not implemented.');
     }
 
@@ -66,15 +66,15 @@ export abstract class LexicalElement extends LexicalNode {
         throw new Error('Method not implemented.');
     }
 
-    public setRange(range: number): void {
+    public setRange(_range: number): void {
         throw new Error('Method not implemented.');
     }
 
-    public setTypeList(type: string): void {
+    public setTypeList(_type: string): void {
         throw new Error('Method not implemented.');
     }
 
-    public setHref(href: string): void {
+    public setHref(_href: string): void {
         throw new Error('Method not implemented.');
     }
     public getHref(): string {

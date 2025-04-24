@@ -1,4 +1,4 @@
-import { StyleProps } from '../../context/ToolbarContext';
+import { StyleProps } from '../../context/StylesContext';
 import { getDOMElement } from '../../utils/DOMUtils';
 import { TAGS } from '../../utils/constants';
 import { NodeKey } from './types';

@@ -27,6 +27,7 @@ export enum TAGS {
     ROOT = 'root',
     H = 'h',
     LIST = 'list',
+    DIV = 'DIV',
 }
 
 export const MAIN_DIV_ID = 'root-div';

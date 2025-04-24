@@ -1,4 +1,4 @@
-import { StyleProps } from '../context/ToolbarContext';
+import { StyleProps } from '../context/StylesContext';
 
 export const initialStyle: StyleProps = {
     fontFamily: 'Roboto',
@@ -65,11 +65,13 @@ export const getStyleString = (style: StyleProps): string => {
         .sort()
         .reduce((acc, key) => {
             const enumKey = key as StylePropsConst;
-            if (StyleMapping[enumKey]) {
-                return acc + `${StyleMapping[enumKey]}: ${style[key]}; `;
+            const value = style[key];
+            if (StyleMapping[enumKey] && value && value.trim() !== '') {
+                return acc + `${StyleMapping[enumKey]}: ${value}; `;
             }
             return acc;
-        }, '');
+        }, '')
+        .trim();
 };
 
 export const getStyleState = (str: string): StyleProps => {

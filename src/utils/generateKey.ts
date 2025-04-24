@@ -8,7 +8,7 @@ const makeId = () => {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     for (let i = 0; i < 3; i++) {
-        text += possibleNums.charAt(Math.floor(Math.random() * possible.length));
+        text += possibleNums.charAt(Math.floor(Math.random() * possibleNums.length));
     }
     return text;
 };

@@ -20,7 +20,7 @@ import { LexicalNode } from '../../classes/LexicalNode/LexicalNode';
 import { NodeKey } from '../../classes/LexicalNode/types';
 import { EMPTY_FOR_SELECT, TAGS } from '../../utils/constants';
 import { useEditor } from '../LexicalContext';
-import { StyleProps } from '../ToolbarContext';
+import { StyleProps } from '../StylesContext';
 
 export type HistoryItem = {
     id: string;
@@ -146,8 +146,8 @@ export const HistoryProvider: FC<Props> = ({ children }) => {
         [currentIndex, getBranchForNode, getStateWithId, history, prevTextState, pushToHistoryTextItem]
     );
 
-    const handleDecorateParent = useCallback((style: StyleProps) => {}, []);
-    const handleDecorate = useCallback((style: StyleProps) => {}, []);
+    const handleDecorateParent = useCallback((_style: StyleProps) => {}, []);
+    const handleDecorate = useCallback((_style: StyleProps) => {}, []);
 
     const context = useMemo(
         () => ({

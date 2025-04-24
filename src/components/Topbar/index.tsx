@@ -3,7 +3,7 @@ import { FC, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { NodeKey } from '../../classes/LexicalNode/types';
 import { useHistory } from '../../context/HistoryContext';
 import { useEditor } from '../../context/LexicalContext';
-import { useTooltip } from '../../context/ToolbarContext';
+import { useStyles } from '../../context/StylesContext';
 import BackgroundColor from '../../icons/topbar/backgroundColor.svg';
 import Bold from '../../icons/topbar/bold.svg';
 import CodeBlock from '../../icons/topbar/codeBlock.svg';
@@ -29,7 +29,7 @@ import { TopbarProps } from './types';
 
 const Topbar: FC<TopbarProps> = () => {
     const { canRedo, canUndo, undo, redo } = useHistory();
-    const { style, actualStyleRef, handleUpdateActualStyle, tag, focusNodeRef, styleParent } = useTooltip();
+    const { style, actualStyleRef, handleUpdateActualStyle, tag, focusNodeRef, styleParent } = useStyles();
     const { editor } = useEditor();
 
     const [isOpenLinkEditor, setIsOpenLinkEditor] = useState(false);
@@ -63,7 +63,10 @@ const Topbar: FC<TopbarProps> = () => {
         (value: string) => {
             const newStyleProp = { [StylePropsConst.FONT_FAMILY]: value };
             handleUpdateActualStyle(newStyleProp);
-            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+            editor.triggerDecoratedUpdate({
+                ...actualStyleRef.current,
+                ...newStyleProp,
+            });
         },
         [actualStyleRef, editor, handleUpdateActualStyle]
     );
@@ -72,7 +75,10 @@ const Topbar: FC<TopbarProps> = () => {
         (value: number) => {
             const newStyleProp = { [StylePropsConst.FONT_SIZE]: `${value}px` };
             handleUpdateActualStyle(newStyleProp);
-            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+            editor.triggerDecoratedUpdate({
+                ...actualStyleRef.current,
+                ...newStyleProp,
+            });
         },
         [actualStyleRef, editor, handleUpdateActualStyle]
     );
