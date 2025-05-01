@@ -1,20 +1,20 @@
 import { FC, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { NodeKey } from '../../classes/LexicalNode/types';
+import { useFormatting } from '../../context/FormattingContext';
 import { useHistory } from '../../context/HistoryContext';
 import { useEditor } from '../../context/LexicalContext';
-import { useTooltip } from '../../context/ToolbarContext';
-import BackgroundColor from '../../icons/topbar/backgroundColor.svg';
-import Bold from '../../icons/topbar/bold.svg';
-import CodeBlock from '../../icons/topbar/codeBlock.svg';
-import Color from '../../icons/topbar/color.svg';
-import Italic from '../../icons/topbar/italic.svg';
-import Link from '../../icons/topbar/link.svg';
-// import Plus from '../../icons/topbar/plus.svg';
-import Redo from '../../icons/topbar/redo.svg';
-import FontIcon from '../../icons/topbar/topbar-font.svg';
-import Underline from '../../icons/topbar/underline.svg';
-import Undo from '../../icons/topbar/undo.svg';
+import BackgroundColor from '../../icons/toolbar/backgroundColor.svg';
+import Bold from '../../icons/toolbar/bold.svg';
+import CodeBlock from '../../icons/toolbar/codeBlock.svg';
+import Color from '../../icons/toolbar/color.svg';
+import Italic from '../../icons/toolbar/italic.svg';
+import Link from '../../icons/toolbar/link.svg';
+// import Plus from '../../icons/toolbar/plus.svg';
+import Redo from '../../icons/toolbar/redo.svg';
+import FontIcon from '../../icons/toolbar/toolbar-font.svg';
+import Underline from '../../icons/toolbar/underline.svg';
+import Undo from '../../icons/toolbar/undo.svg';
 import { TAGS, fontSelectOptions, textBlockOptions, typeSelectOptions } from '../../utils/constants';
 import { StylePropsConst } from '../../utils/styleUtils';
 import LinkEditor from '../LinkEditor';
@@ -25,11 +25,11 @@ import Counter from '../controls/Counter';
 import Select from '../controls/Select';
 import { Divider } from './components/Divider';
 import './styles.scss';
-import { TopbarProps } from './types';
+import { ToolbarProps } from './types';
 
-const Topbar: FC<TopbarProps> = () => {
+const Toolbar: FC<ToolbarProps> = () => {
     const { canRedo, canUndo, undo, redo } = useHistory();
-    const { style, actualStyleRef, handleUpdateActualStyle, tag, focusNodeRef, styleParent } = useTooltip();
+    const { style, actualStyleRef, handleUpdateActualStyle, tag, focusNodeRef, styleParent } = useFormatting();
     const { editor } = useEditor();
 
     const [isOpenLinkEditor, setIsOpenLinkEditor] = useState(false);
@@ -63,7 +63,10 @@ const Topbar: FC<TopbarProps> = () => {
         (value: string) => {
             const newStyleProp = { [StylePropsConst.FONT_FAMILY]: value };
             handleUpdateActualStyle(newStyleProp);
-            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+            editor.triggerDecoratedUpdate({
+                ...actualStyleRef.current,
+                ...newStyleProp,
+            });
         },
         [actualStyleRef, editor, handleUpdateActualStyle]
     );
@@ -72,7 +75,10 @@ const Topbar: FC<TopbarProps> = () => {
         (value: number) => {
             const newStyleProp = { [StylePropsConst.FONT_SIZE]: `${value}px` };
             handleUpdateActualStyle(newStyleProp);
-            editor.triggerDecoratedUpdate({ ...actualStyleRef.current, ...newStyleProp });
+            editor.triggerDecoratedUpdate({
+                ...actualStyleRef.current,
+                ...newStyleProp,
+            });
         },
         [actualStyleRef, editor, handleUpdateActualStyle]
     );
@@ -165,7 +171,7 @@ const Topbar: FC<TopbarProps> = () => {
     );
 
     return (
-        <div className="topbar" onClick={e => e.preventDefault()}>
+        <div className="toolbar" onClick={e => e.preventDefault()}>
             <ButtonsContainer>
                 <Button theme="icon" Icon={Undo} onClick={undo} disabled={!canUndo} title="Назад" />
                 <Button theme="icon" Icon={Redo} onClick={redo} disabled={!canRedo} title="Вперед" />
@@ -219,4 +225,4 @@ const Topbar: FC<TopbarProps> = () => {
     );
 };
 
-export { Topbar };
+export { Toolbar };

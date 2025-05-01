@@ -1,4 +1,4 @@
-import { StyleProps } from '../context/ToolbarContext';
+import { StyleProps } from '../context/FormattingContext';
 
 export const initialStyle: StyleProps = {
     fontFamily: 'Roboto',

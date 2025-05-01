@@ -1,9 +1,9 @@
-import BulletListIcon from '../../../icons/topbar/bullet-list.svg';
-import H1Icon from '../../../icons/topbar/h1.svg';
-import H2Icon from '../../../icons/topbar/h2.svg';
-import H3Icon from '../../../icons/topbar/h3.svg';
-import NormalIcon from '../../../icons/topbar/normal.svg';
-import NumberListIcon from '../../../icons/topbar/number-list.svg';
+import BulletListIcon from '../../../icons/toolbar/bullet-list.svg';
+import H1Icon from '../../../icons/toolbar/h1.svg';
+import H2Icon from '../../../icons/toolbar/h2.svg';
+import H3Icon from '../../../icons/toolbar/h3.svg';
+import NormalIcon from '../../../icons/toolbar/normal.svg';
+import NumberListIcon from '../../../icons/toolbar/number-list.svg';
 import { IOption } from '../../controls/Select/types';
 
 export enum TypeOptionsLabels {

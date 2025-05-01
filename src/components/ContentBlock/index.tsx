@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { PropsWithChildren, RefObject, forwardRef, useLayoutEffect, useState } from 'react';
 
+import { useFormatting } from '../../context/FormattingContext';
 import { useEditor } from '../../context/LexicalContext';
-import { useTooltip } from '../../context/ToolbarContext';
 import { STYLE } from '../../utils/constants';
 import { getStyleString } from '../../utils/styleUtils';
 import './styles.scss';
@@ -15,7 +15,7 @@ export type ContentBlockProps = PropsWithChildren<{
 const ContentBlock = forwardRef<ContentBlockProps & HTMLDivElement>(
     ({ isEditable = true, children }: ContentBlockProps, ref) => {
         const { editor } = useEditor();
-        const { style } = useTooltip();
+        const { style } = useFormatting();
 
         useLayoutEffect(() => {
             if (ref && 'current' in ref) {

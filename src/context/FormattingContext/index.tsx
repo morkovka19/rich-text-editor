@@ -16,7 +16,7 @@ import { NODE_TYPE_TEXT, STYLE, TAGS } from '../../utils/constants';
 import { getStyleState, initialStyle, initialStyleParent } from '../../utils/styleUtils';
 import { useEditor } from '../LexicalContext';
 
-export type TooltipContextProps = {
+export type FormattingContextProps = {
     style: StyleProps;
     tag: string;
     handleDecorate: (newStyleProp: StyleProps) => void;
@@ -40,9 +40,9 @@ type Props = PropsWithChildren<{
     etitable?: boolean;
     initialSettings: StyleProps;
 }>;
-const TooltipContext = createContext<TooltipContextProps | null>(null);
+const FormattingContext = createContext<FormattingContextProps | null>(null);
 
-export const TooltipProvider: FC<Props> = ({ children }) => {
+export const FormattingProvider: FC<Props> = ({ children }) => {
     const { editor } = useEditor();
     const [style, setStyle] = useState(initialStyle);
     const [styleParent, setStyleParent] = useState(initialStyle);
@@ -165,13 +165,13 @@ export const TooltipProvider: FC<Props> = ({ children }) => {
         editor.registerObserver('handleClickContextMenu', context);
     }, [context, editor]);
 
-    return <TooltipContext.Provider value={context}>{children}</TooltipContext.Provider>;
+    return <FormattingContext.Provider value={context}>{children}</FormattingContext.Provider>;
 };
 
-export const useTooltip = () => {
-    const tooltipContext = useContext(TooltipContext);
+export const useFormatting = () => {
+    const tooltipContext = useContext(FormattingContext);
     if (!tooltipContext) {
-        throw new Error('useTooltip must be used within an LexicalProvider');
+        throw new Error('useFormatting must be used within an LexicalProvider');
     }
     return tooltipContext;
 };

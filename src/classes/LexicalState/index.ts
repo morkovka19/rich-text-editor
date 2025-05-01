@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { StyleProps } from '../../context/FormattingContext';
 import { HistoryItem } from '../../context/HistoryContext';
-import { StyleProps } from '../../context/ToolbarContext';
 import { getDOMElement, getMinElement } from '../../utils/DOMUtils';
 import { EMPTY_FOR_SELECT, HREF, NODE_TYPE_TEXT, STYLE, TAGS, TARGET } from '../../utils/constants';
 import { inlineTags } from '../../utils/constants/index';

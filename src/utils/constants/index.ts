@@ -1,17 +1,17 @@
 import { IOption } from '../../components/controls/Select/types';
-import BulletListIcon from '../../icons/topbar/bullet-list.svg';
-import CenterIcon from '../../icons/topbar/center.svg';
-import H1Icon from '../../icons/topbar/h1.svg';
-import H2Icon from '../../icons/topbar/h2.svg';
-import H3Icon from '../../icons/topbar/h3.svg';
-import HorRuleIcon from '../../icons/topbar/horRule.svg';
-import ImageIcon from '../../icons/topbar/image.svg';
-import JustifyIcon from '../../icons/topbar/justify.svg';
-import LeftIcon from '../../icons/topbar/left.svg';
-import NoramlIcon from '../../icons/topbar/normal.svg';
-import NumberListIcon from '../../icons/topbar/number-list.svg';
-import RightIcon from '../../icons/topbar/right.svg';
-import TableIcon from '../../icons/topbar/table.svg';
+import BulletListIcon from '../../icons/toolbar/bullet-list.svg';
+import CenterIcon from '../../icons/toolbar/center.svg';
+import H1Icon from '../../icons/toolbar/h1.svg';
+import H2Icon from '../../icons/toolbar/h2.svg';
+import H3Icon from '../../icons/toolbar/h3.svg';
+import HorRuleIcon from '../../icons/toolbar/horRule.svg';
+import ImageIcon from '../../icons/toolbar/image.svg';
+import JustifyIcon from '../../icons/toolbar/justify.svg';
+import LeftIcon from '../../icons/toolbar/left.svg';
+import NoramlIcon from '../../icons/toolbar/normal.svg';
+import NumberListIcon from '../../icons/toolbar/number-list.svg';
+import RightIcon from '../../icons/toolbar/right.svg';
+import TableIcon from '../../icons/toolbar/table.svg';
 
 export enum TAGS {
     NORMAL = 'p',

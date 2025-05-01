@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, useEffect, useReducer } from 'react';
 
-import MinusIcon from '../../../icons/topbar/minus.svg';
-import PlusIcon from '../../../icons/topbar/plus.svg';
+import MinusIcon from '../../../icons/toolbar/minus.svg';
+import PlusIcon from '../../../icons/toolbar/plus.svg';
 import Button from '../Button';
 import { reducer } from './helpers/reducer';
 import './styles.scss';
@@ -20,7 +20,11 @@ const Counter: FC<ICounterProps> = ({ handelUpdate, value }) => {
         dispatch({ type: 'decrement', handleUpdate: handelUpdate });
     };
     const input = (e: ChangeEvent<HTMLInputElement>) => {
-        dispatch({ type: 'input', value: e.target.value, handleUpdate: handelUpdate });
+        dispatch({
+            type: 'input',
+            value: e.target.value,
+            handleUpdate: handelUpdate,
+        });
     };
 
     useEffect(() => {

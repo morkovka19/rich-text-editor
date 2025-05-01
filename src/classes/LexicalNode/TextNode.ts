@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { StyleProps } from '../../context/ToolbarContext';
+import { StyleProps } from '../../context/FormattingContext';
 import { createTextElement } from '../../utils/DOMUtils';
 import { TAGS } from '../../utils/constants';
 import { generateKey } from '../../utils/generateKey';

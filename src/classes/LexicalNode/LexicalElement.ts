@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { StyleProps } from '../../context/ToolbarContext';
+import { StyleProps } from '../../context/FormattingContext';
 import { removeChildElement } from '../../utils/DOMUtils';
 import { TAGS } from '../../utils/constants';
 import { LexicalNode } from './LexicalNode';

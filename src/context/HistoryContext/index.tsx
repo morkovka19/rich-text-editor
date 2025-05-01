@@ -19,8 +19,8 @@ import {
 import { LexicalNode } from '../../classes/LexicalNode/LexicalNode';
 import { NodeKey } from '../../classes/LexicalNode/types';
 import { EMPTY_FOR_SELECT, TAGS } from '../../utils/constants';
+import { StyleProps } from '../FormattingContext';
 import { useEditor } from '../LexicalContext';
-import { StyleProps } from '../ToolbarContext';
 
 export type HistoryItem = {
     id: string;

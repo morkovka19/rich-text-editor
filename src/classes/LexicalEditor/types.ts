@@ -1,5 +1,5 @@
+import { StyleProps } from '../../context/FormattingContext';
 import { HistoryItem } from '../../context/HistoryContext';
-import { StyleProps } from '../../context/ToolbarContext';
 import { NodeKey } from '../LexicalNode/types';
 
 export type ActionsType = {
