@@ -17,7 +17,7 @@ export class HeadingNode extends LexicalElement {
         return createHeadingElement(this._key, this._range as number);
     }
 
-    public getChildType(): string {
+    public getChildType() {
         return TAGS.TEXT;
     }
     public getChildren(): Array<NodeKey> {

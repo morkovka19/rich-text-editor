@@ -13,11 +13,8 @@
     align-items: center;
     justify-content: space-between;
     box-sizing: border-box;
+    color: grey;
     max-width: gs(12);
-
-    &:hover {
-        background-color: #eee;
-    }
 
     &__arrow {
         margin-left: gs(1, true);
@@ -40,7 +37,7 @@
         display: flex;
         line-height: 20px;
         vertical-align: middle;
-        font-size: 14px;
+        font-size: 12px;
         color: #777;
         text-overflow: ellipsis;
         overflow: hidden;

@@ -22,7 +22,7 @@ export class ParagraphNode extends LexicalElement {
         return createParagraphElement(this._key);
     }
 
-    public getChildType(): string {
+    public getChildType() {
         return TAGS.TEXT;
     }
 }

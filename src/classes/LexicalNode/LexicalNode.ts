@@ -14,44 +14,84 @@ export abstract class LexicalNode {
         this._parentKey = parentKey;
     }
 
-    setParent(parentKey: NodeKey) {
+    // Основные методы, которые есть у всех узлов
+    getType(): TAGS {
+        return this._type;
+    }
+    getKey(): NodeKey {
+        return this._key;
+    }
+    getDomElement(): HTMLElement {
+        return getDOMElement(this._key);
+    }
+    getParent(): NodeKey | null | undefined {
+        return this._parentKey;
+    }
+    setParent(parentKey: NodeKey): void {
         this._parentKey = parentKey;
     }
 
+    // Методы с дефолтными реализациями
+    canHasText(): boolean {
+        return false;
+    }
+    getText(): string {
+        return this.throwNotImplemented('getText');
+    }
+    updateText(_text: string): void {
+        this.throwNotImplemented('updateText');
+    }
+
+    getChildren(): NodeKey[] {
+        return this.throwNotImplemented('getChildren');
+    }
+    addChild(_child: NodeKey, _position?: number): void {
+        this.throwNotImplemented('addChild');
+    }
+    removeChild(_key: NodeKey): void {
+        this.throwNotImplemented('removeChild');
+    }
+
+    getStyle(): StyleProps {
+        return this.throwNotImplemented('getStyle');
+    }
+    setStyle(_style: StyleProps): void {
+        this.throwNotImplemented('setStyle');
+    }
+    getChildIndex(_key: NodeKey): number {
+        return this.throwNotImplemented('getChildIndex');
+    }
+    setHref(_href: string): void {
+        this.throwNotImplemented('setHref');
+    }
+    setRange(_range: number): void {
+        this.throwNotImplemented('setRange');
+    }
+    setTypeList(_tag: TAGS.OL | TAGS.UL): void {
+        this.throwNotImplemented('setTypeList');
+    }
+    getChildType(): TAGS {
+        this.throwNotImplemented('setTypeList');
+    }
+    setImageUrl(_imageUrl: string): void {
+        this.throwNotImplemented('setImageUrl');
+    }
+    setAlt(_alt?: string): void {
+        this.throwNotImplemented('setAlt');
+    }
+    getAlt(): string {this.throwNotImplemented('getAlt')};
+    getWidth(): string {this.throwNotImplemented('getWidth')};
+    getHeight(): string {this.throwNotImplemented('getHeight')};
+    getSrc(): string {this.throwNotImplemented('getSrc')};
+    getRange(): number | undefined {this.throwNotImplemented('getRange')}
+    getHref():string{this.throwNotImplemented('')}
+
+    // Остальные методы с дефолтными реализациями
+    protected throwNotImplemented(method: string): never {
+        throw new Error(`Method ${method} not implemented in ${this.constructor.name}`);
+    }
+
+    // Абстрактные методы, которые должны быть реализованы
     public abstract render(): HTMLElement;
-
-    public abstract canHasText(): boolean;
-    public abstract updateText(text: string): void;
-    public abstract getChildType(): string;
-    public abstract getChildren(): Array<NodeKey>;
-    public abstract addChild(child: NodeKey, position?: number): void;
     public abstract clone(key?: string): LexicalNode;
-    public abstract removeChild(key: NodeKey): void;
-    public abstract getText(): string;
-    public abstract setStyle(style: StyleProps): void;
-    public abstract getStyle(): StyleProps;
-    public abstract getChildIndex(key: NodeKey): number;
-    public abstract setRange(range: number): void;
-    public abstract getRange(): number | undefined;
-    public abstract setTypeList(type: string): void;
-    public abstract setHref(href: string): void;
-    public abstract getHref(): string;
-    public abstract removeChildElement(key: NodeKey): void;
-    public abstract addChildren(children: Array<NodeKey>): void;
-    public abstract removeChildren(maxIndex: number, isStart: boolean): Array<string>;
-
-    getType() {
-        return this._type;
-    }
-    getKey() {
-        return this._key;
-    }
-
-    getDomElement() {
-        return getDOMElement(this._key);
-    }
-
-    getParent() {
-        return this._parentKey;
-    }
 }

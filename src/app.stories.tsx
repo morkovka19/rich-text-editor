@@ -1,9 +1,9 @@
 import type { Meta } from '@storybook/react';
 
-import { App } from './App.tsx';
+import { RichEditor } from './RichEditor.tsx';
 
-const meta: Meta<typeof App> = {
-    component: App,
+const meta: Meta<typeof RichEditor> = {
+    component: RichEditor,
 };
 
 export default meta;

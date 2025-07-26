@@ -1,0 +1,58 @@
+@import '../../../../styles/index.scss';
+
+.image {
+    &__label {
+        display: block;
+        margin-bottom: 5px;
+        color: black;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    &__inputs {
+        display: flex;
+        gap: gs(2);
+    }
+
+    &__input {
+        width: 80px;
+        border: none;
+        color: black;
+        padding: gs(1);
+        outline: none;
+        border: 1px grey solid;
+    }
+
+    &__preview-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    &__preview {
+        margin: 0 auto;
+    }
+    &__content {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: gs(2);
+    }
+
+    &__buttons-container {
+        display: flex;
+        background-color: white !important;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    &__button {
+        width: min-content;
+        color: white;
+        &-text {
+            &:hover {
+                background-color: #eee;
+            }
+        }
+    }
+}

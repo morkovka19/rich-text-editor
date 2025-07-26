@@ -13,17 +13,20 @@ export class DomSync {
     _triggerUpdateText: (key: NodeKey, text: string) => void;
     _removeNode: (node: LexicalNode) => void;
     _getNodeByKey: (key: NodeKey) => LexicalNode | undefined;
+    _triggerUpdateDom: () => void
 
     constructor(
         triggerUpdateText: (key: NodeKey, text: string) => void,
         root: HTMLElement,
         removeNode: (node: LexicalNode) => void,
-        getNodeByKey: (key: NodeKey) => LexicalNode | undefined
+        getNodeByKey: (key: NodeKey) => LexicalNode | undefined,
+        triggerUpdateDom: () => void
     ) {
         this._rootElement = root;
         this._triggerUpdateText = triggerUpdateText;
         this._removeNode = removeNode;
         this._getNodeByKey = getNodeByKey;
+        this._triggerUpdateDom = triggerUpdateDom
     }
 
     render(container: HTMLElement) {
@@ -100,6 +103,7 @@ export class DomSync {
                     const key = (element as HTMLElement)?.id;
                     const node = this._getNodeByKey(key);
                     const elementDocument = getDOMElement(key);
+                    this._triggerUpdateDom()
                     if (key && node && !elementDocument) {
                         this._removeNode(node);
                     }

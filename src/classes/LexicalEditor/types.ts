@@ -13,6 +13,8 @@ export type ActionsType = {
     handleDecorateParent: (style: StyleProps) => void;
     handleRedo: (historyState: HistoryItem) => void;
     handleUndo: (historyState: HistoryItem) => void;
+    handleImageInsert: (imageUrl: string) => void;
+    handleUpdateDom: () => void
 };
 
 export type Observer<T extends keyof ActionsType> = {

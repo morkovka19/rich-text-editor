@@ -26,6 +26,7 @@ import Select from '../controls/Select';
 import { Divider } from './components/Divider';
 import './styles.scss';
 import { ToolbarProps } from './types';
+import { Preview } from '../Preview';
 
 const Toolbar: FC<ToolbarProps> = () => {
     const { canRedo, canUndo, undo, redo } = useHistory();
@@ -33,6 +34,7 @@ const Toolbar: FC<ToolbarProps> = () => {
     const { editor } = useEditor();
 
     const [isOpenLinkEditor, setIsOpenLinkEditor] = useState(false);
+    const [isOpenPreview, setIsOpenPreview] = useState(false)
 
     const contextMenuObserver = useMemo(
         () => ({
@@ -200,7 +202,7 @@ const Toolbar: FC<ToolbarProps> = () => {
                     onClick={handleUpdateTextDecoration}
                     isActive={style[StylePropsConst.TEXT_DECORATION] === 'underline'}
                 />
-                <Button Icon={CodeBlock} theme="icon" />
+                <Button Icon={CodeBlock} theme="icon" onClick={() => setIsOpenPreview(true)}/>
                 <Button Icon={Link} theme="icon" onClick={() => setIsOpenLinkEditor(prev => !prev)} />
                 {isOpenLinkEditor && (
                     <LinkEditor
@@ -216,11 +218,10 @@ const Toolbar: FC<ToolbarProps> = () => {
                 )}
                 <ColorPicker Icon={Color} color={color} handleUpdate={handleUpdateColor} />
                 <ColorPicker Icon={BackgroundColor} color={colorBg} handleUpdate={handleUpdateBackground} />
-                {/* <Divider /> */}
-                {/* <Select options={insertOptions} Icon={Plus} isStaticName name="Insert" /> */}
                 <Divider />
                 <Select options={textBlockOptions} value={textStyleValue} onChange={handleUpdateParentStyle} />
             </ButtonsContainer>
+            <Preview isOpen={isOpenPreview} onClose={() => setIsOpenPreview(false)}/>
         </div>
     );
 };

@@ -1,5 +1,6 @@
 import { StyleProps } from '../../context/FormattingContext';
 import { HistoryItem } from '../../context/HistoryContext';
+import { getHTML } from '../../utils/getHTML';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { NodeKey } from '../LexicalNode/types';
 import { LexicalState } from '../LexicalState';
@@ -13,10 +14,12 @@ export class LexicalEditor {
     _state: LexicalState;
     _container: HTMLElement | null;
     _copyNodeMap: Map<string, LexicalNode>;
+    isEmpty: boolean
     constructor() {
         this._state = new LexicalState();
         this._container = null;
         this._copyNodeMap = new Map(this._state.getNodeMap());
+        this.isEmpty = true;
     }
 
     start(container: HTMLElement) {
@@ -45,7 +48,13 @@ export class LexicalEditor {
         this.registerObserver('handleClick', this._state);
         this.registerObserver('handleUndo', this._state);
         this.registerObserver('handleRedo', this._state);
+        this.registerObserver('handleImageInsert', this._state);
+        this.registerObserver('handleUpdateDom', this);
     };
+
+    handleUpdateDom(){
+        this.isEmpty = true
+    }
 
     registerKeydownListener() {
         this._container?.addEventListener('keydown', this.triggerHandleKeydown);
@@ -134,6 +143,10 @@ export class LexicalEditor {
         this._observers['handleDecorateParent']?.forEach(observer => observer.callback(style));
     }
 
+    public triggerHandleImageInsert(imageUrl: string, width?: string, height?: string, alt?: string) {
+        this._state.handleImageInsert(imageUrl, width, height, alt);
+    }
+
     registerObserver<T extends keyof ActionsType>(action: T, observer: { [K in T]: ActionsType[K] }) {
         if (!this._observers[action]) {
             this._observers[action] = [];
@@ -152,4 +165,9 @@ export class LexicalEditor {
     }
 
     getCopyNodeMap = () => new Map<NodeKey, LexicalNode>(this._copyNodeMap);
+
+    getHTML = () => {
+        const html = getHTML(this._state._nodeMap);
+        return html;
+    }
 }

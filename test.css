@@ -1,0 +1,18 @@
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+  src: url('inter.woff2') format('woff2');
+}
+
+
+.ad-banner {
+  width: 300px;
+  height: 250px;
+}
+
+
+
+.animated-element {
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+}

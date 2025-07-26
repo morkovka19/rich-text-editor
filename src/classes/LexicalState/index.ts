@@ -10,6 +10,7 @@ import { generateKey } from '../../utils/generateKey';
 import { StylePropsConst, getStyleString } from '../../utils/styleUtils';
 import { DomSync } from '../DomSync';
 import { HeadingNode } from '../LexicalNode/HeadingNode';
+import ImageNode from '../LexicalNode/ImageNode';
 import { LexicalNode } from '../LexicalNode/LexicalNode';
 import { LinkNode } from '../LexicalNode/LinkNode';
 import { ListItemNode, ListNode } from '../LexicalNode/ListNode';
@@ -95,6 +96,8 @@ export class LexicalState {
                 return new ListItemNode(key);
             case TAGS.LINK:
                 return new LinkNode(key);
+            case TAGS.IMG:
+                return new ImageNode(key, childType, childType);
             default:
                 return new ParagraphNode(key);
         }
@@ -498,5 +501,22 @@ export class LexicalState {
                 this.removeNode(node);
             }
         }
+    };
+
+    handleImageInsert = (imageUrl: string, width?: string, height?: string, alt?: string) => {
+        const anchorNode = this._selection?.anchorNode as HTMLElement | null;
+        if (!anchorNode) return;
+        const parent = this.getParentForChildNode(anchorNode);
+        const root = this.getNodeByKey(TAGS.ROOT) as LexicalNode;
+        const indexParent = root?.getChildIndex(parent);
+        const node = this.createLexicalNode(generateKey(), TAGS.IMG) as ImageNode;
+        node.setImageUrl(imageUrl);
+
+        // Устанавливаем размеры, если они переданы
+        if (width) node.setWidth(width);
+        if (height) node.setHeight(height);
+        node.setAlt(alt);
+
+        this.addNode(root, node, { index: indexParent + 1, lastKey: parent });
     };
 }

@@ -84,3 +84,9 @@ export const getMinElement = (element: HTMLElement | null | undefined) => {
     if (element.nodeType === NODE_TYPE_TEXT) return element.parentElement as HTMLElement;
     return getLastChild(element);
 };
+
+export const createImageElement = (key: NodeKey, imageUrl: string) => {
+    const img = document.createElement('img') as HTMLElement;
+    img.setAttribute('src', imageUrl);
+    return img;
+};

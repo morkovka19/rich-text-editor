@@ -10,5 +10,7 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
+
+    '@typescript-eslint/no-unused': ['warn']
   },
 }

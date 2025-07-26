@@ -10,10 +10,10 @@ export class ListNode extends LexicalElement {
     public render(): HTMLElement {
         return createNewListElement(this._key, this._typeList || TAGS.UL);
     }
-    public getChildType(): string {
+    public getChildType() {
         return TAGS.LI;
     }
-    public clone(key?: string): LexicalNode {
+    public clone(key?: string) {
         return new ListNode(key || generateKey(), this._typeList as any);
     }
     _typeList: undefined | TAGS.UL | TAGS.OL;
@@ -36,7 +36,7 @@ export class ListItemNode extends LexicalElement {
     public render(): HTMLElement {
         return createNewListItemElement(this._key);
     }
-    public getChildType(): string {
+    public getChildType() {
         return TAGS.TEXT;
     }
     public clone(): LexicalNode {

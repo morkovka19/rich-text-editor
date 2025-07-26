@@ -9,9 +9,6 @@ export class LinkNode extends LexicalElement {
     public render(): HTMLElement {
         return createLinkElement(this._key);
     }
-    public getChildType(): string {
-        throw new Error('Method not implemented.');
-    }
     public clone(key?: string): LexicalNode {
         return new LinkNode(key || generateKey());
     }

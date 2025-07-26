@@ -15,7 +15,7 @@ export class RootNode extends LexicalElement {
         return rootElement;
     }
 
-    public getChildType(): string {
+    public getChildType() {
         return TAGS.NORMAL;
     }
 

@@ -8,16 +8,16 @@ import './styles.scss';
 import './styles/tokens/base.scss';
 import { initialStyle } from './utils/styleUtils';
 
-const App: FC = () => (
-    <LexicalProvider>
-        <HistoryProvider>
-            <FormattingProvider initialSettings={initialStyle}>
-                <div className="demo-main-container">
+const RichEditor: FC = () => (
+    <div className="demo-main-container">
+        <LexicalProvider>
+            <HistoryProvider>
+                <FormattingProvider initialSettings={initialStyle}>
                     <Editor />
-                </div>
-            </FormattingProvider>
-        </HistoryProvider>
-    </LexicalProvider>
+                </FormattingProvider>
+            </HistoryProvider>
+        </LexicalProvider>
+    </div>
 );
 
-export { App };
+export { RichEditor };

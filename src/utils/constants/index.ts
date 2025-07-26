@@ -4,14 +4,11 @@ import CenterIcon from '../../icons/toolbar/center.svg';
 import H1Icon from '../../icons/toolbar/h1.svg';
 import H2Icon from '../../icons/toolbar/h2.svg';
 import H3Icon from '../../icons/toolbar/h3.svg';
-import HorRuleIcon from '../../icons/toolbar/horRule.svg';
-import ImageIcon from '../../icons/toolbar/image.svg';
 import JustifyIcon from '../../icons/toolbar/justify.svg';
 import LeftIcon from '../../icons/toolbar/left.svg';
 import NoramlIcon from '../../icons/toolbar/normal.svg';
 import NumberListIcon from '../../icons/toolbar/number-list.svg';
 import RightIcon from '../../icons/toolbar/right.svg';
-import TableIcon from '../../icons/toolbar/table.svg';
 
 export enum TAGS {
     NORMAL = 'p',
@@ -27,6 +24,8 @@ export enum TAGS {
     ROOT = 'root',
     H = 'h',
     LIST = 'list',
+    HR = 'hr',
+    IMG = 'img',
 }
 
 export const MAIN_DIV_ID = 'root-div';
@@ -85,24 +84,6 @@ export const typeSelectOptions: IOption[] = [
         label: 'Number List',
         value: 'ol',
         Icon: NumberListIcon,
-    },
-];
-
-export const insertOptions: IOption[] = [
-    {
-        label: 'Horizontal Rule',
-        value: 'hr',
-        Icon: HorRuleIcon,
-    },
-    {
-        label: 'Image',
-        value: 'img',
-        Icon: ImageIcon,
-    },
-    {
-        label: 'Table',
-        value: 'table',
-        Icon: TableIcon,
     },
 ];
 

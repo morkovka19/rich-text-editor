@@ -54,30 +54,4 @@ export abstract class LexicalElement extends LexicalNode {
     public getStyle(): StyleProps {
         return this._style;
     }
-    public getText(): string {
-        throw new Error('Method not implemented.');
-    }
-
-    public updateText(text: string): HTMLElement {
-        throw new Error('Method not implemented.');
-    }
-
-    public getRange(): number | undefined {
-        throw new Error('Method not implemented.');
-    }
-
-    public setRange(range: number): void {
-        throw new Error('Method not implemented.');
-    }
-
-    public setTypeList(type: string): void {
-        throw new Error('Method not implemented.');
-    }
-
-    public setHref(href: string): void {
-        throw new Error('Method not implemented.');
-    }
-    public getHref(): string {
-        throw new Error('Method not implemented.');
-    }
 }
