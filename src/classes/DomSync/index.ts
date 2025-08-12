@@ -1,0 +1,148 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getDOMElement } from '../../utils/DOMUtils';
+import { EMPTY_FOR_SELECT, NODE_TYPE_TEXT, TAGS } from '../../utils/constants';
+import { LexicalNode } from '../LexicalNode/LexicalNode';
+import { NodeKey } from '../LexicalNode/types';
+
+export class DomSync {
+    static getSelection() {
+        return window.getSelection();
+    }
+
+    _rootElement: HTMLElement;
+    _triggerUpdateText: (key: NodeKey, text: string) => void;
+    _removeNode: (node: LexicalNode) => void;
+    _getNodeByKey: (key: NodeKey) => LexicalNode | undefined;
+
+    constructor(
+        triggerUpdateText: (key: NodeKey, text: string) => void,
+        root: HTMLElement,
+        removeNode: (node: LexicalNode) => void,
+        getNodeByKey: (key: NodeKey) => LexicalNode | undefined
+    ) {
+        this._rootElement = root;
+        this._triggerUpdateText = triggerUpdateText;
+        this._removeNode = removeNode;
+        this._getNodeByKey = getNodeByKey;
+    }
+
+    render(container: HTMLElement) {
+        container.appendChild(this._rootElement);
+        this.setupMutationObserver();
+    }
+
+    handleResetTextElement(key: NodeKey) {
+        const element = getDOMElement(key) as HTMLElement;
+        if (element && element?.textContent) element.textContent = '';
+    }
+
+    handleAddNode = (parent: LexicalNode, child: LexicalNode, position?: { index: number; lastKey?: NodeKey }) => {
+        const parentElement = parent.getDomElement();
+        const childElement = child.getDomElement() || child.render();
+
+        parentElement.appendChild(childElement);
+        if (!position) parentElement.appendChild(childElement);
+        else {
+            if (position.lastKey) {
+                const element = document.getElementById(position.lastKey) as HTMLElement;
+                element.after(childElement);
+            } else {
+                const element = parentElement.firstElementChild as HTMLElement;
+                if (element) {
+                    element.before(childElement);
+                }
+            }
+        }
+
+        if (childElement.localName === TAGS.TEXT) childElement.textContent = EMPTY_FOR_SELECT;
+    };
+
+    handleUpdateTextContent = (key: NodeKey, text: string) => {
+        const textNode = getDOMElement(key) as HTMLElement;
+        if (textNode?.textContent) textNode.textContent = text;
+        return textNode?.childNodes[0] || textNode;
+    };
+
+    handleSetSelection = (node: HTMLElement | ChildNode, offset: number, type?: string) => {
+        try {
+            const newRange = document.createRange();
+            newRange?.setStart(node, offset);
+            newRange?.collapse(true);
+            if (type !== 'Range') getSelection()?.removeAllRanges();
+            getSelection()?.addRange(newRange);
+        } catch {
+            // error
+        }
+    };
+
+    private setupMutationObserver() {
+        const observer = new MutationObserver(mutations => this.handleMutations(mutations));
+        if (this._rootElement !== null)
+            observer.observe(this._rootElement, {
+                childList: true,
+                subtree: true,
+                characterData: true,
+                attributes: true,
+            });
+    }
+
+    handleMutations(mutations: MutationRecord[]) {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'characterData') {
+                const target = mutation.target.parentElement as HTMLElement;
+                const key = target?.id;
+                if (key) {
+                    const text = target.textContent;
+                    this._triggerUpdateText(key, text || '');
+                }
+            } else if (mutation.type === 'childList') {
+                mutation.removedNodes.forEach(element => {
+                    const key = (element as HTMLElement)?.id;
+                    const node = this._getNodeByKey(key);
+                    const elementDocument = getDOMElement(key);
+                    if (key && node && !elementDocument) {
+                        this._removeNode(node);
+                    }
+                });
+            }
+        });
+    }
+
+    handleSetAttribute(name: string, props: any, key: NodeKey) {
+        const element = getDOMElement(key);
+        element?.setAttribute(name, props);
+    }
+
+    handleRemoveElement = (key: NodeKey) => {
+        const deleteCallback = (key: NodeKey) => {
+            const element = document.getElementById(key);
+            if (element) {
+                const children = [...element.childNodes].filter(child => child.nodeType !== NODE_TYPE_TEXT);
+                if (children.length > 0) {
+                    children.forEach(child => deleteCallback((child as HTMLElement).id as NodeKey));
+                }
+                const parent = element.parentElement as HTMLElement;
+
+                return parent.removeChild(element);
+            }
+        };
+        if (key) {
+            return deleteCallback(key);
+        }
+    };
+
+    handleReplaceTag = (node: LexicalNode) => {
+        const newElement = node.render();
+        newElement.id = '';
+        const oldElement = document.getElementById(node.getKey()) as HTMLElement;
+        oldElement.replaceWith(newElement);
+        newElement.id = node.getKey();
+        console.log(node.getChildren());
+        node.getChildren().forEach(child => {
+            const childElement = document.getElementById(child);
+            if (childElement) {
+                newElement.appendChild(childElement);
+            }
+        });
+    };
+}

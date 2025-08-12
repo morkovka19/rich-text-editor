@@ -1,0 +1,86 @@
+import { NodeKey } from '../classes/LexicalNode/types';
+import { NODE_TYPE_TEXT, TAGS } from './constants';
+
+export const createParagraphElement = (key: NodeKey) => {
+    const p = document.createElement(TAGS.NORMAL);
+    p.id = key;
+    return p;
+};
+
+export const createLinkElement = (key: NodeKey) => {
+    const a = document.createElement(TAGS.LINK);
+    a.id = key;
+    return a;
+};
+
+export const createHeadingElement = (key: NodeKey, range: number) => {
+    const h = document.createElement(`h${range}`);
+    h.id = key;
+    return h;
+};
+
+export const createNewListElement = (key: NodeKey, typeList: TAGS.OL | TAGS.UL) => {
+    const list = document.createElement(typeList);
+    list.id = key;
+    return list;
+};
+export const createTextElement = (key: NodeKey) => {
+    const p = document.createElement(TAGS.TEXT);
+    p.id = key;
+    return p;
+};
+
+export const getDOMElement = (key: NodeKey) => {
+    return document.getElementById(key) as HTMLElement;
+};
+
+export const updateTextContent = (key: NodeKey, text: string) => {
+    const textNode = document.getElementById(key) as HTMLElement;
+    textNode.textContent = text;
+    return textNode;
+};
+
+export const createLineBreak = () => {
+    const br = document.createElement('br');
+
+    return br;
+};
+
+export const setupMutationObserver = (container: HTMLElement, callback: (mutations: MutationRecord[]) => void) => {
+    const observer = new MutationObserver(callback);
+    observer.observe(container, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+    });
+    return observer;
+};
+
+export const createNewListItemElement = (key: NodeKey) => {
+    const li = document.createElement('li');
+    li.id = key;
+    return li;
+};
+
+export const updateHrefLinkElement = (key: NodeKey, href: string) => {
+    const a = getDOMElement(key) as HTMLElement;
+    a.setAttribute('href', href);
+};
+
+export const removeChildElement = (parent: NodeKey, child: NodeKey) => {
+    document.getElementById(parent)?.removeChild(document.getElementById(child) as Node);
+};
+
+export const getLastChild = (element: HTMLElement) => {
+    if (element.localName === TAGS.TEXT) return element;
+    if (element.childElementCount) {
+        [...element.children].reverse().forEach(child => getLastChild(child as HTMLElement));
+    }
+    return undefined;
+};
+
+export const getMinElement = (element: HTMLElement | null | undefined) => {
+    if (!element) return undefined;
+    if (element.nodeType === NODE_TYPE_TEXT) return element.parentElement as HTMLElement;
+    return getLastChild(element);
+};
